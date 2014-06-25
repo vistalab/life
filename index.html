@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="LiFE : MatLab routines for evaluating white-matter connectomes generated using diffusion-weighted imaging." />
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>LiFE by vistalab</title>
+    <title>LiFE</title>
   </head>
 
   <body>
-    <header>
-      <div class="inner">
-        <h1>LiFE</h1>
-        <h2>MatLab routines for evaluating white-matter connectomes generated using diffusion-weighted imaging.</h2>
-        <a href="https://github.com/vistalab/life" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/vistalab/life">View on GitHub</a>
+
+          <h1 id="project_title">LiFE</h1>
+          <h2 id="project_tagline">MatLab routines for evaluating white-matter connectomes generated using diffusion-weighted imaging.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/vistalab/life/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/vistalab/life/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
 <a name="linear-fascicle-evaluation-life" class="anchor" href="#linear-fascicle-evaluation-life"><span class="octicon octicon-link"></span></a>Linear Fascicle Evaluation (LiFE)</h1>
 
 <h4>
@@ -40,7 +43,7 @@
 <li><p>Evaluating the evidence supporting white-matter connectomes generated using <a href="http://en.wikipedia.org/wiki/Diffusion_MRI">magnetic resonance diffusion imaging</a> and <a href="http://en.wikipedia.org/wiki/Tractography">computational tractography </a>.</p></li>
 <li><p>Performing statistical inference on white-matter connectomes: Compare white-matter connectomes, show the evidence for white-matter tracts and connections between brain areas.</p></li>
 </ul><h5>
-<a name="copyright-2013-2014----franco-pestilli----pestillifrancogmailcom" class="anchor" href="#copyright-2013-2014----franco-pestilli----pestillifrancogmailcom"><span class="octicon octicon-link"></span></a>Copyright 2013-2014  |  <a href="francopestilli.com">Franco Pestilli</a>  |  <a href="mailto:pestillifranco@gmail.com">pestillifranco@gmail.com</a>
+<a name="copyright-2013-2014------franco-pestilli------pestillifrancogmailcom" class="anchor" href="#copyright-2013-2014------franco-pestilli------pestillifrancogmailcom"><span class="octicon octicon-link"></span></a>Copyright 2013-2014   |   <a href="francopestilli.com">Franco Pestilli</a>   |   <a href="mailto:pestillifranco@gmail.com">pestillifranco@gmail.com</a>
 </h5>
 
 <p>The most current stable code release can be found <a href="https://github.com/vistalab/life/releases/tag/v0.1.1">here</a></p>
@@ -48,7 +51,7 @@
 <p>If you use this software please cite: Pestilli F., Yeatman J.D., Rokem A., Kay K.N., Wandell B.A. Linear fascicle evaluation (LIFE) of white matter connectomes. Poster presentation at the Organization for Human Brain Mapping Annual Meeting, Seattle, WA, June 2013.</p>
 
 <h5>
-<a name="life-is-based-on-matlab-and-requires-vistasoft-and-matlab-brain-anatomy-mba-for-visualization" class="anchor" href="#life-is-based-on-matlab-and-requires-vistasoft-and-matlab-brain-anatomy-mba-for-visualization"><span class="octicon octicon-link"></span></a>LiFE is based on <a href="http://www.mathworks.com/products/matlab/">MatLab</a> and requires <a href="https://github.com/vistalab/vistasoft">vistasoft</a> and MatLab Brain Anatomy (<a href="https://github.com/francopestilli/mba">MBA</a>) for visualization.</h5>
+<a name="life-is-based-on-matlab-and-requires-vistasoft-and-matlab-brain-anatomy-mba-for-anatomical-visualization" class="anchor" href="#life-is-based-on-matlab-and-requires-vistasoft-and-matlab-brain-anatomy-mba-for-anatomical-visualization"><span class="octicon octicon-link"></span></a>LiFE is based on <a href="http://www.mathworks.com/products/matlab/">MatLab</a> and requires <a href="https://github.com/vistalab/vistasoft">vistasoft</a> and <a href="https://github.com/francopestilli/mba">Matlab Brain Anatomy (MBA)</a> for anatomical visualization.</h5>
 
 <h5>
 <a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h5>
@@ -65,25 +68,18 @@
 
 <p>Examples scripts to get started can be found in:
   life/Pestilli_etal_manuscript/</p>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/vistalab/life/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/vistalab/life/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/vistalab/life"></a> is maintained by <a href="https://github.com/vistalab">vistalab</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+      </section>
     </div>
 
-  
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LiFE maintained by <a href="https://github.com/vistalab">vistalab</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
   </body>
 </html>
