@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of feMakeWMmask</title>
+  <meta name="keywords" content="feMakeWMmask">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">utility</a> &gt; feMakeWMmask.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for utility&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>feMakeWMmask
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function wmMask = feMakeWMmask(classFile,mdFile,wmMaskFileName,prctThr) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> 
+ Generates a White-matter mask using a freesurfer class file and the 
+ mean diffusivity in diffusion data set. '
+
+ The mask will contain voxels classigfed as white matter and will not
+ contain gray matter nor CSF and ventricles. White-matter voxels are
+ indicated by a 1 in the mask.
+  
+    wmMaskNifti = feMakeWMmask(classNifti,mdNifti,[wmMaskNiftiFname],[prctThr]);
+ 
+ INPUTS:
+     classFile - This is a 'classification' file. For example as generated
+                 using FreeSurfer. The is expected to be anifti or a path-to-a-nifti
+                 The nifti should be at the resolution fo the Anatomy volume 
+                 (e.g., 1mm or 0.7mm etc). The image values are expected to be:
+                 - The white matter is indicated as 3 and 4 (left and right
+                   respectively).
+                 - The gray  matter is classified as 5 and 6 (left and
+                   right respectively).
+        mdFile - This is either a path-to-a-nifti file or a dt6 file as
+                 generated in mrDiffusion. The nifti file should contain a
+                 3D volume with the mean diffusivity in the third dimension. 
+                 If a dt6 file is passed in the mean diffusivity image will
+                 be generated from the information contained in the dt6
+                 file.
+ wmMaskFileName- This is the full path tot the nifti file that needs to be
+                 saved to disk. If this is not passed the fiel is not saved.
+        prctThr- Percentile (values 0-100) to use as threshold for the MD. 
+                 This parameter will define the lagest MD value accepted as 
+                 white matter, values higher than this percentile will be 
+                 classified as CSF and will not be part of the final WM mask.
+                 The default value (98) seem to work to identify the
+                 ventricles in the tested dataset.
+        
+ OUTPUTS:
+    wmMask - This is a nifti structure containing the final white-matter
+             mask, resampled at the resolution fo the diffusion data.
+
+ NOTES:
+    We  perform three operations. 
+      1. We create a mean diffusivity image from the tensor fit in a dt6 file. 
+      2. We create a white-matter mask forma classification file created
+         by freesurfer.
+      3. We restrict the white matter mask to only the voxels with mad
+         diffusivity below a certain value, white-matter has low MD values. This
+         value is take fromt he distribution fo the MD in the diffusion data set.
+ 
+    The following is a related article to the method used here to generate a 
+    White-matter mask:
+      Jeurissen B, Leemans A, Tournier, J-D, Jones, DK and Sijbers J (2012).
+      Investigating the prevalence of complex fiber configurations in white
+      matter tissue with diffusion magnetic resonance imaging. Human Brain
+      Mapping doi: 10.1002/hbm.2209
+
+ Franco (c) Stanford Vista Team 2012</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function wmMask = feMakeWMmask(classFile,mdFile,wmMaskFileName,prctThr)</a>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% Generates a White-matter mask using a freesurfer class file and the</span>
+0004 <span class="comment">% mean diffusivity in diffusion data set. '</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% The mask will contain voxels classigfed as white matter and will not</span>
+0007 <span class="comment">% contain gray matter nor CSF and ventricles. White-matter voxels are</span>
+0008 <span class="comment">% indicated by a 1 in the mask.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%    wmMaskNifti = feMakeWMmask(classNifti,mdNifti,[wmMaskNiftiFname],[prctThr]);</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% INPUTS:</span>
+0013 <span class="comment">%     classFile - This is a 'classification' file. For example as generated</span>
+0014 <span class="comment">%                 using FreeSurfer. The is expected to be anifti or a path-to-a-nifti</span>
+0015 <span class="comment">%                 The nifti should be at the resolution fo the Anatomy volume</span>
+0016 <span class="comment">%                 (e.g., 1mm or 0.7mm etc). The image values are expected to be:</span>
+0017 <span class="comment">%                 - The white matter is indicated as 3 and 4 (left and right</span>
+0018 <span class="comment">%                   respectively).</span>
+0019 <span class="comment">%                 - The gray  matter is classified as 5 and 6 (left and</span>
+0020 <span class="comment">%                   right respectively).</span>
+0021 <span class="comment">%        mdFile - This is either a path-to-a-nifti file or a dt6 file as</span>
+0022 <span class="comment">%                 generated in mrDiffusion. The nifti file should contain a</span>
+0023 <span class="comment">%                 3D volume with the mean diffusivity in the third dimension.</span>
+0024 <span class="comment">%                 If a dt6 file is passed in the mean diffusivity image will</span>
+0025 <span class="comment">%                 be generated from the information contained in the dt6</span>
+0026 <span class="comment">%                 file.</span>
+0027 <span class="comment">% wmMaskFileName- This is the full path tot the nifti file that needs to be</span>
+0028 <span class="comment">%                 saved to disk. If this is not passed the fiel is not saved.</span>
+0029 <span class="comment">%        prctThr- Percentile (values 0-100) to use as threshold for the MD.</span>
+0030 <span class="comment">%                 This parameter will define the lagest MD value accepted as</span>
+0031 <span class="comment">%                 white matter, values higher than this percentile will be</span>
+0032 <span class="comment">%                 classified as CSF and will not be part of the final WM mask.</span>
+0033 <span class="comment">%                 The default value (98) seem to work to identify the</span>
+0034 <span class="comment">%                 ventricles in the tested dataset.</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">% OUTPUTS:</span>
+0037 <span class="comment">%    wmMask - This is a nifti structure containing the final white-matter</span>
+0038 <span class="comment">%             mask, resampled at the resolution fo the diffusion data.</span>
+0039 <span class="comment">%</span>
+0040 <span class="comment">% NOTES:</span>
+0041 <span class="comment">%    We  perform three operations.</span>
+0042 <span class="comment">%      1. We create a mean diffusivity image from the tensor fit in a dt6 file.</span>
+0043 <span class="comment">%      2. We create a white-matter mask forma classification file created</span>
+0044 <span class="comment">%         by freesurfer.</span>
+0045 <span class="comment">%      3. We restrict the white matter mask to only the voxels with mad</span>
+0046 <span class="comment">%         diffusivity below a certain value, white-matter has low MD values. This</span>
+0047 <span class="comment">%         value is take fromt he distribution fo the MD in the diffusion data set.</span>
+0048 <span class="comment">%</span>
+0049 <span class="comment">%    The following is a related article to the method used here to generate a</span>
+0050 <span class="comment">%    White-matter mask:</span>
+0051 <span class="comment">%      Jeurissen B, Leemans A, Tournier, J-D, Jones, DK and Sijbers J (2012).</span>
+0052 <span class="comment">%      Investigating the prevalence of complex fiber configurations in white</span>
+0053 <span class="comment">%      matter tissue with diffusion magnetic resonance imaging. Human Brain</span>
+0054 <span class="comment">%      Mapping doi: 10.1002/hbm.2209</span>
+0055 <span class="comment">%</span>
+0056 <span class="comment">% Franco (c) Stanford Vista Team 2012</span>
+0057 
+0058 <span class="comment">% Check inputs</span>
+0059 <span class="keyword">if</span> (notDefined(<span class="string">'classFile'</span>) || ~exist(classFile,<span class="string">'file'</span>))
+0060    error(<span class="string">'[%s] The full path to a freesurfer class file is necessary.'</span>,mfilename);
+0061 <span class="keyword">else</span>
+0062   <span class="comment">% Load a T1 class file created by freesurfer</span>
+0063   classFile = niftiRead(classFile);
+0064 <span class="keyword">end</span>
+0065 <span class="keyword">if</span> notDefined(<span class="string">'prctThr'</span>), prctThr = 98;<span class="keyword">end</span>
+0066 
+0067 <span class="comment">% For the mean-diffusivity file we expect either the path to a dt6File or</span>
+0068 <span class="comment">% that to a nifti file with precomputed mean diffusivity</span>
+0069 <span class="keyword">if</span> ischar(mdFile)
+0070   [~,~,e] = fileparts(mdFile);
+0071   <span class="keyword">if</span> strcmpi(e,<span class="string">'.mat'</span>)
+0072     <span class="comment">% A path to a dt6File was passed.</span>
+0073     <span class="comment">% We compute a mean diffusivity nifti.</span>
+0074     tempFileName = sprintf(<span class="string">'%s.nii.gz'</span>,tempname);
+0075     [~, mdFile]  = dtiComputeMeanDiffusivity(mdFile,tempFileName);
+0076   <span class="keyword">else</span>
+0077     <span class="comment">% We assume that the path to a nfiti file of mean diffusivity was</span>
+0078     <span class="comment">% passed in</span>
+0079     mdFile = niftiRead(mdFile);
+0080   <span class="keyword">end</span>
+0081 
+0082 <span class="keyword">else</span>
+0083   error(<span class="string">'[%s] Either the path to a dt6File or that to a MD nifti file is necessary...'</span>, mfilename) 
+0084 <span class="keyword">end</span>
+0085 
+0086 <span class="comment">% Preprocess the class file from freesurfer to generate a white-matter</span>
+0087 <span class="comment">% mask.</span>
+0088 <span class="comment">%</span>
+0089 <span class="comment">% The white matter is classified as 3 and 4 (left/right) by freesurfer</span>
+0090 <span class="comment">% The gray  matter is classified as 5 and 6 (left/right)</span>
+0091 <span class="comment">%</span>
+0092 <span class="comment">% We set everything thatis NOT white-matter to 0.</span>
+0093 classFile.data(classFile.data == 1) = 0;
+0094 classFile.data(classFile.data == 5) = 0;
+0095 classFile.data(classFile.data == 6) = 0; <span class="comment">% CSF</span>
+0096 
+0097 <span class="comment">% We set the white-matter to 1</span>
+0098 classFile.data(classFile.data == 3) = 1;
+0099 classFile.data(classFile.data == 4) = 1;
+0100 <span class="comment">% Check the the image: makeMontage3(classFile.data);</span>
+0101 
+0102 <span class="comment">% Downsample the white-matter mask just created to the resolution of the</span>
+0103 <span class="comment">% mean-diffusivity image. The final WM mask will be generated at this reolution.</span>
+0104 wmMask       = mrAnatResampleToNifti(classFile, mdFile);
+0105 
+0106 <span class="comment">% Now let's remove from the mask the ventricles. To do so we remove voxels</span>
+0107 <span class="comment">% that have high mean diffusivity.</span>
+0108 <span class="comment">%</span>
+0109 <span class="comment">% Find the indices of the MD imag that are above a certain trheshold</span>
+0110 notcsf = false(size(mdFile.data));
+0111 maxMD  = prctile(mdFile.data(:),prctThr); <span class="comment">% We set a cutoff at the 96.5% percentile</span>
+0112 notcsf( (mdFile.data &lt; maxMD) ) = 1;
+0113 
+0114 <span class="comment">% Now only accept the voxels that were in the original white-matter</span>
+0115 <span class="comment">% segmentation but that are not classified as CSF given their mean</span>
+0116 <span class="comment">% diffusivity value.</span>
+0117 wmMask.data = single(logical(wmMask.data) &amp; notcsf);
+0118 
+0119 <span class="comment">% Save the new white-matter mask to disk:</span>
+0120 <span class="keyword">if</span> ~notDefined(<span class="string">'wmMaskFileName'</span>)
+0121   fprintf(<span class="string">'[%s] Saving WM mask to disk: %s..\n.'</span>,mfilename,wmMaskFileName)
+0122   wmMask.fname   = wmMaskFileName;
+0123   wmMask.descrip = [which(mfilename),<span class="string">'- Original File: '</span>,classFile.fname];
+0124   niftiWrite(wmMask);
+0125 <span class="keyword">end</span>
+0126 
+0127 <span class="keyword">return</span>
+0128</pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

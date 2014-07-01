@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of s_fe_test_or</title>
+  <meta name="keywords" content="s_fe_test_or">
+  <meta name="description" content="% s_fe_test_or">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">scripts</a> &gt; s_fe_test_or.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for scripts&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>s_fe_test_or
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>% s_fe_test_or</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">% s_fe_test_or
+
+ Illustrate how to compare the quality of predictions between a connectome
+ that has a full complement of fascicles, and one that has a
+ specific subset of these fascicles removed.
+
+ In this example, the full connectome is the occipital lobe.     (C1) We
+ then remove all the fibers connected to peri-calcarine (optic radiation). (C2) We use
+ LiFE to predict the diffusion signal using both C1 and C2. 
+ 
+ In a separate script, we visualize the results.  The basic result is that
+ in the peri-calcarine region, removing the fibers connected to optic radiation is a
+ bad idea. The RMSE of the prediction increases.  It increases mainly in
+ that region.
+
+ In subsequent scripts we both visualize and create graphs summarizing the
+ increased prediction error within the key region of interest.
+
+ See also:
+
+ Franco (C) 2012 Stanford VISTA team.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">%% s_fe_test_or</span>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% Illustrate how to compare the quality of predictions between a connectome</span>
+0004 <span class="comment">% that has a full complement of fascicles, and one that has a</span>
+0005 <span class="comment">% specific subset of these fascicles removed.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% In this example, the full connectome is the occipital lobe.     (C1) We</span>
+0008 <span class="comment">% then remove all the fibers connected to peri-calcarine (optic radiation). (C2) We use</span>
+0009 <span class="comment">% LiFE to predict the diffusion signal using both C1 and C2.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% In a separate script, we visualize the results.  The basic result is that</span>
+0012 <span class="comment">% in the peri-calcarine region, removing the fibers connected to optic radiation is a</span>
+0013 <span class="comment">% bad idea. The RMSE of the prediction increases.  It increases mainly in</span>
+0014 <span class="comment">% that region.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% In subsequent scripts we both visualize and create graphs summarizing the</span>
+0017 <span class="comment">% increased prediction error within the key region of interest.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% See also:</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% Franco (C) 2012 Stanford VISTA team.</span>
+0022 
+0023 <span class="comment">%% Start loading the data</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% At some point, we will put these fe structures into VISTADATA.</span>
+0026 <span class="comment">% For now, you can compute them, leave them in the feGet(fe,'savedir'), and load them</span>
+0027 <span class="comment">% up for testing.</span>
+0028 
+0029 recompute_fe = 1; <span class="comment">% if 1, it will load a fibergroup and recompute the fe structure.</span>
+0030 
+0031 <span class="comment">% Basic directories</span>
+0032 <span class="keyword">if</span> ispc,  basePath = fullfile(<span class="string">'\\red.stanford.edu'</span>,<span class="string">'biac2-wandell6'</span>);
+0033 <span class="keyword">else</span>      basePath = fullfile(<span class="string">'/biac2'</span>,<span class="string">'wandell6'</span>);
+0034 <span class="keyword">end</span>
+0035 dataRootPath  = fullfile(basePath,<span class="string">'data'</span>,<span class="string">'frk'</span>,<span class="string">'life_dti'</span>,<span class="string">'FP20120420'</span>);
+0036 subfolders    = fullfile(<span class="string">'150dirs_b1000_1'</span>);
+0037 baseDir       = fullfile(dataRootPath,subfolders);
+0038 saveDir       = fullfile(baseDir,<span class="string">'LiFE'</span>);
+0039 dtFile        = fullfile(baseDir,<span class="string">'dt6.mat'</span>);
+0040 dwiFile       = fullfile(dataRootPath,<span class="string">'raw'</span>,<span class="string">'0009_01_DWI_2mm150dir_2x_b1000_aligned_trilin.nii.gz'</span>);
+0041 fgFileName    = fullfile(saveDir,<span class="string">'WholeBrainFG_MRTRIX_preprocessed.mat'</span>);
+0042 roisFileNames = {fullfile(saveDir,<span class="string">'rois'</span>,<span class="string">'optic_radiation_AND_roi.mat'</span>), <span class="keyword">...</span>
+0043                  fullfile(saveDir,<span class="string">'rois'</span>,<span class="string">'optic_radiation_NOT_roi.mat'</span>), <span class="keyword">...</span>
+0044                  fullfile(saveDir,<span class="string">'rois'</span>,<span class="string">'RV1_useme.mat'</span>)};
+0045 roiOperations = {<span class="string">'and'</span>,<span class="string">'not'</span>,<span class="string">'and'</span>}; <span class="comment">% Operations to apply with each ROI</span>
+0046 
+0047 <span class="comment">%% Load the data part</span>
+0048 <span class="keyword">if</span> recompute_fe
+0049   <span class="comment">% Recompute the fe structure from the original fiber group</span>
+0050   <span class="comment">% Initialize the Connectome</span>
+0051   fe = feConnectomeInit(dwiFile,dtFile,fgFileName);
+0052   
+0053   <span class="comment">% Fit the model</span>
+0054   fefit  = feFitModel(feGet(fe,<span class="string">'Mfiber'</span>),feGet(fe,<span class="string">'dsig demeaned'</span>),<span class="string">'sgdnn'</span>);
+0055   fe     = feSet(fe,<span class="string">'fit'</span>,fefit);
+0056   feConnectomeSave(fe)
+0057   feConnectomeWrite(fe)
+0058   
+0059 <span class="keyword">else</span>
+0060   <span class="comment">% Load the fe structure from a precomputed file.</span>
+0061   disp(<span class="string">'Loading a precomputed fe structure...'</span>)
+0062   feFileName = <span class="string">'test_culling_more_right_hemisphere_occipital_MRTRIX_FE.mat'</span>;
+0063   <span class="comment">%'20120830T160637-right_hemisphere_occipital_MRTRIX_FE.mat';</span>
+0064   load(fullfile(saveDir,feFileName))
+0065 <span class="keyword">end</span>
+0066 
+0067 <span class="comment">%% Restrict the fibers to the optic radiation</span>
+0068 all_fibers = true(feGet(fe,<span class="string">'nfibers'</span>),1);
+0069 <span class="keyword">for</span> iR = 1:length(roisFileNames)
+0070   <span class="comment">% Load the ROI</span>
+0071   roi = dtiReadRoi(roisFileNames{iR});
+0072   
+0073   <span class="comment">% xform the ROI coordinates to IMG space</span>
+0074   roi.coords =  mrAnatXformCoords(feGet(fe,<span class="string">'xform acpc2img'</span>),roi.coords);
+0075   
+0076   <span class="comment">% Keep fibers touching optic radiation</span>
+0077   [~,~, this_fibers] = dtiIntersectFibersWithRoi([], {roiOperations{iR}}, [], roi, feGet(fe,<span class="string">'fg img'</span>));
+0078  
+0079   <span class="comment">% Restrict the fiber indices</span>
+0080   all_fibers = and(all_fibers,this_fibers);
+0081 <span class="keyword">end</span>
+0082 
+0083 <span class="comment">%% Generate a connectome with all the fibers NOT touching the Optic</span>
+0084 <span class="comment">% Radiation</span>
+0085 feNOTor = feConnectomeSelectFibers(fe,find(~all_fibers));
+0086 
+0087 <span class="comment">%% Generate a connectome with ONLY the optic radiation fibers</span>
+0088 feOR = feConnectomeSelectFibers(fe,find(all_fibers));
+0089 
+0090 <span class="comment">%% Singular Value-Decomposition, find the largest number of singular values</span>
+0091 <span class="comment">%S = svds((feGet(fe,'model')),600); % THis is a slow full-standard way to</span>
+0092 <span class="comment">%compute it.</span>
+0093 <span class="comment">%</span>
+0094 <span class="comment">% For matrices that have a large number of rows, it is slow to compute the</span>
+0095 <span class="comment">% SVD in the standard way.</span>
+0096 <span class="comment">%</span>
+0097 <span class="comment">% But, we can compute the SVD of the (M'*M), these singular values are</span>
+0098 <span class="comment">% the S^2 (the square of the svd of M)</span>
+0099 Ssquare = svds(((feGet(fe,<span class="string">'model'</span>))'*(feGet(fe,<span class="string">'model'</span>))),feGet(fe,<span class="string">'nfibers'</span>));
+0100 
+0101 <span class="comment">%% Plot svd</span>
+0102 mrvNewGraphWin(<span class="string">'Principal component anaylsis of connectome'</span>);
+0103 plot(100*cumsum(Ssquare)/sum(Ssquare),<span class="string">'ko-'</span>); <span class="comment">% THere is no suaring here inside the sum, because S is square already</span>
+0104 hold on
+0105 plot([0 feGet(fe,<span class="string">'nfibers'</span>)],[98 98],<span class="string">'r-'</span>)
+0106 ylabel(<span class="string">'Percent variance explained '</span>)
+0107 xlabel(<span class="string">'Number of principal components (svd) in M'</span>)
+0108 
+0109 <span class="comment">% Save memory</span>
+0110 clear fe;
+0111 
+0112 <span class="comment">%% Use the Optic Radiation connectome as signal for the rest of the model.</span>
+0113 <span class="comment">% i.e., find the weights of the fibers that expalin the optic radiation in</span>
+0114 <span class="comment">% the model that should contain NO Optic Radiation</span>
+0115 w_OR   = feGet(feNOTor,<span class="string">'Mfiber'</span>)\feGet(feOR,<span class="string">'Mfiber'</span>);
+0116 
+0117 <span class="comment">%% Show the weights of the fit</span>
+0118 mrvNewGraphWin(<span class="string">'Fit of the mean OR signal by the NOT model'</span>);
+0119 [y,x] = hist(w_OR(:),ceil(length(w_OR)/50));
+0120 bar(x,y,.65);
+0121 title(sprintf(<span class="string">'Weights\nfor each fiber left in the connectome\nafter removing the optic radiation'</span>));
+0122 ylabel(<span class="string">'Number of occurrences'</span>), xlabel(<span class="string">'Weight value'</span>)
+0123 
+0124 <span class="comment">%% Plot some drescriptive stats for the weights</span>
+0125 mrvNewGraphWin(<span class="string">'Weights info'</span>);
+0126 nTotW  = length(w_OR(:));
+0127 minW   = 0.01; <span class="comment">% The minimum weight we accept from a fiber, higher-weight fibers are deleted</span>
+0128 goodW  = w_OR(:) &lt; minW;
+0129 nGoodW = length(find( goodW(:)));
+0130 nBadW  = length(find(~goodW(:)));
+0131 bar([1 2 3],[nTotW nGoodW nBadW],.65,<span class="string">'k'</span>);
+0132 set(gca,<span class="string">'box'</span>,<span class="string">'off'</span>,<span class="string">'xticklabel'</span>,<span class="keyword">...</span>
+0133   {sprintf(<span class="string">'Total (%i)'</span>, nTotW),<span class="keyword">...</span>
+0134    sprintf(<span class="string">'Good (%i - %i%%)'</span>, nGoodW, floor(100*nGoodW/nTotW)),<span class="keyword">...</span>
+0135    sprintf(<span class="string">'Bad (%i - %i%%)'</span>, nBadW,   ceil(100*nBadW/nTotW))},<span class="string">'yscale'</span>,<span class="string">'log'</span>)
+0136 title(sprintf(<span class="string">'Weights (min w %0.2f)'</span>,minW));
+0137 ylabel(<span class="string">'Number of occurrences'</span>), xlabel(<span class="string">'Weight type'</span>)
+0138 
+0139 
+0140 <span class="comment">%% Compute the correlation between OR fibers and the Model</span>
+0141 ORnorm     = unitlengthfast(feGet(feOR,<span class="string">'Mfiber'</span>));
+0142 tic,ORnorm = feGet(feOR,<span class="string">'Mfiber'</span>) ./ repmat(sqrt(sum(feGet(feOR,<span class="string">'Mfiber'</span>).^2,1)),[size(feGet(feOR,<span class="string">'Mfiber'</span>),1) 1]);  toc <span class="comment">% like this for speed.  maybe use the indexing trick to speed up even more??</span>
+0143 
+0144 NOTnorm = unitlengthfast(feGet(feNOTor,<span class="string">'Mfiber'</span>));
+0145 
+0146 <span class="comment">%% Now predict the OR fibers with the fitted model</span>
+0147 symORfibers = feGet(feNOTor,<span class="string">'M fiber'</span>)*w_OR;
+0148 prctError   = 100*(symORfibers - feGet(feOR,<span class="string">'M fiber'</span>))./symORfibers;
+0149 
+0150 <span class="comment">%% Plot the percent error in fitting</span>
+0151 mrvNewGraphWin(<span class="string">'Fit of the OR fibers with the NOT-OR model'</span>);
+0152 plot(prctError,<span class="string">'-'</span>)
+0153 title(sprintf(<span class="string">'Percent error in fitting.\nBig number means that the removed OR fibers could not be\nexplained by the rest of the fibers.'</span>));
+0154 ylabel(<span class="string">'Error'</span>), xlabel(<span class="string">'Voxel/directions'</span>)
+0155 
+0156 
+0157 keyboard
+0158 <span class="comment">%% End</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

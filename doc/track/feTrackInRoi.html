@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of feTrackInRoi</title>
+  <meta name="keywords" content="feTrackInRoi">
+  <meta name="description" content="function fg = mctTrackInRoi(dt,roi,numFibersPerCoord,[fgName],[algo])">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">track</a> &gt; feTrackInRoi.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for track&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>feTrackInRoi
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function fg = mctTrackInRoi(dt,roi,numFibersPerCoord,[fgName],[algo])</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function   fg = mctTrackInRoi(dt,roi,numFibersPerCoord,fgName,algo) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> function fg = mctTrackInRoi(dt,roi,numFibersPerCoord,[fgName],[algo])
+
+ This will track every fiber in ROI.
+ 
+ dt is a structure.
+
+ See also: t_fgCompute, mctDiffusionModel, dwiGet, fefgGet
+
+ Example:
+  See t_fgCompute
+   [A dSig] = mctDiffusionModel(dwi,fgImg,theseCoords);
+    w       = mctDiffusionModeFit(A,dSig);
+
+ Franco
+
+ (c) Stanford VISTA Team 2012</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function   fg = mctTrackInRoi(dt,roi,numFibersPerCoord,fgName,algo)</a>
+0002 <span class="comment">% function fg = mctTrackInRoi(dt,roi,numFibersPerCoord,[fgName],[algo])</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% This will track every fiber in ROI.</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% dt is a structure.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% See also: t_fgCompute, mctDiffusionModel, dwiGet, fefgGet</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% Example:</span>
+0011 <span class="comment">%  See t_fgCompute</span>
+0012 <span class="comment">%   [A dSig] = mctDiffusionModel(dwi,fgImg,theseCoords);</span>
+0013 <span class="comment">%    w       = mctDiffusionModeFit(A,dSig);</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% Franco</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% (c) Stanford VISTA Team 2012</span>
+0018 
+0019 <span class="comment">% This is the standarddeviation of the gaussian distribution used to</span>
+0020 <span class="comment">% generate random seeds around each coordinate in coords. Units are those</span>
+0021 <span class="comment">% in mmPerVoxel.</span>
+0022 stdOfSeedsJitter = 0; <span class="comment">% In mm</span>
+0023 
+0024 <span class="comment">% Distance between steps in the tractography algoithm</span>
+0025 opts.stepSizeMm  = 1; <span class="comment">% by keeping this set to 1 we sample one fiber per eantry in seeds.</span>
+0026                       <span class="comment">% seeds are coords repmat the number of fibers</span>
+0027 
+0028 <span class="comment">% Stopping criteria FA&lt;0.2</span>
+0029 opts.faThresh    = 0.2;
+0030 
+0031 <span class="comment">% Stopping criteria angle between steps &gt;30 degrees</span>
+0032 opts.angleThresh = 45;
+0033 
+0034 <span class="comment">% Uknown ... (Bob?)</span>
+0035 opts.wPuncture   = 0.2;
+0036 
+0037 <span class="comment">% Interpolation method. After each step we interpolate the tensor at that</span>
+0038 <span class="comment">% point. Trilinear interpolation works well.</span>
+0039 opts.whichInterp = 1;
+0040 
+0041 <span class="comment">% Discard Fibers shorter than 2mm or longer than 250mm</span>
+0042 opts.lengthThreshMm = [2 250];
+0043 
+0044 <span class="comment">% There are multiple algorithms that can be used.  We prefer STT. See:</span>
+0045 <span class="comment">% Basser PJ, Pajevic S, Pierpaoli C, Duda J, Aldroubi A. 2000.</span>
+0046 <span class="comment">% In vivo fiber tractography using DT-MRI data.</span>
+0047 <span class="comment">% Magnetic Resonance in Medicine 44(4):625-32.</span>
+0048 <span class="keyword">if</span> notDefined(<span class="string">'algo'</span>), algo = 1; <span class="keyword">end</span>
+0049 opts.whichAlgorithm = algo;
+0050 
+0051 <span class="comment">% Perform tractography</span>
+0052 fg = dtiFiberTrack2(dt.dt6, roi.coords', numFibersPerCoord, stdOfSeedsJitter, dt.mmPerVoxel, dt.xformToAcpc, fgName, opts);
+0053 
+0054 <span class="comment">% Show the fibers and the ROI</span>
+0055 <span class="comment">% figure</span>
+0056 <span class="comment">% for iff = 1:length(fg.fibers)</span>
+0057 <span class="comment">%   plot3(round(fg.fibers{iff}(1,:)),round(fg.fibers{iff}(2,:)),round(fg.fibers{iff}(3,:)),'.-');</span>
+0058 <span class="comment">%   hold on</span>
+0059 <span class="comment">% end</span>
+0060 <span class="comment">%</span>
+0061 <span class="comment">% plot3(roi.coords(:,1),roi.coords(:,2),roi.coords(:,3),'ro','MarkerFaceColor','r','MarkerSize',10)</span>
+0062 <span class="comment">% plot3(roi.coords(:,1),roi.coords(:,2),roi.coords(:,3),'ks','MarkerFaceColor','k','MarkerSize',10)</span>
+0063 <span class="comment">%</span>
+0064 <span class="comment">% set(gca,'XTick',[-81:2:80],'ZTick',[-81:2:80],'YTick',[-81:2:80])</span>
+0065 <span class="comment">% grid on</span>
+0066 
+0067</pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

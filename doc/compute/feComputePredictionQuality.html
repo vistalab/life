@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of feComputePredictionQuality</title>
+  <meta name="keywords" content="feComputePredictionQuality">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">compute</a> &gt; feComputePredictionQuality.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for compute&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>feComputePredictionQuality
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function  [rmse, r2] = feComputePredictionQuality(dSig,predSig,whichr2) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> 
+ function  [rmse, r2] = feComputePredictionQuality(dSig,predSig,whichr2)
+
+ Compute the quality of prediction between two data sets.
+
+ dste = data standard error, it is a measure of the variability of the measurements
+       or a measure of the quality of the fit. it is a vector of sandard
+       errors of the measurements, the vector has the same length of dSig and predSig. 
+       i.e., dste_j = sqrt(sum(data_i - mean(data_i))^2 / (n - 1)) / sqrt(n)
+       where j = 1:length(dSig) and i = 1:numRepeatedDtiScans 
+
+ See also: s_mct_fact_cc_prefrontal_rois.m, <a href="mctComputeDataReliability.html" class="code" title="function [mad, r2] = mctComputeDataReliability(dSig)">mctComputeDataReliability</a>,
+           mctDiffusionModel.m
+
+ Example:
+  See [rmse, r2] = feComputePredictionQuality(dSig,predSig)
+
+ Franco (c) 2012 Stanford VISTA Team</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="feXvalidate.html" class="code" title="function [xval, r2, rmse] = feXvalidate(M,dSig, fitMethod, crossValType)">feXvalidate</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function  [rmse, r2] = feComputePredictionQuality(dSig,predSig,whichr2)</a>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% function  [rmse, r2] = feComputePredictionQuality(dSig,predSig,whichr2)</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% Compute the quality of prediction between two data sets.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% dste = data standard error, it is a measure of the variability of the measurements</span>
+0008 <span class="comment">%       or a measure of the quality of the fit. it is a vector of sandard</span>
+0009 <span class="comment">%       errors of the measurements, the vector has the same length of dSig and predSig.</span>
+0010 <span class="comment">%       i.e., dste_j = sqrt(sum(data_i - mean(data_i))^2 / (n - 1)) / sqrt(n)</span>
+0011 <span class="comment">%       where j = 1:length(dSig) and i = 1:numRepeatedDtiScans</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% See also: s_mct_fact_cc_prefrontal_rois.m, mctComputeDataReliability,</span>
+0014 <span class="comment">%           mctDiffusionModel.m</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% Example:</span>
+0017 <span class="comment">%  See [rmse, r2] = feComputePredictionQuality(dSig,predSig)</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% Franco (c) 2012 Stanford VISTA Team</span>
+0020 
+0021 <span class="keyword">if</span> notDefined(<span class="string">'whichr2'</span>), whichr2 = <span class="string">'percent variance explained'</span>; <span class="keyword">end</span>
+0022 
+0023 whichr2 = mrvParamFormat(whichr2);
+0024 
+0025 <span class="comment">% (1) Compute the quality across voxels.</span>
+0026 <span class="comment">% R2: coefficient of determination</span>
+0027 <span class="keyword">switch</span> whichr2
+0028   <span class="keyword">case</span> <span class="string">'correlation'</span>
+0029     <span class="comment">% corrcoef returns a 2x2 and the (1,2) and (2,1) terms are the same and</span>
+0030     <span class="comment">% what we want. The (1,1) and (2,2) terms are both 1.</span>
+0031     r2 = 100*(corrcoef(predSig,dSig).^2);
+0032     r2 = r2(1,2);
+0033   <span class="keyword">case</span> {<span class="string">'coefficientofdetermination'</span>,<span class="string">'cod'</span>}
+0034     <span class="comment">% From Kendrick, should be checked against default percent variance</span>
+0035     <span class="comment">% explained, below</span>
+0036     r2 = calccod(dSig,predSig);  <span class="comment">% Coefficient of determination</span>
+0037   <span class="keyword">case</span> {<span class="string">'rzerosquared'</span>}
+0038     <span class="comment">% Percent variance explained relative to the data</span>
+0039     <span class="comment">% R2        = 1 - (SSE / sum(dSig^2))</span>
+0040     <span class="comment">% where SSE = sum[(dSig - predSig).^2]</span>
+0041     r2 = 100 * <span class="keyword">...</span>
+0042       (1 - <span class="keyword">...</span>
+0043       (sum( (dSig - predSig).^2 ) / <span class="keyword">...</span>
+0044       sum( (repmat(mean(dSig),size(dSig,1),1)).^2 ) ) <span class="keyword">...</span>
+0045       );
+0046     
+0047   <span class="keyword">otherwise</span>
+0048     <span class="comment">% Percent variance explained</span>
+0049     <span class="comment">% R2        = 1 - (SSE / VAR(demeaned dSig))</span>
+0050     <span class="comment">% where SSE = sum[(dSig - predSig).^2]</span>
+0051     r2 = 100 * <span class="keyword">...</span>
+0052       (1 - <span class="keyword">...</span>
+0053       (sum( (dSig - predSig).^2 ) / <span class="keyword">...</span>
+0054       sum( (dSig - repmat(mean(dSig),size(dSig,1),1)).^2 ) ) <span class="keyword">...</span>
+0055       );
+0056 <span class="keyword">end</span>
+0057 
+0058 <span class="comment">% rmse - root mean squared error, this is the most valuable measure,</span>
+0059 <span class="comment">% although not normalized. it is valuable because the microtrack fits were</span>
+0060 <span class="comment">% done as a least-squared solution, which assumes that the distribution of</span>
+0061 <span class="comment">% the residuals and of the rmse is not far from being normally distributed.</span>
+0062 rmse = sqrt(mean((dSig - predSig).^2));
+0063 
+0064 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

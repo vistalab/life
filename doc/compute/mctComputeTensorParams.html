@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of mctComputeTensorParams</title>
+  <meta name="keywords" content="mctComputeTensorParams">
+  <meta name="description" content="function [meanBestRD meanBestAD medianBestRD ...">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">compute</a> &gt; mctComputeTensorParams.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for compute&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>mctComputeTensorParams
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [meanBestRD meanBestAD medianBestRD ...</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [meanBestRD meanBestAD medianBestRD medianBestAD stdBestRD stdBestAD bestRD bestAD] = mctComputeTensorParams(dt,faCutoff) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> function [meanBestRD meanBestAD medianBestRD ...
+           medianBestAD stdBestRD stBestAD bestRD bestAD] = mctComputeTensorParams(dt,[faCutoff])
+
+ This function takes a dt structure and computes the mean median and std
+ for the Axial and Radial diffusivity for the whole brain volume.
+
+ These values will be then used to build the tensors for a fiber group
+ created in this brain volume.
+ 
+ Example:
+         [d_ad d_rd] = mctComputeTensorParams(dt);
+        
+         dParms(1) = d_ad; dParms(2) = d_rd; dParms(3) = d_rd;
+         fg.Q = fgTensors(fg,dParms);
+
+ (C) 2011 Stanford VISTA team.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [meanBestRD meanBestAD medianBestRD medianBestAD stdBestRD stdBestAD bestRD bestAD] = mctComputeTensorParams(dt,faCutoff)</a>
+0002 <span class="comment">% function [meanBestRD meanBestAD medianBestRD ...</span>
+0003 <span class="comment">%           medianBestAD stdBestRD stBestAD bestRD bestAD] = mctComputeTensorParams(dt,[faCutoff])</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% This function takes a dt structure and computes the mean median and std</span>
+0006 <span class="comment">% for the Axial and Radial diffusivity for the whole brain volume.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% These values will be then used to build the tensors for a fiber group</span>
+0009 <span class="comment">% created in this brain volume.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% Example:</span>
+0012 <span class="comment">%         [d_ad d_rd] = mctComputeTensorParams(dt);</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%         dParms(1) = d_ad; dParms(2) = d_rd; dParms(3) = d_rd;</span>
+0015 <span class="comment">%         fg.Q = fgTensors(fg,dParms);</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% (C) 2011 Stanford VISTA team.</span>
+0018 
+0019 
+0020 <span class="comment">% compute RD and AD</span>
+0021 [fa,~,rd,ad] = dtiComputeFA(dt.dt6);
+0022 
+0023 <span class="comment">% set the nan's and unfeasable fa values to 0's</span>
+0024 fa(isnan(fa))  = 0;
+0025 fa(fa &gt;= 1)    = 0;
+0026 
+0027 <span class="comment">% sort the best and worse fa</span>
+0028 [fasorted, indexes] = sort(fa(:));
+0029 
+0030 <span class="comment">% set a min FA value</span>
+0031 <span class="keyword">if</span> notDefined(<span class="string">'faCutoff'</span>)
+0032    <span class="comment">% get a cutoff fa value</span>
+0033    <span class="comment">% 10% most anisotropic voxels</span>
+0034    temp     = ceil(length(fasorted) - lenght(fasorted)*0.1);
+0035    faCutoff = fasorted(temp);
+0036 <span class="keyword">end</span>
+0037 
+0038 <span class="comment">% select the most anisotropic voxels</span>
+0039 inx = find(fa &gt; faCutoff);
+0040 
+0041 <span class="comment">% find the RD diffusiovity for the most anisotropic voxels</span>
+0042 bestRD       = rd(inx);
+0043 meanBestRD   = mean(bestRD(:));
+0044 medianBestRD = median(bestRD(:));
+0045 stdBestRD    = std(bestRD(:));
+0046 
+0047 <span class="comment">% find the RD diffusiovity for the most anisotropic voxels</span>
+0048 bestAD       = ad(inx);
+0049 meanBestAD   = mean(bestAD(:));
+0050 medianBestAD = median(bestAD(:));
+0051 stdBestAD    = std(bestAD(:));
+0052 
+0053 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

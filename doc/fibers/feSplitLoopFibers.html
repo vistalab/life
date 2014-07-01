@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of feSplitLoopFibers</title>
+  <meta name="keywords" content="feSplitLoopFibers">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">fibers</a> &gt; feSplitLoopFibers.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for fibers&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>feSplitLoopFibers
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function fg = feSplitLoopFibers(fg) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ function fg = feSplitLoopFibers(fg)
+
+ Splits fibers in a fiber group that are discontinuous.
+ 
+ These fibers are probably entering and existing a volume ROI. This type
+ of fibers are often the result of a a clipping process (feClipFibersTovolume.m)
+
+ See also: feClipFibersToVolume.m
+
+ Example:
+
+ Franco (c) Stanford VISTA Team 2012</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function stepSize = getNodeDistance(fiber)</a></li><li><a href="#_sub2" class="code">function x = oneifempty(x)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function fg = feSplitLoopFibers(fg)</a>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% function fg = feSplitLoopFibers(fg)</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% Splits fibers in a fiber group that are discontinuous.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% These fibers are probably entering and existing a volume ROI. This type</span>
+0008 <span class="comment">% of fibers are often the result of a a clipping process (feClipFibersTovolume.m)</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% See also: feClipFibersToVolume.m</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% Example:</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Franco (c) Stanford VISTA Team 2012</span>
+0015 
+0016 fprintf(<span class="string">'\n[%s] Splitting fibers that are discontinuous.\n'</span>,mfilename)
+0017 
+0018 <span class="comment">% Check whether the nodes are consecutives. If they are not</span>
+0019 <span class="comment">% it means that they went out of the ROI then back in the ROI.</span>
+0020 <span class="comment">% Compute the distance between nodes, this is generally a small number (0.5).</span>
+0021 <span class="comment">% But for fibers that exitedna dnre-entered the ROI it will be large.</span>
+0022 dx = cellfun(@<a href="#_sub1" class="code" title="subfunction stepSize = getNodeDistance(fiber)">getNodeDistance</a>,fg.fibers, <span class="string">'UniformOutput'</span>, false);
+0023 
+0024 <span class="comment">% Compute the median distance. This is rounds up and then used as a</span>
+0025 <span class="comment">% thresholds for detecting the fibers and the nodes that exited and</span>
+0026 <span class="comment">% reentered.</span>
+0027 md = floor(100*median(cell2mat(dx')))/100;
+0028 
+0029 <span class="comment">% Now we arbitrarily decide that we keep spli only the fibers that have</span>
+0030 <span class="comment">% nodes with double this median distnce, this is because if we have fibers</span>
+0031 <span class="comment">% that exit and reenter quickly they will show up OK on display.</span>
+0032 <span class="comment">% This small hack speeds up the code and the visualization si faster</span>
+0033 maxDistance = 2*md - 0.02;
+0034 
+0035 <span class="comment">% If a fiber only has one node in the ROI dx will be emtpy for that</span>
+0036 <span class="comment">% fiber. We set the fiber to 1.</span>
+0037 dx = cellfun(@<a href="#_sub2" class="code" title="subfunction x = oneifempty(x)">oneifempty</a>,dx, <span class="string">'UniformOutput'</span>, false);
+0038 
+0039 <span class="comment">% Precompute the final number of fibers, the ones we had plus the new ones</span>
+0040 <span class="comment">% that we will create by splitting the fibers that are discontinuos.</span>
+0041 c = 1;
+0042 parfor iif = 1:length(fg.fibers)
+0043   <span class="comment">% Find the nodes that are continous within the ROI</span>
+0044   isone = dx{iif} &lt;= maxDistance;
+0045   <span class="keyword">if</span> all(isone), c = c + 1;
+0046   <span class="keyword">else</span>           c = c + length(find(~isone));
+0047   <span class="keyword">end</span>
+0048 <span class="keyword">end</span>
+0049 <span class="comment">% Use the total number fo fibers to initialize the fibers and the other</span>
+0050 <span class="comment">% fields</span>
+0051 fibers = cell(c,1); Q = fibers;
+0052 <span class="keyword">if</span>     (size(fg.seeds,1) == 3), seeds = nan(3,c);
+0053 <span class="keyword">elseif</span> (size(fg.seeds,2) == 3), seeds = nan(c,3);
+0054 <span class="keyword">end</span>
+0055 
+0056 <span class="comment">% Now we deal with cases in which the fibers go out of the roi and then go</span>
+0057 <span class="comment">% back in into the ROI in these cases we split the fibers into separated</span>
+0058 <span class="comment">% fibers.</span>
+0059 c = 1; <span class="comment">% This is the counter that keeps track of the new fibers.</span>
+0060        <span class="comment">% The fiber number will increase after the following operations</span>
+0061 <span class="keyword">for</span> iif = 1:length(fg.fibers)
+0062   <span class="comment">% Find the nodes that are continous within the ROI</span>
+0063   isone = dx{iif} &lt;= maxDistance;
+0064   
+0065   <span class="comment">% If all the nodes in this fiber were in the ROI just copy the fiber</span>
+0066   <span class="keyword">if</span> all(isone)
+0067     fibers{c} = fg.fibers{iif};
+0068 <span class="comment">%     if isfield(fg,'seeds') &amp;&amp; ~isempty(fg.seeds)</span>
+0069 <span class="comment">%       if size(fg.seeds,1) == 3</span>
+0070 <span class="comment">%         seeds(1:3,c)  = fg.seeds(:,iif);</span>
+0071 <span class="comment">%       elseif size(fg.seeds,2) == 3</span>
+0072 <span class="comment">%         seeds(c,1:3)  = fg.seeds(iif,:);</span>
+0073 <span class="comment">%       end</span>
+0074 <span class="comment">%     end</span>
+0075 <span class="comment">%     if isfield(fg,'Q')</span>
+0076 <span class="comment">%       Q{c}  = fg.Q{iif};</span>
+0077 <span class="comment">%     end</span>
+0078     
+0079     c = c + 1;
+0080     
+0081   <span class="comment">% If the fiber exits the ROI and then re-enters it, ctu the fibers into</span>
+0082   <span class="comment">% segements and save the segments as separate fibers.</span>
+0083   <span class="keyword">else</span>
+0084     indx = find(~isone);
+0085     <span class="keyword">for</span> iin = 1:length(indx)
+0086       <span class="keyword">if</span> iin == 1
+0087         fibers{c} = fg.fibers{iif}(:, (1:indx(iin)));
+0088 <span class="comment">%         if isfield(fg,'seeds') &amp;&amp; ~isempty(fg.seeds)</span>
+0089 <span class="comment">%           seeds(1:3,c)  = fg.seeds(:,iif);</span>
+0090 <span class="comment">%         end</span>
+0091 <span class="comment">%         if isfield(fg,'Q')</span>
+0092 <span class="comment">%           Q{c}  = fg.Q{iif};</span>
+0093 <span class="comment">%         end</span>
+0094       <span class="keyword">else</span>
+0095         fibers{c} = fg.fibers{iif}(:, (indx(iin - 1) + 1:indx(iin)));
+0096 <span class="comment">%         if isfield(fg,'seeds') &amp;&amp; ~isempty(fg.seeds)</span>
+0097 <span class="comment">%           seeds(1:3,c)  = fg.seeds(:,iif);</span>
+0098 <span class="comment">%         end</span>
+0099 <span class="comment">%         if isfield(fg,'Q')</span>
+0100 <span class="comment">%           Q{c}  = fg.Q{iif};</span>
+0101 <span class="comment">%         end</span>
+0102       <span class="keyword">end</span>
+0103       c = c + 1;
+0104     <span class="keyword">end</span>
+0105   <span class="keyword">end</span>
+0106 <span class="keyword">end</span>
+0107 
+0108 <span class="comment">% Save to output fiber group</span>
+0109 fg.name = sprintf(<span class="string">'%s clipped to ROI coords'</span>,fg.name);
+0110 <span class="comment">% if isfield(fg,'Q')</span>
+0111 <span class="comment">%   fg.Q = Q;</span>
+0112 <span class="comment">% end</span>
+0113 <span class="comment">% if isfield(fg,'seeds') &amp;&amp; ~isempty(fg.seeds)</span>
+0114 <span class="comment">%   fg.seeds = seeds;</span>
+0115 <span class="comment">% end</span>
+0116 fg.fibers = fibers;
+0117 
+0118 <span class="comment">%-------------------------%</span>
+0119 <a name="_sub1" href="#_subfunctions" class="code">function stepSize = getNodeDistance(fiber)</a>
+0120 <span class="comment">% Computes the distance between nodes in a ifber.</span>
+0121 stepSize = sqrt(sum(diff(fiber,1,2).^2));
+0122 
+0123 
+0124 <span class="comment">%-------------------------%</span>
+0125 <a name="_sub2" href="#_subfunctions" class="code">function x = oneifempty(x)</a>
+0126 <span class="comment">%</span>
+0127 <span class="comment">% This function is used to substitute empty matrices in a cell with 1.</span>
+0128 <span class="comment">%</span>
+0129 <span class="keyword">if</span> isempty(x), x = 1;<span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

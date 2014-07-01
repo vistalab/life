@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of v_lifeConnectomeModelProperties</title>
+  <meta name="keywords" content="v_lifeConnectomeModelProperties">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">validate</a> &gt; v_lifeConnectomeModelProperties.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for validate&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>v_lifeConnectomeModelProperties
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function fe = v_lifeConnectomeModelProperties </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ Shwo how to characterize the autocorrelation properties of a Connectome.
+ 
+ v_lifeConnectomeModelProperties
+
+ Franco (C) 2012 Stanford VISTA team.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function fe = v_lifeConnectomeModelProperties</a>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% Shwo how to characterize the autocorrelation properties of a Connectome.</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% v_lifeConnectomeModelProperties</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Franco (C) 2012 Stanford VISTA team.</span>
+0008 
+0009 
+0010 <span class="comment">%% Initialize a connectome</span>
+0011 baseDir    = fullfile(mrvDataRootPath,<span class="string">'diffusion'</span>,<span class="string">'sampleData'</span>);
+0012 dtFile     = fullfile(baseDir,<span class="string">'dti40'</span>,<span class="string">'dt6.mat'</span>);
+0013 dwiFile    = fullfile(baseDir,<span class="string">'raw'</span>,<span class="string">'dwi.nii.gz'</span>);
+0014 fgFileName = fullfile(baseDir,<span class="string">'fibers'</span>,<span class="string">'leftArcuateSmall.pdb'</span>);
+0015   
+0016 <span class="comment">%% Initialize the Connectome</span>
+0017 fe     = feConnectomeInit(dwiFile,dtFile,fgFileName);
+0018 
+0019 <span class="comment">%% Estimate the weights and install them in the fe structure</span>
+0020 fefit  = feFitModel(feGet(fe,<span class="string">'Mfiber'</span>),feGet(fe,<span class="string">'dsigdemeaned'</span>),<span class="string">'sgdnn'</span>);
+0021 fe     = feSet(fe,<span class="string">'fit'</span>,fefit);
+0022 
+0023 <span class="comment">%% Singular Value-Decomposition, find the largest number of singular values</span>
+0024 <span class="comment">%S = svds((feGet(fe,'model')),600); % THis is a slow full-standard way to</span>
+0025 <span class="comment">%compute it.</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% For matrices that have a large number of rows, it is slow to compute the</span>
+0028 <span class="comment">% SVD in the standard way.</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">% But, we can compute the SVD of the (M'*M), these singular values are</span>
+0031 <span class="comment">% the S^2 (the square of the svd of M)</span>
+0032 Ssquare = svds(((feGet(fe,<span class="string">'model'</span>))'*(feGet(fe,<span class="string">'model'</span>))),feGet(fe,<span class="string">'nfibers'</span>));
+0033 
+0034 <span class="comment">%% Plot svd</span>
+0035 mrvNewGraphWin(<span class="string">'Principal component anaylsis of connectome'</span>);
+0036 plot(100*cumsum(Ssquare)/sum(Ssquare),<span class="string">'ko-'</span>); <span class="comment">% THere is no suaring here inside the sum, because S is square already</span>
+0037 hold on
+0038 plot([0 feGet(fe,<span class="string">'nfibers'</span>)],[98 98],<span class="string">'r-'</span>)
+0039 ylabel(<span class="string">'Percent variance explained '</span>)
+0040 xlabel(<span class="string">'Number of principal components (svd) in M'</span>)
+0041 
+0042 <span class="comment">%% Check how correlated fiebrs are in the connectome</span>
+0043 <span class="comment">% We rmove a random proportion of fibers and use them to generate signal</span>
+0044 <span class="comment">% for the connectome.</span>
+0045 <span class="comment">%</span>
+0046 <span class="comment">% Select a subset of fibers to romove from the connectome.</span>
+0047 <span class="comment">% Identify the indices of the fibers to remove.</span>
+0048 fibersToRemove.percent = 10;
+0049 fibersToRemove.num     = round(feGet(fe,<span class="string">'nfibers'</span>) .* (fibersToRemove.percent/100));
+0050 fibersToRemove.indices = sort(randsample(feGet(fe,<span class="string">'nfibers'</span>),fibersToRemove.num));
+0051 
+0052 <span class="comment">% Generate a connectome with all the fibers REMOVED</span>
+0053 feTest = feConnectomeSelectFibers(fe,fibersToRemove.indices);
+0054 
+0055 <span class="comment">% Generate a connectome with ONLY the optic radiation fibers</span>
+0056 allTheOtherFibers = ones(feGet(fe,<span class="string">'nfibers'</span>) ,1);
+0057 allTheOtherFibers(fibersToRemove.indices) = 0;
+0058 feRest = feConnectomeSelectFibers(fe,find(allTheOtherFibers));
+0059 
+0060 <span class="comment">%% Fit the Rest to predict the Test</span>
+0061 w = feGet(feRest,<span class="string">'M fiber'</span>)\feGet(feTest,<span class="string">'M fiber'</span>);
+0062 
+0063 <span class="comment">%% Predict back the Test fibers</span>
+0064 testFibers = feGet(feRest,<span class="string">'M fiber'</span>)*w;
+0065 
+0066 <span class="comment">%% Plot a histogram of the weights</span>
+0067 mrvNewGraphWin(<span class="string">'Fit of the Test signal with the Rest model'</span>);
+0068 [y,x] = hist(w',56); bar(x,y,.65);
+0069 title(sprintf(<span class="string">'Weights\nfor each fiber left in the connectome\nafter removing the test fibers'</span>));
+0070 ylabel(<span class="string">'Number of occurrences'</span>), xlabel(<span class="string">'Weight value'</span>)
+0071 
+0072 <span class="comment">%% Plot the percent error in fitting</span>
+0073 mrvNewGraphWin(<span class="string">'Fit of the Test signal with the Rest model'</span>);
+0074 plot(100*(testFibers - feGet(feTest,<span class="string">'M fiber'</span>))./testFibers,<span class="string">'-'</span>)
+0075 title(sprintf(<span class="string">'Percent error in fitting.\nBig number means that the removed fibers could not be\nexplained by the rest of the fibers.'</span>));
+0076 ylabel(<span class="string">'Error'</span>), xlabel(<span class="string">'Voxel/directions'</span>)
+0077 
+0078 <span class="comment">%% Load the occiptal lobe</span>
+0079 <span class="comment">% disp('Loading a precomputed fe structure...')</span>
+0080 <span class="comment">% basePath = fullfile('/biac2','wandell6');</span>
+0081 <span class="comment">% dataRootPath  = fullfile(basePath,'data','frk','life_dti','FP20120420');</span>
+0082 <span class="comment">% subfolders    = fullfile('150dirs_b1000_1');</span>
+0083 <span class="comment">% baseDir       = fullfile(dataRootPath,subfolders);</span>
+0084 <span class="comment">% saveDir       = fullfile(baseDir,'LiFE');</span>
+0085 <span class="comment">% feFileName = 'test_culling_more_right_hemisphere_occipital_MRTRIX_FE.mat';</span>
+0086 <span class="comment">% %'20120830T160637-right_hemisphere_occipital_MRTRIX_FE.mat';</span>
+0087 <span class="comment">% load(fullfile(saveDir,feFileName))</span>
+0088 
+0089 
+0090 <span class="keyword">return</span>
+0091 
+0092 <span class="comment">%%</span>
+0093 <span class="comment">% Render a nice image of the fibers using build3DFrame and</span>
+0094 <span class="comment">% buildSurfaceFromFrame</span>
+0095 fePlot(fe,<span class="string">'connectome'</span>);
+0096 
+0097 
+0098</pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
