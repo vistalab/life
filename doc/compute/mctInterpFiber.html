@@ -1,0 +1,223 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of mctInterpFiber</title>
+  <meta name="keywords" content="mctInterpFiber">
+  <meta name="description" content="fiber should be numNodesX3">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">compute</a> &gt; mctInterpFiber.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for compute&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>mctInterpFiber
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>fiber should be numNodesX3</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function intFiber = mctInterpFiber(res,fiber) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> fiber should be numNodesX3</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="mctSimulateFG2.html" class="code" title="function [fgHit fgFa dwi nifti hitRoiCoords faRoiCoords] = mctSimulateFG2(fiberType,bval, nbvecs, S0,ns,mmPerNode,numClones,clones_sd)">mctSimulateFG2</a>	</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function val = segkernel(numNodes,y)</a></li><li><a href="#_sub2" class="code">function [value,isterminal,direction] = ode_events(numNodes,y)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function intFiber = mctInterpFiber(res,fiber)</a>
+0002 <span class="comment">% fiber should be numNodesX3</span>
+0003 
+0004 <span class="comment">% computer the fiber length.</span>
+0005 len = sum(sqrt(sum(diff(fiber,[],1).^2,2)));
+0006 
+0007 <span class="comment">% compute the number of nodes in this fiber at this resolution given the</span>
+0008 <span class="comment">% fiber length</span>
+0009 numNodes = ceil(len*res);
+0010 <span class="comment">%fprintf('\nFiber Length: %2.2f and num Nodes: %i, ratio: %2.4f\n',len, numNodes,len/numNodes)</span>
+0011 
+0012 numNodes = linspace(0,1,numNodes)';
+0013 
+0014 <span class="comment">% how many nodes will be interpolated?</span>
+0015 intNumNodes = numel(numNodes);
+0016 
+0017 <span class="comment">% the number of nodes in the fibers passed in.</span>
+0018 <span class="comment">% assumes the fiber is 3xn, where the first dimension contains the x,y,z</span>
+0019 <span class="comment">% coordinates in the 3D volume.</span>
+0020 curNumNodes = size(fiber,1);
+0021 
+0022 <span class="comment">% preallocate the result, fiber</span>
+0023 intFiber = NaN(intNumNodes,3);
+0024 
+0025 <span class="comment">% Compute the chordal (linear) arclength</span>
+0026 <span class="comment">% of each segment. This will be needed for</span>
+0027 <span class="comment">% any of the methods.</span>
+0028 chordlen = sqrt(sum(diff(fiber,[],1).^2,2));
+0029 
+0030 <span class="comment">% Normalize the arclengths to a unit total</span>
+0031 chordlen = chordlen/sum(chordlen);
+0032 
+0033 <span class="comment">% cumulative arclength</span>
+0034 cumarc = [0;cumsum(chordlen)];
+0035 
+0036 <span class="comment">% compute parametric splines</span>
+0037 spl = cell(1,3);
+0038 spld = spl;
+0039 diffarray = [3 0 0;0 2 0;0 0 1;0 0 0];
+0040 <span class="keyword">for</span> i = 1:3
+0041   spl{i} = pchip(cumarc,fiber(:,i));
+0042   
+0043   <span class="comment">% and now differentiate them</span>
+0044   xp = spl{i};
+0045   xp.coefs = xp.coefs*diffarray;
+0046   xp.order = 3;
+0047   spld{i} = xp;
+0048 <span class="keyword">end</span>
+0049 
+0050 <span class="comment">% Generate the total arclength along the curve</span>
+0051 <span class="comment">% by integrating each segment and summing the</span>
+0052 <span class="comment">% results. The integration scheme does its job</span>
+0053 <span class="comment">% using an ode solver.</span>
+0054 
+0055 <span class="comment">% polyarray here contains the derivative polynomials</span>
+0056 <span class="comment">% for each spline in a given segment</span>
+0057 polyarray = zeros(3,3);
+0058 seglen = zeros(curNumNodes-1,1);
+0059 
+0060 <span class="comment">% options for ode45</span>
+0061 opts = odeset(<span class="string">'reltol'</span>,1.e-9);
+0062 <span class="keyword">for</span> i = 1:spl{1}.pieces
+0063   <span class="comment">% extract polynomials for the derivatives</span>
+0064   <span class="keyword">for</span> j = 1:3
+0065     polyarray(j,:) = spld{j}.coefs(i,:);
+0066   <span class="keyword">end</span>
+0067   
+0068   <span class="comment">% integrate the arclength for the i'th segment</span>
+0069   <span class="comment">% using ode45 for the integral. I could have</span>
+0070   <span class="comment">% done this part with quad too, but then it</span>
+0071   <span class="comment">% would not have been perfectly (numerically)</span>
+0072   <span class="comment">% consistent with the next operation in this tool.</span>
+0073   [tout,yout] = ode45(@(numNodes,y) <a href="#_sub1" class="code" title="subfunction val = segkernel(numNodes,y) ">segkernel</a>(numNodes,y),[0,chordlen(i)],0,opts); <span class="comment">%#ok</span>
+0074   seglen(i) = yout(end);
+0075 <span class="keyword">end</span>
+0076 
+0077 <span class="comment">% and normalize the segments to have unit total length</span>
+0078 totalsplinelength = sum(seglen);
+0079 cumseglen = [0;cumsum(seglen)];
+0080 
+0081 <span class="comment">% which interval did each point fall into, in</span>
+0082 <span class="comment">% terms of numNodes, but relative to the cumulative</span>
+0083 <span class="comment">% arc lengths along the parametric spline?</span>
+0084 [~,tbins] = histc(numNodes*totalsplinelength,cumseglen);
+0085 
+0086 <span class="comment">% catch any problems at the ends</span>
+0087 tbins((tbins &lt;= 0) | (numNodes &lt;= 0)) = 1;
+0088 tbins((tbins &gt;= curNumNodes) | (numNodes &gt;= 1)) = curNumNodes - 1;
+0089 
+0090 <span class="comment">% Do the fractional integration within each segment</span>
+0091 <span class="comment">% for the interpolated points. numNodes is the parameter</span>
+0092 <span class="comment">% used to define the splines. It is defined in terms</span>
+0093 <span class="comment">% of a linear chordal arclength. This works nicely when</span>
+0094 <span class="comment">% a linear piecewise interpolant was used. However,</span>
+0095 <span class="comment">% what is asked for is an arclength interpolation</span>
+0096 <span class="comment">% in terms of arclength of the spline itself. Call s</span>
+0097 <span class="comment">% the arclength traveled along the spline.</span>
+0098 s = totalsplinelength*numNodes;
+0099 
+0100 <span class="comment">% the ode45 options will now include an events property</span>
+0101 <span class="comment">% so we can catch zero crossings.</span>
+0102 opts = odeset(<span class="string">'reltol'</span>,1.e-9,<span class="string">'events'</span>,@<a href="#_sub2" class="code" title="subfunction [value,isterminal,direction] = ode_events(numNodes,y) ">ode_events</a>);
+0103 <span class="keyword">for</span> i = 1:intNumNodes
+0104   <span class="comment">% si is the piece of arc length that we will look</span>
+0105   <span class="comment">% for in this spline segment.</span>
+0106   si = s(i) - cumseglen(tbins(i));
+0107   
+0108   <span class="comment">% extract polynomials for the derivatives</span>
+0109   <span class="comment">% in the interval the point lies in</span>
+0110   <span class="keyword">for</span> j = 1:3
+0111     polyarray(j,:) = spld{j}.coefs(tbins(i),:);
+0112   <span class="keyword">end</span>
+0113   
+0114   <span class="comment">% we need to integrate in numNodes, until the integral</span>
+0115   <span class="comment">% crosses the specified value of si. Because we</span>
+0116   <span class="comment">% have defined totalsplinelength, the lengths will</span>
+0117   <span class="comment">% be normalized at this point to a unit length.</span>
+0118   <span class="comment">%</span>
+0119   <span class="comment">% Start the ode solver at -si, so we will just</span>
+0120   <span class="comment">% look for an event where y crosses zero.</span>
+0121   [tout,yout,te,ye] = ode45(@(numNodes,y) <a href="#_sub1" class="code" title="subfunction val = segkernel(numNodes,y) ">segkernel</a>(numNodes,y),[0,chordlen(tbins(i))],-si,opts); <span class="comment">%#ok</span>
+0122   
+0123   <span class="comment">% we only need that point where a zero crossing occurred</span>
+0124   <span class="comment">% if no crossing was found, then we can look at each end.</span>
+0125   <span class="keyword">if</span> ~isempty(te)
+0126       ti = te(1) + cumarc(tbins(i));
+0127   <span class="keyword">else</span>
+0128     <span class="comment">% a crossing must have happened at the very</span>
+0129     <span class="comment">% beginning or the end, and the ode solver</span>
+0130     <span class="comment">% missed it, not trapping that event.</span>
+0131     <span class="keyword">if</span> abs(yout(1)) &lt; abs(yout(end))
+0132       <span class="comment">% the event must have been at the start.</span>
+0133       ti = tout(1) + cumarc(tbins(i));
+0134     <span class="keyword">else</span>
+0135       <span class="comment">% the event must have been at the end.</span>
+0136       ti = tout(end) + cumarc(tbins(i));
+0137     <span class="keyword">end</span>
+0138   <span class="keyword">end</span>
+0139   
+0140   <span class="comment">% Interpolate the parametric splines at ti to get</span>
+0141   <span class="comment">% our interpolated value.</span>
+0142   <span class="keyword">for</span> j = 1:3
+0143     intFiber(i,j) = ppval(spl{j},ti);
+0144   <span class="keyword">end</span>
+0145   
+0146 <span class="keyword">end</span>
+0147 
+0148 
+0149 <span class="comment">% ===============================================</span>
+0150 <span class="comment">%  nested function for the integration kernel</span>
+0151 <span class="comment">% ===============================================</span>
+0152   <a name="_sub1" href="#_subfunctions" class="code">function val = segkernel(numNodes,y) </a><span class="comment">%#ok</span>
+0153     <span class="comment">% sqrt((dx/dt)^2 + (dy/dt)^2 + ...)</span>
+0154     val = zeros(size(numNodes));
+0155     <span class="keyword">for</span> k = 1:3
+0156       val = val + polyval(polyarray(k,:),numNodes).^2;
+0157     <span class="keyword">end</span>
+0158     val = sqrt(val);
+0159     
+0160   <span class="keyword">end</span> <span class="comment">% function segkernel</span>
+0161 
+0162 <span class="comment">% ===============================================</span>
+0163 <span class="comment">%  nested function for ode45 integration events</span>
+0164 <span class="comment">% ===============================================</span>
+0165   <a name="_sub2" href="#_subfunctions" class="code">function [value,isterminal,direction] = ode_events(numNodes,y) </a><span class="comment">%#ok</span>
+0166     <span class="comment">% ode event trap, looking for zero crossings of y.</span>
+0167     value = y;
+0168     isterminal = ones(size(y));
+0169     direction = ones(size(y));
+0170   <span class="keyword">end</span> <span class="comment">% function ode_events</span>
+0171 
+0172 <span class="keyword">end</span> <span class="comment">% Main function - mctInterpFiber</span>
+0173 
+0174</pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

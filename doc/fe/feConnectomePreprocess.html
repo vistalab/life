@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of feConnectomePreprocess</title>
+  <meta name="keywords" content="feConnectomePreprocess">
+  <meta name="description" content="Preprocess a connectome. Always remove fibers that are too short and">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">fe</a> &gt; feConnectomePreprocess.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for fe&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>feConnectomePreprocess
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Preprocess a connectome. Always remove fibers that are too short and</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [fg fibersToKeep] = feConnectomePreprocess(fg, volumeRoi, cortex, cortVals, minCorticalDist, maxVolDist, min_length) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Preprocess a connectome. Always remove fibers that are too short and
+ optionally remove fibers that:
+    1. Do not terminate in the gray matter.
+    2. Exit a predefiend volume of interest (The connectome ROI).
+
+ Please note that this function is meant to be used to preprocess a
+ whole-brain tracktogaphy connectome. Using it for smaller connectomes can
+ introduce major errors in the fiber selection process.
+
+ [fgOut fibersToKeep] = feConnectomePreprocess(fg, cortex, minCorticalDist, ...
+                        minCorticalDist, volumeRoi, maxVolDist, min_length)
+
+ INPTUS:
+    fg              - The connectome to preprocess. THis is generally a
+                      larger fiber group as defined in mrDiffusion.
+    cortex          - This is a segmentation to use to identify the cortex. 
+                      It can be passed in either as:
+                      * A path to a NIFTI classification file, like the one 
+                        returned by freesurfer.
+                      * A mrDiffusion ROI.
+                      * A NIFTI file.
+    cortVals        - A vector of values that define cortex within the nifti image.
+                      Default are the values in a freesurfer class file (5 6)
+    minCorticalDist - Distance criteria for what counts as terminating in the
+                      cortex. The default is 2mm meaning that fibers must terminate
+                      within 2mm of a cortex voxel will be retained.
+    volumeRoi       - An cortexRoi in the same coordinate space as the fiber group.  
+                      This ROI should be the volumeRoi containing the final fiber
+                      group. The fibers will be clipped upon exiting this volumeRoi.
+                      All further LiFE analyses will be confined to this region.
+    maxVolDist      - A fiber node will be considered outside of the cortexRoi when it
+                      is more than maxVolDist mm away from any of the coordinates
+                      in the volumeRoi cortexRoi.
+    min_length      - Minimum fiber length. Fibers with fewer nodes (number of
+                      xyz coordinates) will be discarded.
+
+ OUTPUTS:
+    fgOut           - The preprocessed fiber group.
+    fibersToKeep    - A vector of one's and zero's defining which fibers from the 
+                      original group were kept after preprocessing.
+
+ EXAMPLE:
+    cortex = '/biac4/wandell/biac2/wandell2/data/WMDevo/adult/anatomy/107_JW/t1_class.nii.gz'
+    fg     = mtrImportFibers('/biac4/wandell/biac2/wandell2/data/WMDevo/adult/107_JW/DTI/20111027_1340/dti96ls/fibers/L_SLFFG.pdb')
+ 
+    % We generate a spehrical cortexRoi around a portion of the fiber group.
+    volumeRoi        = dtiNewRoi;
+    volumeRoi.coords = dtiBuildSphereCoords(mean(fg.fibers{1}'),20);
+    cortVals = 1;
+    fgOut                = feConnectomePreprocess(fg, volumeRoi, cortex, cortVals)
+
+ Jason &amp; Franco (c) 2012 Stanford Vista Team.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [fg fibersToKeep] = feConnectomePreprocess(fg, volumeRoi, cortex, cortVals, minCorticalDist, maxVolDist, min_length)</a>
+0002 <span class="comment">% Preprocess a connectome. Always remove fibers that are too short and</span>
+0003 <span class="comment">% optionally remove fibers that:</span>
+0004 <span class="comment">%    1. Do not terminate in the gray matter.</span>
+0005 <span class="comment">%    2. Exit a predefiend volume of interest (The connectome ROI).</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Please note that this function is meant to be used to preprocess a</span>
+0008 <span class="comment">% whole-brain tracktogaphy connectome. Using it for smaller connectomes can</span>
+0009 <span class="comment">% introduce major errors in the fiber selection process.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% [fgOut fibersToKeep] = feConnectomePreprocess(fg, cortex, minCorticalDist, ...</span>
+0012 <span class="comment">%                        minCorticalDist, volumeRoi, maxVolDist, min_length)</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% INPTUS:</span>
+0015 <span class="comment">%    fg              - The connectome to preprocess. THis is generally a</span>
+0016 <span class="comment">%                      larger fiber group as defined in mrDiffusion.</span>
+0017 <span class="comment">%    cortex          - This is a segmentation to use to identify the cortex.</span>
+0018 <span class="comment">%                      It can be passed in either as:</span>
+0019 <span class="comment">%                      * A path to a NIFTI classification file, like the one</span>
+0020 <span class="comment">%                        returned by freesurfer.</span>
+0021 <span class="comment">%                      * A mrDiffusion ROI.</span>
+0022 <span class="comment">%                      * A NIFTI file.</span>
+0023 <span class="comment">%    cortVals        - A vector of values that define cortex within the nifti image.</span>
+0024 <span class="comment">%                      Default are the values in a freesurfer class file (5 6)</span>
+0025 <span class="comment">%    minCorticalDist - Distance criteria for what counts as terminating in the</span>
+0026 <span class="comment">%                      cortex. The default is 2mm meaning that fibers must terminate</span>
+0027 <span class="comment">%                      within 2mm of a cortex voxel will be retained.</span>
+0028 <span class="comment">%    volumeRoi       - An cortexRoi in the same coordinate space as the fiber group.</span>
+0029 <span class="comment">%                      This ROI should be the volumeRoi containing the final fiber</span>
+0030 <span class="comment">%                      group. The fibers will be clipped upon exiting this volumeRoi.</span>
+0031 <span class="comment">%                      All further LiFE analyses will be confined to this region.</span>
+0032 <span class="comment">%    maxVolDist      - A fiber node will be considered outside of the cortexRoi when it</span>
+0033 <span class="comment">%                      is more than maxVolDist mm away from any of the coordinates</span>
+0034 <span class="comment">%                      in the volumeRoi cortexRoi.</span>
+0035 <span class="comment">%    min_length      - Minimum fiber length. Fibers with fewer nodes (number of</span>
+0036 <span class="comment">%                      xyz coordinates) will be discarded.</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">% OUTPUTS:</span>
+0039 <span class="comment">%    fgOut           - The preprocessed fiber group.</span>
+0040 <span class="comment">%    fibersToKeep    - A vector of one's and zero's defining which fibers from the</span>
+0041 <span class="comment">%                      original group were kept after preprocessing.</span>
+0042 <span class="comment">%</span>
+0043 <span class="comment">% EXAMPLE:</span>
+0044 <span class="comment">%    cortex = '/biac4/wandell/biac2/wandell2/data/WMDevo/adult/anatomy/107_JW/t1_class.nii.gz'</span>
+0045 <span class="comment">%    fg     = mtrImportFibers('/biac4/wandell/biac2/wandell2/data/WMDevo/adult/107_JW/DTI/20111027_1340/dti96ls/fibers/L_SLFFG.pdb')</span>
+0046 <span class="comment">%</span>
+0047 <span class="comment">%    % We generate a spehrical cortexRoi around a portion of the fiber group.</span>
+0048 <span class="comment">%    volumeRoi        = dtiNewRoi;</span>
+0049 <span class="comment">%    volumeRoi.coords = dtiBuildSphereCoords(mean(fg.fibers{1}'),20);</span>
+0050 <span class="comment">%    cortVals = 1;</span>
+0051 <span class="comment">%    fgOut                = feConnectomePreprocess(fg, volumeRoi, cortex, cortVals)</span>
+0052 <span class="comment">%</span>
+0053 <span class="comment">% Jason &amp; Franco (c) 2012 Stanford Vista Team.</span>
+0054 
+0055 <span class="comment">%% Check arguments</span>
+0056 <span class="keyword">if</span> notDefined(<span class="string">'fg'</span>), error(<span class="string">'[%s] Please supply a fiber group'</span>, mfilename);<span class="keyword">end</span>
+0057 
+0058 <span class="comment">% Fiber length is defined in nodes (e.g., number of xyz coordinates in a</span>
+0059 <span class="comment">% fiber).</span>
+0060 <span class="keyword">if</span> notDefined(<span class="string">'min_length'</span>),  min_length = 20; <span class="keyword">end</span>
+0061 
+0062 <span class="comment">% Minimum distance of a node from the cortex. Default to 1mm.</span>
+0063 <span class="keyword">if</span> notDefined(<span class="string">'maxVolDist'</span>),  maxVolDist = 1;<span class="keyword">end</span>
+0064 
+0065 initial_f_num = numel(fg.fibers);
+0066 
+0067 <span class="comment">%% Find long fibers</span>
+0068 tic, fprintf(<span class="string">'[%s] Finding long fibers...'</span>,mfilename);
+0069 long_fibers = feFindLongFibers(fg.fibers,min_length);
+0070 fprintf(<span class="string">'process completed in %2.3fs.\n'</span>,toc);
+0071 
+0072 <span class="comment">%% Find fibers with both fiber endpoints within minCorticalDist from the cortex</span>
+0073 <span class="keyword">if</span> ~notDefined(<span class="string">'cortex'</span>)
+0074     tic, fprintf(<span class="string">'[%s] Finding fibers intersecting the cortex...'</span>,mfilename);
+0075     <span class="comment">% Values identifying the left and rigth cortex in a classification file.</span>
+0076     <span class="comment">% Default to freesurfer values.</span>
+0077     <span class="keyword">if</span> notDefined(<span class="string">'cortVals'</span>), cortVals = [5 6];<span class="keyword">end</span>
+0078     <span class="comment">% Default is to discard fibers that are more than 2mm from cortex.</span>
+0079     <span class="keyword">if</span> notDefined(<span class="string">'minCorticalDist'</span>), minCorticalDist = 3;<span class="keyword">end</span>
+0080     cortexRoi               = feBuildCorticalRoi(cortex, cortVals);
+0081     [~, ~, cortical_fibers] = dtiIntersectFibersWithRoi([], <span class="keyword">...</span>
+0082                               {<span class="string">'and'</span>, <span class="string">'both_endpoints'</span>},    <span class="keyword">...</span>
+0083                               minCorticalDist, cortexRoi, fg);
+0084     fprintf(<span class="string">'process completed in %2.3fs.\n'</span>,toc);
+0085 <span class="keyword">else</span>
+0086   cortical_fibers = true(length(fg.fibers)); 
+0087 <span class="keyword">end</span>
+0088 
+0089 <span class="comment">%% Extract the fibers that pass the requested criteria.</span>
+0090 tic, fprintf(<span class="string">'[%s] Extracting long fibers that intersect the cortex...'</span>,mfilename);
+0091 fibersToKeep = (cortical_fibers &amp; long_fibers);
+0092 fg           = fgExtract(fg,find(fibersToKeep), <span class="string">'keep'</span>);
+0093 fprintf(<span class="string">'process compelted in %2.3fs.\n'</span>, toc);
+0094 
+0095 <span class="comment">%% Clip fibers to be constrained within the volumeRoi.</span>
+0096 tic, fprintf(<span class="string">'[%s] Clipping fibers that leave the volume ROI...\n'</span>,mfilename);
+0097 fg.fibers = feClipFibersToVolume(fg.fibers,volumeRoi.coords,maxVolDist);
+0098 fprintf(<span class="string">'process completed in %2.3fhours\n'</span>,toc/60/60);
+0099 
+0100 fprintf(<span class="string">'[%s] Results:\n- %i fibers deleted out of %i initial fibers (%i%%).\n- %i short fibers,\n- %i non ending in cortex.\n'</span>, <span class="keyword">...</span>
+0101     mfilename,length(find(~fibersToKeep)),initial_f_num,round(100*(length(find(~fibersToKeep))/initial_f_num)),<span class="keyword">...</span>
+0102     length(find(~long_fibers)),length(find(~cortical_fibers)));
+0103 
+0104 <span class="keyword">end</span> <span class="comment">% End main function.</span>
+0105</pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

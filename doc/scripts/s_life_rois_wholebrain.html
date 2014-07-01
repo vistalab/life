@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of s_life_rois_wholebrain</title>
+  <meta name="keywords" content="s_life_rois_wholebrain">
+  <meta name="description" content="function s_life_rois_wholebrain">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">scripts</a> &gt; s_life_rois_wholebrain.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for scripts&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>s_life_rois_wholebrain
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function s_life_rois_wholebrain</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function s_life_rois_wholebrain(fitType, lambda,algo, this_roi) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> function s_life_rois_wholebrain
+
+ This script loads two rois, track with fact and fits both of them with microtrack.
+
+ - The corpus callosum ROI should have a good fit with microtrack, because
+ all the fibers go in the same direction.
+
+ - The prefrontal ROi should have a worse fit, because there will be
+ fibers going in different directions, directions not accounted for bu the
+ deterministic algorithm of FACT.
+ 
+ Franco
+       
+ FP rois: 
+ 'mct_callosal_1mm.mat'; 'mct_callosal_4mm.mat';
+ 'mct_callosal_2mm.mat'; 'mct_prefrontal_1mm.mat';
+ 'mct_prefrontal_10mm.mat'; 'mct_prefrontal_4mm.mat';
+ 'mct_callosal_40mm.mat'; 'mct_visual_20mm.mat'; 'mct_prefrontal_2mm.mat';
+ 'mct_rt12.mat';'mct_or.mat';'mct_occipital_lobe.mat';
+
+ (C) 2012 Stanford VISTA team.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function s_life_rois_wholebrain(fitType, lambda,algo, this_roi)</a>
+0002 <span class="comment">% function s_life_rois_wholebrain</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% This script loads two rois, track with fact and fits both of them with microtrack.</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% - The corpus callosum ROI should have a good fit with microtrack, because</span>
+0007 <span class="comment">% all the fibers go in the same direction.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% - The prefrontal ROi should have a worse fit, because there will be</span>
+0010 <span class="comment">% fibers going in different directions, directions not accounted for bu the</span>
+0011 <span class="comment">% deterministic algorithm of FACT.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% Franco</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% FP rois:</span>
+0016 <span class="comment">% 'mct_callosal_1mm.mat'; 'mct_callosal_4mm.mat';</span>
+0017 <span class="comment">% 'mct_callosal_2mm.mat'; 'mct_prefrontal_1mm.mat';</span>
+0018 <span class="comment">% 'mct_prefrontal_10mm.mat'; 'mct_prefrontal_4mm.mat';</span>
+0019 <span class="comment">% 'mct_callosal_40mm.mat'; 'mct_visual_20mm.mat'; 'mct_prefrontal_2mm.mat';</span>
+0020 <span class="comment">% 'mct_rt12.mat';'mct_or.mat';'mct_occipital_lobe.mat';</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% (C) 2012 Stanford VISTA team.</span>
+0023 
+0024 <span class="keyword">if</span> notDefined(<span class="string">'dtiDataType'</span>); dtiDataType = <span class="string">'b1000'</span>;<span class="keyword">end</span>
+0025 <span class="keyword">if</span> notDefined(<span class="string">'lambda'</span>); lambda = 0;<span class="keyword">end</span>
+0026 <span class="keyword">if</span> notDefined(<span class="string">'algo'</span>);   algo = 3;<span class="keyword">end</span>
+0027 <span class="keyword">if</span> notDefined(<span class="string">'this_roi'</span>);   this_roi = <span class="string">'mct_r_lgn.mat'</span>;<span class="keyword">end</span>
+0028 <span class="keyword">if</span> notDefined(<span class="string">'fitType'</span>);   fitType = <span class="string">'sgd'</span>;<span class="keyword">end</span>
+0029 
+0030 dataRootPath = <span class="string">'/biac2/wandell6/data/arokem/ModelFits/FP20120420/'</span>;
+0031 subfolders   = fullfile(<span class="string">'150dirs_b1000_1'</span>);
+0032 dataDir      = fullfile(dataRootPath,subfolders);
+0033 dtFile       = fullfile(dataDir,<span class="string">'dt6.mat'</span>);
+0034 dwiFile      = fullfile(dataRootPath,<span class="string">'raw'</span>,<span class="string">'0009_01_DWI_2mm150dir_2x_b1000_aligned_trilin.nii.gz'</span>);
+0035 
+0036 <span class="comment">% PRecomputed ROIs and Fiber groups</span>
+0037 roiDir       = fullfile(<span class="string">'/biac2/wandell6/data/arokem/ModelFits/FP20120420/'</span>,subfolders,);
+0038 fiberDir     = fullfile(<span class="string">'/biac2/wandell6/data/arokem/ModelFits/FP20120420/'</span>,subfolders,<span class="string">'fibers'</span>,<span class="string">'whole_brain_FACT'</span>);
+0039 fgName       = fullfile(fiberDir,<span class="string">'WholeBrainFG_FACT.mat'</span>);
+0040 
+0041 <span class="comment">% load the dwi and dti files</span>
+0042 dwi          = dwiLoad(dwiFile);
+0043 dt           = dtiLoadDt6(dtFile);
+0044 [dtiF, dtiH] = mrDiffusion(<span class="string">'off'</span>,dtFile);
+0045  
+0046 <span class="comment">% get te xForms, from a dn to Acpc</span>
+0047 xForm.img2acpc = dtiGet(dtiH,<span class="string">'img 2 acpc xform'</span>);
+0048 xForm.acpc2img = dtiGet(dtiH,<span class="string">'acpc 2 img xform'</span>);
+0049 close(dtiF); clear dtiH dtiF
+0050 
+0051 
+0052 <span class="comment">%% Get the ROI</span>
+0053 roiName    = fullfile(roiDir,this_roi);
+0054 roi        = dtiReadRoi(roiName);
+0055 roi.coords = floor(mrAnatXformCoords(xForm.acpc2img ,roi.coords));
+0056 coords     = unique(roi.coords,<span class="string">'rows'</span>);
+0057 fprintf(<span class="string">'\n[%s] ROI: %s, size(%i,%i)\n'</span>,mfilename,roi.name,size(roi.coords))
+0058 
+0059 
+0060 <span class="comment">%% Load the WHOLE BRAIN fibers</span>
+0061 fprintf(<span class="string">'\n[%s]\n loading fiber from file: %s\n'</span>,mfilename,fgContrack)
+0062 fg     = dtiLoadFiberGroup(fgName);
+0063 fgImg  = dtiXformFiberCoords(fg, xForm.acpc2img,<span class="string">'img'</span>);
+0064 clear fg
+0065 
+0066 <span class="comment">% Select only the fibers' coordinates going throguht the ROI</span>
+0067 <span class="comment">% and only the ROI coordinates where a fiber goes through</span>
+0068 unique_fg_coords = fefgGet(fgImg,<span class="string">'unique image coords'</span>);
+0069 coords = intersect(coords,unique_fg_coords,<span class="string">'rows'</span>);
+0070 fprintf(<span class="string">'\n[%s] ROI IMG %s, size(%i,%i)\n'</span>,mfilename,roi.name,size(coords))
+0071 
+0072 <span class="comment">% Clip the fibers to the portion inside the ROI</span>
+0073 fg = dtiIntersectFibersWithRoi([],[],[],roi,fgImg)
+0074 keyboard
+0075 
+0076 <span class="comment">%% Build the MicroTrack model</span>
+0077 <span class="comment">% Afiber is the portion for the fibers</span>
+0078 <span class="comment">% Aiso is the isotropic portion</span>
+0079 <span class="comment">% dSig is the diffusion signal (raw)</span>
+0080 <span class="comment">% dSig_demeaned is the diffusion signal with the mean removed.</span>
+0081 [Afiber, Aiso, dSig, dSig_demeaned, dSig_fiberPredicted] = mctBuildDiffusionModel(dwi,fgImg,coords,[],<span class="string">'ones'</span>);
+0082 nFiber = size(Afiber,2); 
+0083 
+0084 <span class="comment">% Check that none of the columns has all-zeros, meaning some fibers do not</span>
+0085 <span class="comment">% go throguht this ROI.</span>
+0086 <span class="comment">% all(Afiber==0,1)</span>
+0087 
+0088 <span class="comment">% build the full model</span>
+0089 Afull = [Afiber, Aiso];
+0090 
+0091 <span class="comment">%% Fit the model.</span>
+0092 <span class="comment">% Find the smallest number fo fibers that explain most of the variance in</span>
+0093 <span class="comment">% the diffusion data</span>
+0094 <span class="comment">% Fit the fibers</span>
+0095 fiber_w = mctFitDiffusionModel(Afiber, dSig_demeaned, fitType,lambda);
+0096 
+0097 <span class="comment">% Fit the isotropic</span>
+0098 iso_w = Aiso \ dSig;
+0099 full_w = [fiber_w'; iso_w];
+0100 
+0101 <span class="comment">% save results to disk</span>
+0102 saveDir = <span class="string">'/biac2/wandell6/data/frk/LiFE'</span>;
+0103 fileName  = sprintf(<span class="string">'%s_%s_%s_lambda%i_algo%i'</span>,this_roi(1:end-4),fitType,dtiDataType,10000*lambda,algo);
+0104 saveMe = fullfile(saveDir,fileName);
+0105 fprintf(<span class="string">'\n\nSaving file: %s\n\n'</span>,saveMe)
+0106 save(saveMe,<span class="string">'-v7.3'</span>)
+0107 
+0108 <span class="comment">%% Predict the signal</span>
+0109 pSig_full  = mctComputePredictedSignal(Afull,full_w);
+0110 pSig_fiber = mctComputePredictedSignal(Afiber,fiber_w);
+0111 
+0112 <span class="comment">%% Compute prediction quality of LiFE WM model</span>
+0113 nVoxels = size(Aiso,2); 
+0114 nBvecs  = size(Afiber,1) / nVoxels;
+0115 
+0116 <span class="comment">% Overall quality across voxels</span>
+0117 [rmse_full, r2_full] = mctComputePredictionQuality(dSig, pSig_full);
+0118 
+0119 <span class="comment">% quality by voxel</span>
+0120 <span class="comment">%dSig_img      = mctReshape(dSig, nBvecs, nVoxels);</span>
+0121 <span class="comment">%pSig_full_img = mctReshape(pSig_full, nBvecs, nVoxels);</span>
+0122 <span class="comment">%[rmseVox_full, r2vox_full] = mctComputePredictionQuality(dSig_img, pSig_full_img);</span>
+0123 
+0124 <span class="comment">% Overall quality across voxels</span>
+0125 [rmse_fiber, r2_fiber] = mctComputePredictionQuality(dSig_demeaned,pSig_fiber);
+0126 
+0127 <span class="comment">% Quality by voxel</span>
+0128 <span class="comment">%dSig_dem_img      = mctReshape(dSig_demeaned, nBvecs, nVoxels);</span>
+0129 <span class="comment">%dSig_fiber_img = mctReshape(pSig_fiber, nBvecs, nVoxels);</span>
+0130 <span class="comment">%[rmseVox_fiber, r2vox_fiber] = mctComputePredictionQuality(dSig_dem_img, dSig_fiber_img);</span>
+0131 
+0132 <span class="comment">% Compute the fibers density in each voxel.</span>
+0133 <span class="comment">%[fiberDensity_life, nodesNum_life] = mctComputeFiberDensity(fgImg,coords,fiber_w);</span>
+0134 <span class="comment">%ratioOfNodesNum_life = (max(nodesNum_life) / min(nodesNum_life));</span>
+0135 
+0136 
+0137 <span class="comment">%% Compute prediction quality of the original WM model</span>
+0138 <span class="comment">% Compute the diffusion signal predicted by the original fiber model.</span>
+0139 Aorig     = [sum(Afiber,2)  Aiso * iso_w]; 
+0140 orig_w    = Aorig \ dSig;
+0141 pSig_orig = mctComputePredictedSignal(Aorig,orig_w);
+0142 
+0143 <span class="comment">% Overall quality across voxels</span>
+0144 [rmse_orig, r2_orig] = mctComputePredictionQuality(dSig, pSig_orig);
+0145 
+0146 <span class="comment">% quality by voxel</span>
+0147 <span class="comment">%pSig_orig_img = mctReshape(pSig_orig, nBvecs, nVoxels);</span>
+0148 <span class="comment">%[rmseVox_orig, r2vox_orig] = PmctComputePredictionQuality(dSig_img, pSig_orig_img);</span>
+0149 
+0150 <span class="comment">% Compute the fibers density in each voxel.</span>
+0151 <span class="comment">%[fiberDensity_orig, nodesNum_orig] = mctComputeFiberDensity(fgImg,coords);</span>
+0152 <span class="comment">%ratioOfNodesNum_orig = (max(nodesNum_orig) / min(nodesNum_orig));</span>
+0153 
+0154 
+0155 <span class="comment">%% Plot the results</span>
+0156 <span class="comment">% parse fiber weights and isotropic weights</span>
+0157 [wFibers_fu wIsotropic] = mctSortModelWeights(full_w,nFiber);
+0158 wFibers_fi = mctSortModelWeights(fiber_w,nFiber);
+0159 
+0160 <span class="comment">% plotting fiber predictions against the signal</span>
+0161 h1 = mctDisplayModelFit(wFibers_fu,wIsotropic, dSig, pSig_full, r2_full,  fitType);
+0162 
+0163 <span class="comment">% plot quality of fit.</span>
+0164 h2 = mctPlotQualityOfFit(r2_full,r2_orig, pSig_full,pSig_orig, dSig);
+0165 
+0166 
+0167 <span class="comment">%% Select the fibers explaining most of the varicance</span>
+0168 hits_fibers = fiber_w &gt;= 0.00001; <span class="comment">% the fibers with large weights</span>
+0169 fa_fibers  = ~hits_fibers;
+0170 
+0171 fgGood = fgExtract(fgImg,find(hits_fibers),<span class="string">'keep'</span>);
+0172 fgBad  = fgExtract(fgImg,find(fa_fibers),<span class="string">'keep'</span>);
+0173 
+0174 <span class="comment">% save results to disk</span>
+0175 fprintf(<span class="string">'\n\nSaving file: %s\n\n'</span>,saveMe)
+0176 save(saveMe,<span class="string">'-v7.3'</span>)
+0177 savefigvista(h1,[fileName,<span class="string">'_weigths'</span>],<span class="string">'eps'</span>,saveDir,<span class="string">'/'</span>,1,1);
+0178 savefigvista(h2,[fileName,<span class="string">'_r2'</span>],<span class="string">'eps'</span>,saveDir,<span class="string">'/'</span>,1,1);
+0179 
+0180 <span class="comment">%% Write down the results</span>
+0181 <span class="comment">%mctWriteStats2nifti(fiberDensityAfter,fullfile(dataDir,'fiber_density_after'),dt,coords);</span>
+0182 <span class="comment">%mctWriteStats2nifti(fiberDensityBefore,fullfile(dataDir,'fiber_density_before'),dt,coords);</span>
+0183 
+0184 <span class="comment">%% Show the seelcted fibers</span>
+0185 <span class="comment">%fgView(dtiH,fgGood,300);</span>
+0186 <span class="comment">%fgView(dtiH,fgBad,301);</span>
+0187 <span class="comment">%fgView(dtiH,fg,302)</span>
+0188 
+0189 <span class="keyword">end</span>
+0190 
+0191 <span class="comment">%% test lambda values</span>
+0192 <span class="comment">%</span>
+0193 <span class="comment">% lambda = [.001 .02 1 20 100];</span>
+0194 <span class="comment">% for ii = 1:length(lambda)</span>
+0195 <span class="comment">%   close all;</span>
+0196 <span class="comment">%   clc;</span>
+0197 <span class="comment">%   s_life_rois_wholebrain(lambda(ii),'mct_prefrontal_10mm.mat');</span>
+0198 <span class="comment">% end</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of feXvalidate</title>
+  <meta name="keywords" content="feXvalidate">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">compute</a> &gt; feXvalidate.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for compute&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>feXvalidate
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [xval, r2, rmse] = feXvalidate(M,dSig, fitMethod, crossValType) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ [xval, r2, rmse]  = feXvalidate(M,dSig, fitMethod, [crossValType])
+
+ We use split-half cross validation so the we fit the model only twice.
+
+ This can be improved but calculations become slow if we make the cross
+ validation scheme more interesting.
+
+ Franco (C) 2012 Stanford VISTA team.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="feComputePredictionQuality.html" class="code" title="function  [rmse, r2] = feComputePredictionQuality(dSig,predSig,whichr2)">feComputePredictionQuality</a>	</li><li><a href="feFitModel.html" class="code" title="function [fit w R2] = feFitModel(M,dSig,fitMethod)">feFitModel</a>	Fit the LiFE model.</li><li><a href="mctComputePredictedSignal.html" class="code" title="function predSig = mctComputePredictedSignal(A,w)">mctComputePredictedSignal</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="feConnectomeCull.html" class="code" title="function [fe fefit fexval] = feConnectomeCull(fe,maxNumInter, lowerPrct, percentReduxRMSE)">feConnectomeCull</a>	</li><li><a href="feConnectomeCull2.html" class="code" title="function [fe fefit fexval] = feConnectomeCull2(fe,minWeight, prctR2redux,maxNumIter)">feConnectomeCull2</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [xval, r2, rmse] = feXvalidate(M,dSig, fitMethod, crossValType)</a>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% [xval, r2, rmse]  = feXvalidate(M,dSig, fitMethod, [crossValType])</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% We use split-half cross validation so the we fit the model only twice.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% This can be improved but calculations become slow if we make the cross</span>
+0008 <span class="comment">% validation scheme more interesting.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% Franco (C) 2012 Stanford VISTA team.</span>
+0011 
+0012 <span class="keyword">if</span> notDefined(<span class="string">'crossValType'</span>),crossValType = <span class="string">'Split Half'</span>;<span class="keyword">end</span>
+0013 
+0014 <span class="comment">% Squeeze out spaces and force lower case</span>
+0015 crossValType = mrvParamFormat(crossValType);
+0016 
+0017 <span class="keyword">switch</span> crossValType
+0018   <span class="keyword">case</span> {<span class="string">'splithalf'</span>}
+0019     <span class="comment">% Split data and the model into even and odd halfs</span>
+0020     evenHalf          = ones(length(dSig),1);
+0021     evenHalf(2:2:end) = 0;
+0022     evenHalf          = logical(evenHalf);
+0023     oddHalf           = ~evenHalf;
+0024     
+0025     <span class="comment">% Fit the LiFE to odd and even halfs</span>
+0026     fprintf(<span class="string">'LiFE - Computing cross-validation with Stochastic Gradient Descend method...\n'</span>)
+0027     evenFit = <a href="feFitModel.html" class="code" title="function [fit w R2] = feFitModel(M,dSig,fitMethod)">feFitModel</a>(M(evenHalf,:), dSig(evenHalf),fitMethod);
+0028     oddFit  = <a href="feFitModel.html" class="code" title="function [fit w R2] = feFitModel(M,dSig,fitMethod)">feFitModel</a>(M(oddHalf,:),  dSig(oddHalf), fitMethod);
+0029     
+0030     <span class="comment">% Predicted signal with the weights generated by the other half of the signal.</span>
+0031     evenPSig  = <a href="mctComputePredictedSignal.html" class="code" title="function predSig = mctComputePredictedSignal(A,w)">mctComputePredictedSignal</a>(M(evenHalf,:), oddFit.weights);
+0032     oddPSig   = <a href="mctComputePredictedSignal.html" class="code" title="function predSig = mctComputePredictedSignal(A,w)">mctComputePredictedSignal</a>(M(oddHalf,:), evenFit.weights);
+0033     
+0034     <span class="comment">% Compute quality of fit.</span>
+0035     [evenRmse evenR2] = <a href="feComputePredictionQuality.html" class="code" title="function  [rmse, r2] = feComputePredictionQuality(dSig,predSig,whichr2)">feComputePredictionQuality</a>(dSig(evenHalf),evenPSig);
+0036     [oddRmse   oddR2] = <a href="feComputePredictionQuality.html" class="code" title="function  [rmse, r2] = feComputePredictionQuality(dSig,predSig,whichr2)">feComputePredictionQuality</a>(dSig(oddHalf),  oddPSig);
+0037     
+0038     <span class="comment">% Set the R2 and RMSE in the fe structure.</span>
+0039     <span class="comment">% These are stored because it takes time to compute them.</span>
+0040     xval.r2.mean = mean( [evenR2 oddR2] );
+0041     xval.r2.std  = std(  [evenR2 oddR2] );
+0042     xval.r2.all  =       [evenR2 oddR2];
+0043     
+0044     xval.rmse.mean = mean( [evenRmse  oddRmse] );
+0045     xval.rmse.std  = std(  [evenRmse  oddRmse] );
+0046     xval.rmse.all  =       [evenRmse  oddRmse];
+0047 
+0048   <span class="keyword">otherwise</span>
+0049     error(<span class="string">'Unknown cross validation type %s\n'</span>,crossValType);
+0050 <span class="keyword">end</span>
+0051 
+0052 <span class="comment">% Return all the r2 computed. Thi sis useful for bootstrapping and testing hypothesis.</span>
+0053 r2   = xval.r2.all;
+0054 rmse = xval.rmse.all;
+0055 
+0056 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

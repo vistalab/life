@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of mctFGclip</title>
+  <meta name="keywords" content="mctFGclip">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">fibers</a> &gt; mctFGclip.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for fibers&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>mctFGclip
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function fg = mctFGclip(fg,coords) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ function fg = mctFGclip(fg,coords)
+
+ Clips fibers in a fiber group to the coordinates in coords.
+ 
+ Ideally the coordinates are those of an roi, the operation will limit the
+ fiber paths to within the ROI.
+
+ fg and coords are assumed to be in the same coordinate space (acpc or
+ image).
+
+ See also:
+
+ Example:
+
+ Franco &amp; Ariel
+
+ (c) Stanford VISTA Team 2012</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function x = oneifempty(x)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function fg = mctFGclip(fg,coords)</a>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% function fg = mctFGclip(fg,coords)</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% Clips fibers in a fiber group to the coordinates in coords.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Ideally the coordinates are those of an roi, the operation will limit the</span>
+0008 <span class="comment">% fiber paths to within the ROI.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% fg and coords are assumed to be in the same coordinate space (acpc or</span>
+0011 <span class="comment">% image).</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% See also:</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% Example:</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% Franco &amp; Ariel</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% (c) Stanford VISTA Team 2012</span>
+0020 
+0021 fprintf(<span class="string">'\n[%s] Clipping fibers to be constrained within the volume\n        defined by the passed coordinates.\n'</span>,mfilename)
+0022 
+0023 <span class="comment">% Get the nodes to voxel matching. This is a cell array size(fg.fibers),</span>
+0024 <span class="comment">% each entry in the cell array tells you which node is in which voxel.</span>
+0025 <span class="comment">%</span>
+0026 nodes2voxels = fefgGet(fg,<span class="string">'nodes2voxels'</span>,coords);
+0027 
+0028 <span class="comment">% Find the indexes of the nodes that do pass through the roi</span>
+0029 <span class="comment">% coordinates.</span>
+0030 nodesIndex = cellfun(@find,nodes2voxels, <span class="string">'UniformOutput'</span>, false);
+0031 
+0032 <span class="comment">% Check whether the indexes of the nodes are consecutives. If they are not</span>
+0033 <span class="comment">% it means that they went out of the ROI then back in the ROI.</span>
+0034 gradient = cellfun(@diff,nodesIndex, <span class="string">'UniformOutput'</span>, false);
+0035 
+0036 <span class="comment">% If a fiber only has one node in the ROI gradient will be emtpy for that</span>
+0037 <span class="comment">% fiber. We set the fiber to 1.</span>
+0038 gradient = cellfun(@<a href="#_sub1" class="code" title="subfunction x = oneifempty(x)">oneifempty</a>,gradient, <span class="string">'UniformOutput'</span>, false);
+0039 
+0040 <span class="comment">% Now we deal with cases in which the fibers go out of the roi and then go</span>
+0041 <span class="comment">% back in into the ROI in these cases we split the fibers into separated</span>
+0042 <span class="comment">% fibers.</span>
+0043 c = 1; <span class="comment">% THis is the counter that keeps track of the new fibers.</span>
+0044        <span class="comment">% The fiber number will increase after the following operations</span>
+0045 <span class="keyword">for</span> iif = 1:length(fg.fibers)
+0046   <span class="comment">% Find the nodes that are continous within the ROI</span>
+0047   isone = gradient{iif} == 1;
+0048   
+0049   <span class="comment">% If all the nodes in this fiber were in the ROI just copy the fiber</span>
+0050   <span class="keyword">if</span> all(isone)
+0051     fibers{c} = fg.fibers{iif}(:,nodesIndex{iif});
+0052     <span class="keyword">if</span> isfield(fg,<span class="string">'seeds'</span>) &amp;&amp; ~isempty(fg.seeds)
+0053       <span class="keyword">if</span> size(fg.seeds,1) == 3
+0054         seeds(1:3,c)  = fg.seeds(:,iif);
+0055       <span class="keyword">elseif</span> size(fg.seeds,2) == 3
+0056         seeds(c,1:3)  = fg.seeds(iif,:);
+0057       <span class="keyword">end</span>
+0058     <span class="keyword">end</span>
+0059     <span class="keyword">if</span> isfield(fg,<span class="string">'Q'</span>)
+0060       Q{c}  = fg.Q{iif};
+0061     <span class="keyword">end</span>
+0062     
+0063     c = c + 1;
+0064     
+0065   <span class="comment">% If the fiber exits the ROI and then re-enters it, ctu the fibers into</span>
+0066   <span class="comment">% segements and save the segments as separate fibers.</span>
+0067   <span class="keyword">else</span>
+0068     indx = find(~isone);
+0069     <span class="keyword">for</span> iin = 1:length(indx)
+0070       <span class="keyword">if</span> iin == 1
+0071         fibers{c} = fg.fibers{iif}(:, nodesIndex{iif}(1:indx(iin)));
+0072         <span class="keyword">if</span> isfield(fg,<span class="string">'seeds'</span>) &amp;&amp; ~isempty(fg.seeds)
+0073           seeds(1:3,c)  = fg.seeds(:,iif);
+0074         <span class="keyword">end</span>
+0075         <span class="keyword">if</span> isfield(fg,<span class="string">'Q'</span>)
+0076           Q{c}  = fg.Q{iif};
+0077         <span class="keyword">end</span>
+0078       <span class="keyword">else</span>
+0079         fibers{c} = fg.fibers{iif}(:, nodesIndex{iif}(indx(iin - 1) + 1:indx(iin)));
+0080         <span class="keyword">if</span> isfield(fg,<span class="string">'seeds'</span>) &amp;&amp; ~isempty(fg.seeds)
+0081           seeds(1:3,c)  = fg.seeds(:,iif);
+0082         <span class="keyword">end</span>
+0083         <span class="keyword">if</span> isfield(fg,<span class="string">'Q'</span>)
+0084           Q{c}  = fg.Q{iif};
+0085         <span class="keyword">end</span>
+0086       <span class="keyword">end</span>
+0087       c = c + 1;
+0088     <span class="keyword">end</span>
+0089   <span class="keyword">end</span>
+0090 <span class="keyword">end</span>
+0091 
+0092 <span class="comment">% Save to output fiber group</span>
+0093 fg.name = sprintf(<span class="string">'%s clipped to ROI coords'</span>,fg.name);
+0094 <span class="keyword">if</span> isfield(fg,<span class="string">'Q'</span>)
+0095   fg.Q = Q;
+0096 <span class="keyword">end</span>
+0097 <span class="keyword">if</span> isfield(fg,<span class="string">'seeds'</span>) &amp;&amp; ~isempty(fg.seeds)
+0098   fg.seeds = seeds;
+0099 <span class="keyword">end</span>
+0100 
+0101 fg.fibers = fibers;
+0102 
+0103 <span class="comment">% The next line is just fo rdebugging if the code is correct we should</span>
+0104 <span class="comment">% never have a problme withthe following line.</span>
+0105 <span class="comment">% Delete me soonish.</span>
+0106 deleteme = fefgGet(fg,<span class="string">'nodes2voxels'</span>,coords);
+0107 
+0108 
+0109 
+0110 <span class="comment">%-------------------------%</span>
+0111 <a name="_sub1" href="#_subfunctions" class="code">function x = oneifempty(x)</a>
+0112 <span class="comment">%</span>
+0113 <span class="comment">% This function is used to substitute empty matrices in a cell with 1.</span>
+0114 <span class="comment">%</span>
+0115 <span class="keyword">if</span> isempty(x), x = 1;<span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

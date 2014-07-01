@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of s_lifeTestFascicleImportance</title>
+  <meta name="keywords" content="s_lifeTestFascicleImportance">
+  <meta name="description" content="% s_lifeTestFascicleImportance.m">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">scripts</a> &gt; s_lifeTestFascicleImportance.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for scripts&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>s_lifeTestFascicleImportance
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>% s_lifeTestFascicleImportance.m</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">% s_lifeTestFascicleImportance.m
+
+ Illustrate how to preprocess a connectome (fg) to be constrained within a
+ region of interest and within the cortex.
+
+ We will show how to clip a fiber grou so that it only contains fibers
+ that are within the volume defined by an ROI, that are not short and that
+ start and end in cortex.
+
+ For this example we use the volume defined by the connectome to constrain
+ the fibers.
+
+ See also:
+
+ Franco (C) 2012 Stanford VISTA team.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">%% s_lifeTestFascicleImportance.m</span>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% Illustrate how to preprocess a connectome (fg) to be constrained within a</span>
+0004 <span class="comment">% region of interest and within the cortex.</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% We will show how to clip a fiber grou so that it only contains fibers</span>
+0007 <span class="comment">% that are within the volume defined by an ROI, that are not short and that</span>
+0008 <span class="comment">% start and end in cortex.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% For this example we use the volume defined by the connectome to constrain</span>
+0011 <span class="comment">% the fibers.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% See also:</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% Franco (C) 2012 Stanford VISTA team.</span>
+0016 
+0017 <span class="comment">%% Start loading the data</span>
+0018 <span class="comment">% Basic directories</span>
+0019 projectDir     = <span class="string">'HT_V123_V4'</span>;
+0020 myLifeProjects = <span class="string">'LiFE_hiromasa'</span>;
+0021 basePath      = fullfile(<span class="string">'biac2'</span>,<span class="string">'wandell6'</span>);
+0022 dataRootPath  = fullfile(<span class="string">'biac2'</span>,<span class="string">'wandell6'</span>,<span class="string">'data'</span>,<span class="string">'frk'</span>,<span class="string">'life_dti'</span>,<span class="string">'FP20120420'</span>);
+0023 subfolders    = fullfile(<span class="string">'150dirs_b1000_1'</span>);
+0024 baseDir       = fullfile(dataRootPath,subfolders);
+0025 dtFile        = fullfile(baseDir,<span class="string">'dt6.mat'</span>);
+0026 dwiFile       = fullfile(dataRootPath,<span class="string">'raw'</span>,<span class="string">'0009_01_DWI_2mm150dir_2x_b1000_aligned_trilin.nii.gz'</span>);
+0027 
+0028 <span class="comment">% Files to load:</span>
+0029 testFiberOrig  = <span class="string">'RV123-HT-10deg.nii_1_cleaned_RV4-LVF13-Aug13_nonZero_MaskROI_20120917T151607.pdb'</span>;
+0030 testFpath      = fullfile(dataRootPath,<span class="string">'fibers'</span>,<span class="string">'conTrack'</span>,testFiberOrig);
+0031 
+0032 connectomeOrig = <span class="string">'WholeBrainFG_MRTRIX.mat'</span>;
+0033 wholeBrainPath = fullfile(baseDir,<span class="string">'fibers'</span>,<span class="string">'whole_brain_MRTRIX'</span>,connectomeOrig);
+0034 
+0035 <span class="comment">% Files to save:</span>
+0036 saveDir           = fullfile(baseDir,myLifeProjects,projectDir);
+0037 testVol           = <span class="string">'HT_RV123_RV4'</span>;
+0038 testFibersClipped = <span class="string">'HT_V123_V4_Clipped'</span>;
+0039 connectomeClipped = <span class="string">'HT_Connectome_Contrack_Clipped'</span>;
+0040 
+0041 <span class="comment">% Handling parallel processing</span>
+0042 poolwasopen=1; <span class="comment">% if a matlabpool was open already we do not open nor close one</span>
+0043 <span class="keyword">if</span> (matlabpool(<span class="string">'size'</span>) == 0), matlabpool open; poolwasopen=0; <span class="keyword">end</span>
+0044 
+0045 <span class="comment">%% Load ConTrack fibers</span>
+0046 disp(<span class="string">'Loading TEST fibers...'</span>)
+0047 fgC = fgRead(testFpath);
+0048 
+0049 <span class="comment">% Generate an ROI out of the fiebrs, we will evaluate the model in this</span>
+0050 <span class="comment">% Volume</span>
+0051 randColor = rand(1,3);
+0052 volRoi    = dtiNewRoi(testVol,randColor,fefgGet(fgC,<span class="string">'unique image coords'</span>));
+0053 volRoi    = dtiRoiClean(volRoi,3,[<span class="string">'fillholes'</span>, <span class="string">'dilate'</span>, <span class="string">'removesat'</span>]);
+0054 
+0055 <span class="comment">%% Clip the TEST fibers to volumeRoi. This is for extra care.</span>
+0056 maxVolDist  = 1; <span class="comment">% mm</span>
+0057 tic, fprintf(<span class="string">'Clipping TEST fibers that leave the volume ROI...\n'</span>);
+0058 fgC = feClipFibersToVolume(fgC,volRoi.coords,maxVolDist);
+0059 fprintf(<span class="string">'process completed in %2.3fhours\n'</span>,toc/60/60);
+0060 
+0061 <span class="comment">%% Load a full-brain Connectome that was preprocessed with</span>
+0062 <span class="comment">% feConnectomePreprocess.m</span>
+0063 disp(<span class="string">'Loading the whole brain connectome...'</span>)
+0064 fg = fgRead(wholeBrainPath);
+0065 
+0066 <span class="comment">%% Clip the connectome to be constrained within the volumeRoi.</span>
+0067 tic, fprintf(<span class="string">'Clipping Connectome fibers that leave the volume ROI...\n'</span>);
+0068 fg = feClipFibersToVolume(fg,volRoi.coords,maxVolDist);
+0069 fprintf(<span class="string">'process completed in %2.3fhours\n'</span>,toc/60/60);
+0070 
+0071 <span class="comment">%% Combine the Connectome with the TEST fibers.</span>
+0072 fgAll = fgMerge(fg,fgC);
+0073 
+0074 <span class="comment">%% Build a model of the connectome</span>
+0075 feAll = feConnectomeInit(dwiFile,dtFile,fgAll);
+0076 
+0077 <span class="comment">% Fit the model</span>
+0078 fefit = feFitModel(feGet(feAll,<span class="string">'Mfiber'</span>),feGet(feAll,<span class="string">'dsig demeaned'</span>),<span class="string">'sgdnn'</span>);
+0079 feAll = feSet(feAll,<span class="string">'fit'</span>,fefit);
+0080 
+0081 <span class="comment">%% Reduce the model to containing only the fibers from the connectome</span>
+0082 <span class="comment">% without the connection being tested.</span>
+0083 <span class="comment">% Save the indices of the connectome fibers (1) and of the fibers to be</span>
+0084 <span class="comment">% tested (0).</span>
+0085 connectome_indx = 1:numel(fg.fibers);
+0086 testFibers_indx = max(connectome_indx)+1:max(connectome_indx)+numel(fgC.fibers);
+0087 feNo            = feConnectomeSelectFibers(feAll,connectome_indx);
+0088 
+0089 <span class="comment">% Fit the model</span>
+0090 fefit = feFitModel(feGet(feNo,<span class="string">'Mfiber'</span>),feGet(feNo,<span class="string">'dsig demeaned'</span>),<span class="string">'sgdnn'</span>);
+0091 feNo  = feSet(feNo,<span class="string">'fit'</span>,fefit);
+0092 
+0093 <span class="comment">%% Reduce the model to containing only the TEST fibers being tested.</span>
+0094 feTestF = feConnectomeSelectFibers(feTestF,testFibers_indx);
+0095 
+0096 <span class="comment">% Fit the model</span>
+0097 fefit   = feFitModel(feGet(feTestF,<span class="string">'Mfiber'</span>),feGet(feTestF,<span class="string">'dsig demeaned'</span>),<span class="string">'sgdnn'</span>);
+0098 feTestF = feSet(feTestF,<span class="string">'fit'</span>,fefit);
+0099 
+0100 <span class="comment">%% Compute maps of RMSE for each fit.</span>
+0101 feSaveMapToNifti(feAll,  <span class="string">'vox rmse'</span>, fullfile(saveDir,<span class="string">'maps'</span>,<span class="string">'rmse_ALL_fibers'</span>) );
+0102 feSaveMapToNifti(feNo,   <span class="string">'vox rmse'</span>, fullfile(saveDir,<span class="string">'maps'</span>,<span class="string">'rmse_NO_fibers'</span>) );
+0103 feSaveMapToNifti(feTestF,<span class="string">'vox rmse'</span>, fullfile(saveDir,<span class="string">'maps'</span>,<span class="string">'rmse_test_fibers'</span>) );
+0104 
+0105 <span class="comment">%% Compute maps of R2 for each fit.</span>
+0106 feSaveMapToNifti(feAll,  <span class="string">'vox r2 zero'</span>, fullfile(saveDir,<span class="string">'maps'</span>,<span class="string">'r2z_ALL_fibers'</span>) );
+0107 feSaveMapToNifti(feNo,   <span class="string">'vox r2 zero'</span>, fullfile(saveDir,<span class="string">'maps'</span>,<span class="string">'r2z_NO_fibers'</span>) );
+0108 feSaveMapToNifti(feTestF,<span class="string">'vox r2 zero'</span>, fullfile(saveDir,<span class="string">'maps'</span>,<span class="string">'r2z_test_fibers'</span>) );
+0109 
+0110 <span class="comment">%% Save all files</span>
+0111 dtiWriteRoi(volRoi, fullfile(saveDir,<span class="string">'rois'</span>,volRoi.name),<span class="string">'mat'</span>)
+0112 fgWrite(fgC,  fullfile(saveDir,<span class="string">'fg'</span>,<span class="string">'HT_contract_clipped'</span>),<span class="string">'pdb'</span>);
+0113 fgWrite(fg,   fullfile(saveDir,<span class="string">'fg'</span>,<span class="string">'HT_whole_brain_clipped'</span>),<span class="string">'pdb'</span>);
+0114 fgWrite(fgAll,fullfile(saveDir,<span class="string">'fg'</span>,<span class="string">'HT_contrack_AND_connectome'</span>),<span class="string">'pdb'</span>);
+0115 feConnectomeSave(feAll)
+0116 feConnectomeSave(feNo)
+0117 feConnectomeSave(feTestF)
+0118 
+0119 <span class="comment">% Handling paralle processing.</span>
+0120 <span class="keyword">if</span> ~poolwasopen, matlabpool close; <span class="keyword">end</span>
+0121</pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

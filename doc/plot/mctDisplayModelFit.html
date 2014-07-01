@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of mctDisplayModelFit</title>
+  <meta name="keywords" content="mctDisplayModelFit">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">plot</a> &gt; mctDisplayModelFit.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for plot&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>mctDisplayModelFit
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function h = mctDisplayModelFit(wFibers,wIso,dSig,life_pSig,life_r2, orig_pSig,orig_r2,fitType) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> 
+ function h = mctDisplayModelFit(wFibers,wIso,fitType)
+
+ Display the microtrack fits, still working on this. 
+
+ Franco
+
+ (C) 2012 Stanford VISTA team.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function h = mctDisplayModelFit(wFibers,wIso,dSig,life_pSig,life_r2, orig_pSig,orig_r2,fitType)</a>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% function h = mctDisplayModelFit(wFibers,wIso,fitType)</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% Display the microtrack fits, still working on this.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Franco</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% (C) 2012 Stanford VISTA team.</span>
+0010 
+0011 h = mrvNewGraphWin(sprintf(<span class="string">'LiFE Results - Using: %s'</span>,fitType));
+0012 
+0013 <span class="comment">% Fiber weights</span>
+0014 cLiFE = [.4576 .5424 1];cOrig = [1 .5 0];
+0015 subplot(2,2,1), plot(wFibers,<span class="string">'o'</span>,<span class="string">'MarkerFaceColor'</span>,cLiFE,<span class="string">'Color'</span>,cLiFE), axis tight
+0016 set(gca,<span class="string">'yLim'</span>,[-.1 max(wFibers) + 0.01],<span class="string">'TickDir'</span>,<span class="string">'out'</span>,<span class="string">'box'</span>,<span class="string">'off'</span>);
+0017 title(<span class="string">'LiFE solution - Fibers weights'</span>)
+0018 xlabel(<span class="string">'Fiber number'</span>);ylabel(<span class="string">'Fiber weight'</span>)
+0019 
+0020 <span class="comment">% isotropic components' weights, mean signal in a voxel</span>
+0021 subplot(2,2,2), plot(wIso,<span class="string">'k.'</span>), axis tight
+0022 set(gca,<span class="string">'YLim'</span>,[-0.1 nanmax(wIso(:))*1.1],<span class="string">'TickDir'</span>,<span class="string">'out'</span>,<span class="string">'box'</span>,<span class="string">'off'</span>);
+0023 title(<span class="string">'Mean DW signal in each voxel'</span>)
+0024 xlabel(<span class="string">'Voxel number / diffusion direction index'</span>);ylabel(<span class="string">'DW signal'</span>)
+0025 
+0026 <span class="comment">% Plot the signals in the voxels</span>
+0027 subplot(2,2,3:4) 
+0028 plot(dSig,<span class="string">'k-'</span>); hold on
+0029 plot(life_pSig,<span class="string">'-'</span>,<span class="string">'LineWidth'</span>,1,<span class="string">'MarkerFaceColor'</span>,cLiFE,<span class="string">'Color'</span>,cLiFE,<span class="string">'MarkerEdgeColor'</span>,<span class="string">'w'</span>);
+0030 plot(orig_pSig,<span class="string">'--'</span>,<span class="string">'LineWidth'</span>,1,<span class="string">'MarkerFaceColor'</span>,cOrig,<span class="string">'Color'</span>,cOrig,<span class="string">'MarkerEdgeColor'</span>,<span class="string">'w'</span>);
+0031 axis tight
+0032 xlabel(<span class="string">'Voxels and diffusion directions'</span>);
+0033 ylabel(<span class="string">'DW signal'</span>)
+0034 title(sprintf(<span class="string">'Percent variance explained: Orig:%2.2f, LiFE:%2.2f'</span>,orig_r2,life_r2))
+0035 set(gca,<span class="string">'TickDir'</span>,<span class="string">'out'</span>,<span class="string">'box'</span>,<span class="string">'off'</span>);
+0036 
+0037 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
