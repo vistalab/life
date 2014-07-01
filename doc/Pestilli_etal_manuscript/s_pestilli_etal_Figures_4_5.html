@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of s_pestilli_etal_Figures_4_5</title>
+  <meta name="keywords" content="s_pestilli_etal_Figures_4_5">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Pestilli_etal_manuscript</a> &gt; s_pestilli_etal_Figures_4_5.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Pestilli_etal_manuscript&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>s_pestilli_etal_Figures_4_5
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function fe = s_pestilli_etal_Figures_4_5() </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ This function:
+  - Identifies al the fibers between two ROIs from a whole-brain conenctome
+  - Combines them with fibers tracted between the two ROIs 
+  - Generates an optimized connectome from a candidate connectome using 
+  LIFE method
+  - Performs a virtual lesion
+
+  fe = s_pestilli_etal_Figures_4_5()
+ 
+ INPUTS:  none
+ OUTPUTS: fe structure the optimized life structure
+
+ Copyright 2013-2014 Franco Pestilli Stanford University pestillifranco@gmail.com.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function fe = s_pestilli_etal_Figures_4_5()</a>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% This function:</span>
+0004 <span class="comment">%  - Identifies al the fibers between two ROIs from a whole-brain conenctome</span>
+0005 <span class="comment">%  - Combines them with fibers tracted between the two ROIs</span>
+0006 <span class="comment">%  - Generates an optimized connectome from a candidate connectome using</span>
+0007 <span class="comment">%  LIFE method</span>
+0008 <span class="comment">%  - Performs a virtual lesion</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%  fe = s_pestilli_etal_Figures_4_5()</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% INPUTS:  none</span>
+0013 <span class="comment">% OUTPUTS: fe structure the optimized life structure</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% Copyright 2013-2014 Franco Pestilli Stanford University pestillifranco@gmail.com.</span>
+0016 
+0017 <span class="comment">%% Get the base directory for the data</span>
+0018 datapath = pestilliDataPath;
+0019 
+0020 <span class="comment">% Build the file names for the diffusion data, the anatomical MR, the fiber</span>
+0021 <span class="comment">% group containing the connectome and the</span>
+0022 dwiFile       = fullfile(datapath,<span class="string">'diffusion'</span>,<span class="string">'subject1_scan1_2mm_150dir_b2000.nii.gz'</span>);
+0023 dwiFileRepeat = fullfile(datapath,<span class="string">'diffusion'</span>,<span class="string">'subject1_scan2_2mm_150dir_b2000.nii.gz'</span>);
+0024 t1File        = fullfile(datapath,<span class="string">'anatomy'</span>,<span class="string">'subject1_t1_anatomy.nii.gz'</span>);
+0025 fgFileName    = fullfile(datapath,<span class="string">'connectomes'</span>,<span class="string">'subject1_fibers_unculled_2mm_150dir_b2000_probabilistic_lmax8.mat'</span>);
+0026 savedir       = datapath;
+0027 
+0028 <span class="comment">% The final connectome and dat astructure will be saved with this name:</span>
+0029 feFileName    = <span class="string">'fe_culled_subject1_scan1_2mm_150dir_b2000'</span>;
+0030 
+0031 <span class="comment">% Intialize a local matlab cluster if the parallel toolbox is available.</span>
+0032 feOpenLocalCluster;
+0033 
+0034 <span class="comment">%% Initialize the Connectome</span>
+0035 fe = feConnectomeInit(dwiFile,fgFileName,feFileName,savedir,dwiFileRepeat,t1File);
+0036 
+0037 <span class="comment">%% Fit the model and cull. This will take some time...</span>
+0038 fe = feSet(fe,<span class="string">'fit'</span>,feFitModel(fe,<span class="string">'bbnnls'</span>));
+0039 
+0040 <span class="comment">%% Save it</span>
+0041 feConnectomeSave(fe);
+0042 
+0043 <span class="comment">%% Make a plot of the RMSE:</span>
+0044 rmse   = feGet(fe,<span class="string">'vox rmse'</span>);
+0045 rmsexv = feGetRep(fe,<span class="string">'vox rmse'</span>);
+0046 figName = sprintf(<span class="string">'RMSE'</span>);
+0047 mrvNewGraphWin(figName);
+0048 <span class="comment">% Non-cross-validated</span>
+0049 [y,x] = hist(rmse,50);
+0050 plot(x,y,<span class="string">'k-'</span>)
+0051 hold on
+0052 <span class="comment">% Cross-validated</span>
+0053 [y,x] = hist(rmsexv,50);
+0054 plot(x,y,<span class="string">'r-'</span>)
+0055 set(gca,<span class="string">'tickdir'</span>,<span class="string">'out'</span>,<span class="string">'fontsize'</span>,16,<span class="string">'box'</span>,<span class="string">'off'</span>)
+0056 title(<span class="string">'Root-mean squared error distribution across voxels'</span>,<span class="string">'fontsize'</span>,16)
+0057 ylabel(<span class="string">'number of voxels'</span>,<span class="string">'fontsize'</span>,16)
+0058 xlabel(<span class="string">'rmse (scanner units)'</span>,<span class="string">'fontsize'</span>,16)
+0059 legend({<span class="string">'RMSE fitted data set'</span>,<span class="string">'RMSE cross-validated'</span>},<span class="string">'fontsize'</span>,16)
+0060 
+0061 <span class="comment">%% Make a plot of the RMSE Ratio:</span>
+0062 R   = feGetRep(fe,<span class="string">'voxrmseratio'</span>);
+0063 figName = sprintf(<span class="string">'RMSE RATIO'</span>);
+0064 mrvNewGraphWin(figName);
+0065 [y,x] = hist(R,linspace(.5,2,50));
+0066 plot(x,y,<span class="string">'k-'</span>)
+0067 hold on
+0068 plot([1 1],[0 450],<span class="string">'k--'</span>)
+0069 set(gca,<span class="string">'tickdir'</span>,<span class="string">'out'</span>,<span class="string">'fontsize'</span>,16,<span class="string">'box'</span>,<span class="string">'off'</span>)
+0070 title(<span class="string">'Root-mean squared error Ratio'</span>,<span class="string">'fontsize'</span>,16)
+0071 ylabel(<span class="string">'number of voxels'</span>,<span class="string">'fontsize'</span>,16)
+0072 xlabel(<span class="string">'R_{rmse}'</span>,<span class="string">'fontsize'</span>,16)
+0073 
+0074 <span class="comment">%% Make a plot of the weights:</span>
+0075 w = feGet(fe,<span class="string">'fiber weights'</span>);
+0076 figName = sprintf(<span class="string">'Fascicle weights'</span>);
+0077 mrvNewGraphWin(figName);
+0078 [y,x] = hist(w(w&gt;0),logspace(-4,-.3,50));
+0079 semilogx(x,y)
+0080 set(gca,<span class="string">'tickdir'</span>,<span class="string">'out'</span>,<span class="string">'fontsize'</span>,16,<span class="string">'box'</span>,<span class="string">'off'</span>)
+0081 title(<span class="string">'fascicle weights'</span>,<span class="string">'fontsize'</span>,16)
+0082 ylabel(<span class="string">'number of fascicles'</span>,<span class="string">'fontsize'</span>,16)
+0083 xlabel(<span class="string">'fascicle weight'</span>,<span class="string">'fontsize'</span>,16)
+0084 
+0085 <span class="keyword">return</span>
+0086</pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 13:06:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -24,12 +24,12 @@
 <div class="box"><strong>Deletes a set of fibers from the signal and the M matrix.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>function fe = feConnectomeReduceFibers(fe, fibersToKeep,reduceVoxels) </strong></div>
+<div class="box"><strong>function [fe, removedFibers] = feConnectomeReduceFibers(fe, fibersToKeep) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Deletes a set of fibers from the signal and the M matrix.
 
-   fe = feConnectomeDeleteFibers(fe,fibersToKeep,[reduceVoxels])
+   [fe, removedFibers] = feConnectomeDeleteFibers(fe,fibersToKeep)
 
  Inputs:
    - fe, an fe structure, see feCreate.m, and v_lifeExample.m
@@ -41,25 +41,26 @@
  Example:
    fibersToKeep = 1:50;
    feConnectomeReduceFibers(fe, fibersToKeep)
- Franco (c) Stanford Vista Team 2012</pre></div>
+
+ Copyright Franco Pestilli (2013) Vistasoft Stanford University.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="feConnectomeReduceVoxels.html" class="code" title="function [Mfiber dSig] = feConnectomeReduceVoxels(fe,voxelsToKeep)">feConnectomeReduceVoxels</a>	Select the voxels to keep (extract) in a connectome matrix</li><li><a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>	Get function for fascicle evaluation structure</li></ul>
+<li><a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>	Get function for fascicle evaluation structure</li><li><a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>	Set fascicle evaluation parameters</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-</ul>
+<li><a href="feConnectomeReduceVoxels.html" class="code" title="function [fe, indicesFibersKept] = feConnectomeReduceVoxels(fe,voxelsToKeep)">feConnectomeReduceVoxels</a>	Select the voxels to keep (extract) in a connectome matrix</li></ul>
 <!-- crossreference -->
 
 
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function fe = feConnectomeReduceFibers(fe, fibersToKeep,reduceVoxels)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [fe, removedFibers] = feConnectomeReduceFibers(fe, fibersToKeep)</a>
 0002 <span class="comment">% Deletes a set of fibers from the signal and the M matrix.</span>
 0003 <span class="comment">%</span>
-0004 <span class="comment">%   fe = feConnectomeDeleteFibers(fe,fibersToKeep,[reduceVoxels])</span>
+0004 <span class="comment">%   [fe, removedFibers] = feConnectomeDeleteFibers(fe,fibersToKeep)</span>
 0005 <span class="comment">%</span>
 0006 <span class="comment">% Inputs:</span>
 0007 <span class="comment">%   - fe, an fe structure, see feCreate.m, and v_lifeExample.m</span>
@@ -71,45 +72,51 @@ This function is called by:
 0013 <span class="comment">% Example:</span>
 0014 <span class="comment">%   fibersToKeep = 1:50;</span>
 0015 <span class="comment">%   feConnectomeReduceFibers(fe, fibersToKeep)</span>
-0016 <span class="comment">% Franco (c) Stanford Vista Team 2012</span>
-0017 
-0018 <span class="keyword">if</span> notDefined(<span class="string">'reduceVoxels'</span>), reduceVoxels=0;<span class="keyword">end</span>
-0019 
-0020 <span class="comment">% Delete fibers' columns from the model</span>
-0021 fe.life.Mfiber = fe.life.Mfiber(:,fibersToKeep);
-0022 
-0023 <span class="comment">% Collect the voxels that need to be deleted. By looking at the voxels that</span>
-0024 <span class="comment">% after removing the fibers have no prediction left in the rows of Mfiber.</span>
-0025 usedVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'used voxels'</span>);
-0026 nUsed = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n used voxels'</span>);
-0027 voxelsToKeep = false(nUsed,1);   <span class="comment">% Indicator variable</span>
-0028 parfor vv = 1:nUsed   <span class="comment">% For each voxel</span>
-0029     
-0030   <span class="comment">% Find the signals for every direction (rows) and every kept fiber (cols)</span>
-0031   <span class="comment">% in this voxel.</span>
-0032   thisVoxSig = fe.life.Mfiber(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,usedVoxels(vv)),:);  
-0033   
-0034   <span class="comment">% If the entries are not all zero, keep the voxel</span>
-0035   <span class="keyword">if</span> ~isequal(thisVoxSig(:),zeros(numel(thisVoxSig),1))
-0036       voxelsToKeep(vv) = true;
-0037   <span class="keyword">end</span>
-0038 <span class="keyword">end</span>
-0039 
-0040 <span class="comment">% Set the subset of tensors, the one only for the left-over fibers</span>
-0041 <span class="keyword">if</span> ~isempty(fe.life.tensors)
-0042   fe.life.fibers.tensors = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'tensors subset'</span>,fibersToKeep);
-0043 <span class="keyword">end</span>
-0044 
-0045 <span class="comment">% Take care of the field fe.life.fibers</span>
-0046 
-0047 <span class="comment">% Re-set all the fields in fe given the changes in the voxels number given</span>
-0048 <span class="comment">% by the changes in the fibers number</span>
-0049 <span class="keyword">if</span> reduceVoxels
-0050   fe = <a href="feConnectomeReduceVoxels.html" class="code" title="function [Mfiber dSig] = feConnectomeReduceVoxels(fe,voxelsToKeep)">feConnectomeReduceVoxels</a>(fe,voxelsToKeep);
-0051 <span class="keyword">end</span>
-0052 
-0053 <span class="keyword">return</span>
-0054</pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% Copyright Franco Pestilli (2013) Vistasoft Stanford University.</span>
+0018 
+0019 <span class="comment">% Return the indices to the fibers removed from the connectome</span>
+0020 removedFibers = find(~fibersToKeep);
+0021 
+0022 <span class="keyword">if</span> all(fibersToKeep==0)
+0023     fe.life.Mfiber = sparse(size(fe.life.Mfiber,1),size(fe.life.Mfiber,2));
+0024 <span class="keyword">else</span>
+0025     <span class="comment">% Delete fibers' columns from the model</span>
+0026     fe.life.Mfiber = fe.life.Mfiber(:,fibersToKeep);
+0027 <span class="keyword">end</span>
+0028 
+0029 <span class="comment">% Clear the fields that depend o the original fiber group. These are:</span>
+0030 <span class="comment">% (1) The fit of the model.</span>
+0031 <span class="keyword">if</span> isfield(fe.life,<span class="string">'fit'</span>) &amp;&amp; ~isempty(fe.life.fit)
+0032     fe.life.fit.weights         = fe.life.fit.weights(fibersToKeep);
+0033     fe.life.fit.results.nParams = sum(fibersToKeep);
+0034 <span class="keyword">end</span>
+0035 <span class="keyword">if</span> isfield(fe.life,<span class="string">'voxfit'</span>) &amp;&amp; ~isempty(fe.life.voxfit)
+0036     fe.life.voxfit = [];
+0037 <span class="keyword">end</span>
+0038 <span class="comment">% The field 'fibers' containing some statistics obtained from the original</span>
+0039 <span class="comment">% fg</span>
+0040 <span class="keyword">if</span> isfield(fe.life,<span class="string">'fibers'</span>) &amp;&amp; ~isempty(fe.life.fibers.tensors)
+0041     fe.life.fibers.tensors = [];
+0042     fe.life.fibers.total   = [];
+0043     fe.life.fibers.unique  = [];
+0044 <span class="keyword">end</span>
+0045 
+0046 <span class="comment">% The actual fiber group.</span>
+0047 <span class="keyword">if</span> all(fibersToKeep==0)
+0048     fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'fg img'</span>,fgCreate(<span class="string">'all fibers were deleted'</span>,fe.fg.name,<span class="string">'img'</span>));
+0049 <span class="keyword">else</span>
+0050     <span class="comment">% feExtract requires indices to each fibers and does not accept logical</span>
+0051     <span class="comment">% inuts. Here we make sure we are passing indices not a logical vector.</span>
+0052     <span class="keyword">if</span> (length(unique(fibersToKeep)) == 2)
+0053         <span class="keyword">if</span>   (all(unique(fibersToKeep) == [0, 1]'))
+0054             fibersToKeep = find(fibersToKeep);<span class="keyword">end</span>
+0055     <span class="keyword">end</span>
+0056     fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'fg img'</span>,fgExtract(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fibers img'</span>),fibersToKeep,<span class="string">'keep'</span>));
+0057 <span class="keyword">end</span>
+0058 
+0059 <span class="keyword">return</span>
+0060</pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 13:06:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -24,7 +24,7 @@
 <div class="box"><strong></strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>function fe = feConnectomeInit(dwiFile,dtFile,fgFileName,feFileName,savedir,dwiFileRepeated,anatomyFile,varargin) </strong></div>
+<div class="box"><strong>function fe = feConnectomeInit(dwiFile,fgFileName,feFileName,savedir,dwiFileRepeated,anatomyFile,varargin) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment">
@@ -37,15 +37,7 @@
 
  Example: 
 
-   baseDir    = fullfile(mrvDataRootPath,'diffusion','sampleData');
-   dtFile     = fullfile(baseDir,'dti40','dt6.mat');
-   dwiFile    = fullfile(baseDir,'raw','dwi.nii.gz');
-   fgFileName = fullfile(baseDir,'fibers','leftArcuate.pdb');
-   fe         = feConnectomeInit(dwiFile,dtFile,fgFileName);
- 
-   fe         = feConnectomeInit(dwiFile,dtFile,fgFileName,'name','test');
-
- Franco (c) 2012 Stanford VISTA Team.</pre></div>
+ Copyright Franco Pestilli (2013) Vistasoft Stanford University.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -60,7 +52,7 @@ This function is called by:
 
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function fe = feConnectomeInit(dwiFile,dtFile,fgFileName,feFileName,savedir,dwiFileRepeated,anatomyFile,varargin)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function fe = feConnectomeInit(dwiFile,fgFileName,feFileName,savedir,dwiFileRepeated,anatomyFile,varargin)</a>
 0002 <span class="comment">%</span>
 0003 <span class="comment">% Initialize a new connectome (fe) structure.</span>
 0004 <span class="comment">%</span>
@@ -71,106 +63,95 @@ This function is called by:
 0009 <span class="comment">%</span>
 0010 <span class="comment">% Example:</span>
 0011 <span class="comment">%</span>
-0012 <span class="comment">%   baseDir    = fullfile(mrvDataRootPath,'diffusion','sampleData');</span>
-0013 <span class="comment">%   dtFile     = fullfile(baseDir,'dti40','dt6.mat');</span>
-0014 <span class="comment">%   dwiFile    = fullfile(baseDir,'raw','dwi.nii.gz');</span>
-0015 <span class="comment">%   fgFileName = fullfile(baseDir,'fibers','leftArcuate.pdb');</span>
-0016 <span class="comment">%   fe         = feConnectomeInit(dwiFile,dtFile,fgFileName);</span>
-0017 <span class="comment">%</span>
-0018 <span class="comment">%   fe         = feConnectomeInit(dwiFile,dtFile,fgFileName,'name','test');</span>
-0019 <span class="comment">%</span>
-0020 <span class="comment">% Franco (c) 2012 Stanford VISTA Team.</span>
-0021 
-0022 <span class="comment">% Handling parallel processing</span>
-0023 poolwasopen=1; <span class="comment">% if a matlabpool was open already we do not open nor close one</span>
-0024 <span class="keyword">if</span> (matlabpool(<span class="string">'size'</span>) == 0), matlabpool open; poolwasopen=0; <span class="keyword">end</span>
+0012 <span class="comment">% Copyright Franco Pestilli (2013) Vistasoft Stanford University.</span>
+0013 
+0014 <span class="comment">% Handling parallel processing</span>
+0015 poolwasopen=1; <span class="comment">% if a matlabpool was open already we do not open nor close one</span>
+0016 <span class="keyword">if</span> (matlabpool(<span class="string">'size'</span>) == 0), matlabpool open; poolwasopen=0; <span class="keyword">end</span>
+0017 
+0018 <span class="comment">% Intialize the fe structure.</span>
+0019 fe = <a href="feCreate.html" class="code" title="function fe = feCreate">feCreate</a>;
+0020 
+0021 <span class="comment">% Set the based dir for fe, this dire will be used</span>
+0022 <span class="keyword">if</span> notDefined(<span class="string">'savedir'</span>),  savedir = fullfile(fileparts(dtFile),<span class="string">'LiFE'</span>);
+0023 <span class="keyword">end</span>
+0024 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'savedir'</span>,savedir);
 0025 
-0026 <span class="comment">% Intialize the fe structure.</span>
-0027 fe = <a href="feCreate.html" class="code" title="function fe = feCreate">feCreate</a>;
-0028 
-0029 <span class="comment">% Set the based dir for fe, this dire will be used</span>
-0030 <span class="keyword">if</span> notDefined(<span class="string">'savedir'</span>),  savedir = fullfile(fileparts(dtFile),<span class="string">'LiFE'</span>);
-0031 <span class="keyword">end</span>
-0032 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'savedir'</span>,savedir);
-0033 
-0034 <span class="comment">% Get the xforms.</span>
-0035 <span class="keyword">if</span> isstruct(dtFile), dt = dtFile; clear dtFile
-0036 <span class="keyword">else</span>                 dt = dtiLoadDt6(dtFile);
-0037 <span class="keyword">end</span>
-0038 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'dtfile'</span>,dtFile);
-0039 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe, <span class="string">'img2acpc xform'</span>, dt.xformToAcpc);
-0040 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe, <span class="string">'acpc2img xform'</span>, inv(dt.xformToAcpc));
-0041 clear dt
-0042 
-0043 <span class="comment">% Set up the fe name</span>
-0044 <span class="keyword">if</span> isstruct(fgFileName),  n  = fgFileName.name;
-0045 <span class="keyword">else</span>                   [~,n] = fileparts(fgFileName);
-0046 <span class="keyword">end</span>
-0047 
-0048 <span class="keyword">if</span> notDefined(<span class="string">'feFileName'</span>),
-0049   feFileName = sprintf(<span class="string">'%s-%s'</span>, datestr(now,30),n);
-0050 <span class="keyword">end</span>
-0051 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe, <span class="string">'name'</span>,feFileName);
-0052 
-0053 <span class="comment">% Load a connectome</span>
-0054 <span class="keyword">if</span> isstruct(fgFileName), fg = fgFileName; clear fgFileName
-0055 <span class="keyword">else</span> <span class="comment">% A file name was passed load the fibers from disk</span>
-0056   fprintf(<span class="string">'\n[%s]\n loading fiber from file: %s\n'</span>,mfilename,fgFileName)
-0057   fg = fgRead(fgFileName);
-0058 <span class="keyword">end</span>
-0059 
-0060 <span class="comment">% Set fg in the fe structure identifying the fg coordinate frame.</span>
-0061 <span class="comment">% Everything in LiFE is in img coordinates, but everyting in mrDiffusion is in acpc.</span>
-0062 <span class="comment">% So here we assume the fibers are read in acpc and we xform them in img.</span>
-0063 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'fg from acpc'</span>,fg);
-0064 
-0065 <span class="comment">% When the ROI is set to empty, LiFE uses all of the voxels within the</span>
-0066 <span class="comment">% connectome as the ROI.</span>
-0067 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'roi fg'</span>,[]);
-0068 clear fg
-0069 
-0070 <span class="comment">% Precompute the canonical tensors for each node in each fiber.</span>
-0071 tic
-0072 <span class="keyword">if</span> ~isempty(varargin)
-0073   axialDiffusion  = varargin{1}(1);
-0074   radialDiffusion = varargin{1}(2);
-0075 <span class="keyword">else</span> <span class="comment">% Default to stick and ball</span>
-0076   axialDiffusion  = 1;
-0077   radialDiffusion = 0;
-0078 <span class="keyword">end</span>
-0079 dParms(1) =  axialDiffusion; 
-0080 dParms(2) = radialDiffusion; 
-0081 dParms(3) = radialDiffusion;
+0026 <span class="comment">% Set the xforms (transformations from diffusion data to acpc)</span>
+0027 tempNi = niftiRead(dwiFile);
+0028 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe, <span class="string">'img2acpc xform'</span>, tempNi.qto_xyz);
+0029 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe, <span class="string">'acpc2img xform'</span>, inv(tempNi.qto_xyz));
+0030 clear tempNi
+0031 
+0032 <span class="comment">% Set up the fe name</span>
+0033 <span class="keyword">if</span> isstruct(fgFileName),  n  = fgFileName.name;
+0034 <span class="keyword">else</span>                   [~,n] = fileparts(fgFileName);
+0035 <span class="keyword">end</span>
+0036 
+0037 <span class="keyword">if</span> notDefined(<span class="string">'feFileName'</span>),
+0038   feFileName = sprintf(<span class="string">'%s-%s'</span>, datestr(now,30),n);
+0039 <span class="keyword">end</span>
+0040 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe, <span class="string">'name'</span>,feFileName);
+0041 
+0042 <span class="comment">% Load a connectome</span>
+0043 <span class="keyword">if</span> isstruct(fgFileName), fg = fgFileName; clear fgFileName
+0044 <span class="keyword">else</span> <span class="comment">% A file name was passed load the fibers from disk</span>
+0045   fprintf(<span class="string">'\n[%s]\n loading fiber from file: %s\n'</span>,mfilename,fgFileName)
+0046   fg = fgRead(fgFileName);
+0047 <span class="keyword">end</span>
+0048 
+0049 <span class="comment">% Set fg in the fe structure identifying the fg coordinate frame.</span>
+0050 <span class="comment">% Everything in LiFE is in img coordinates, but everyting in mrDiffusion is in acpc.</span>
+0051 <span class="comment">% So here we assume the fibers are read in acpc and we xform them in img.</span>
+0052 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'fg from acpc'</span>,fg);
+0053 
+0054 <span class="comment">% When the ROI is set to empty, LiFE uses all of the voxels within the</span>
+0055 <span class="comment">% connectome as the ROI.</span>
+0056 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'roi fg'</span>,[]);
+0057 clear fg
+0058 
+0059 <span class="comment">% Precompute the canonical tensors for each node in each fiber.</span>
+0060 tic
+0061 <span class="keyword">if</span> ~isempty(varargin)
+0062   axialDiffusion  = varargin{1}(1);
+0063   radialDiffusion = varargin{1}(2);
+0064 <span class="keyword">else</span> <span class="comment">% Default to stick and ball</span>
+0065   axialDiffusion  = 1;
+0066   radialDiffusion = 0;
+0067 <span class="keyword">end</span>
+0068 dParms(1) =  axialDiffusion; 
+0069 dParms(2) = radialDiffusion; 
+0070 dParms(3) = radialDiffusion;
+0071 
+0072 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'model tensor'</span>,dParms);
+0073 
+0074 fprintf(<span class="string">'\n[%s] Computing fibers'' tensors... '</span>,mfilename); 
+0075 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe, <span class="string">'tensors'</span>, feComputeCanonicalDiffusion(fe.fg.fibers, dParms));  
+0076 toc
+0077 
+0078 <span class="comment">% We disregard fibers that have identical trajectories within the ROI.</span>
+0079 roi = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'roi coords'</span>);
+0080 fe  = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'voxel 2 fiber node pairs'</span>,fefgGet(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fg img'</span>),<span class="string">'v2fn'</span>,roi));
+0081 fe  = feGetConnectomeInfo(fe);
 0082 
-0083 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'model tensor'</span>,dParms);
-0084 
-0085 fprintf(<span class="string">'\n[%s] Computing fibers'' tensors... '</span>,mfilename); 
-0086 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe, <span class="string">'tensors'</span>, feComputeCanonicalDiffusion(fe.fg.fibers, dParms));  
-0087 toc
-0088 
-0089 <span class="comment">% We disregard fibers that have identical trajectories within the ROI.</span>
-0090 roi = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'roi coords'</span>);
-0091 fe  = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'voxel 2 fiber node pairs'</span>,fefgGet(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fg img'</span>),<span class="string">'v2fn'</span>,roi));
-0092 fe  = feGetConnectomeInfo(fe);
-0093 
-0094 <span class="comment">% Install the information about the diffusion data.</span>
-0095 fe = <a href="feConnectomeSetDwi.html" class="code" title="function fe = feConnectomeSetDwi(fe,dwiFileName,isrepeat)">feConnectomeSetDwi</a>(fe,dwiFile,0);
+0083 <span class="comment">% Install the information about the diffusion data.</span>
+0084 fe = <a href="feConnectomeSetDwi.html" class="code" title="function fe = feConnectomeSetDwi(fe,dwiFileName,isrepeat)">feConnectomeSetDwi</a>(fe,dwiFile,0);
+0085 
+0086 <span class="comment">% Install the information about a repeated measurement of the diffusion</span>
+0087 <span class="comment">% data.</span>
+0088 <span class="keyword">if</span> ~notDefined(<span class="string">'dwiFileRepeated'</span>)
+0089   fe = <a href="feConnectomeSetDwi.html" class="code" title="function fe = feConnectomeSetDwi(fe,dwiFileName,isrepeat)">feConnectomeSetDwi</a>(fe,dwiFileRepeated,1);
+0090 <span class="keyword">end</span>
+0091 
+0092 <span class="comment">% Install the path tot he anatomical high-resolution file.</span>
+0093 <span class="keyword">if</span> ~notDefined(<span class="string">'anatomyFile'</span>)
+0094   fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'anatomy file'</span>,anatomyFile);
+0095 <span class="keyword">end</span>
 0096 
-0097 <span class="comment">% Install the information about a repeated measurement of the diffusion</span>
-0098 <span class="comment">% data.</span>
-0099 <span class="keyword">if</span> ~notDefined(<span class="string">'dwiFileRepeated'</span>)
-0100   fe = <a href="feConnectomeSetDwi.html" class="code" title="function fe = feConnectomeSetDwi(fe,dwiFileName,isrepeat)">feConnectomeSetDwi</a>(fe,dwiFileRepeated,1);
-0101 <span class="keyword">end</span>
-0102 
-0103 <span class="comment">% Install the path tot he anatomical high-resolution file.</span>
-0104 <span class="keyword">if</span> ~notDefined(<span class="string">'anatomyFile'</span>)
-0105   fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'anatomy file'</span>,anatomyFile);
-0106 <span class="keyword">end</span>
-0107 
-0108 <span class="comment">% Build LiFE tensors and key connection matrices</span>
-0109 fe = <a href="feConnectomeBuildModel.html" class="code" title="function fe = feConnectomeBuildModel(fe)">feConnectomeBuildModel</a>(fe);
-0110 
-0111 <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0097 <span class="comment">% Build LiFE tensors and key connection matrices</span>
+0098 fe = <a href="feConnectomeBuildModel.html" class="code" title="function fe = feConnectomeBuildModel(fe)">feConnectomeBuildModel</a>(fe);
+0099 
+0100 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 13:06:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

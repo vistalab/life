@@ -24,7 +24,7 @@
 <div class="box"><strong>Fit the LiFE model.</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>function [fit w R2] = feFitModel(M,dSig,fitMethod) </strong></div>
+<div class="box"><strong>function [fit w R2] = feFitModel(M,dSig,fitMethod,lambda) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Fit the LiFE model.
@@ -54,16 +54,16 @@
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-</ul>
+<li><a href="sgd.html" class="code" title="function [w, R2] = sgd(y,X,numtoselect,finalstepsize,convergencecriterion,checkerror,nonneg,alpha,lambda)">sgd</a>	</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="feConnectomeCull.html" class="code" title="function [fe fefit fexval] = feConnectomeCull(fe,maxNumInter, lowerPrct, percentReduxRMSE)">feConnectomeCull</a>	</li><li><a href="feConnectomeCull2.html" class="code" title="function [fe fefit fexval] = feConnectomeCull2(fe,minWeight, prctR2redux,maxNumIter)">feConnectomeCull2</a>	</li><li><a href="feFitModelByVoxel.html" class="code" title="function [fe voxfit w] = feFitModelByVoxel(fe)">feFitModelByVoxel</a>	</li><li><a href="feXvalidate.html" class="code" title="function [xval, r2, rmse] = feXvalidate(M,dSig, fitMethod, crossValType)">feXvalidate</a>	</li></ul>
+<li><a href="feConnectomeCull.html" class="code" title="function [fe, cull] = feConnectomeCull(fe,display)">feConnectomeCull</a>	</li></ul>
 <!-- crossreference -->
 
 
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [fit w R2] = feFitModel(M,dSig,fitMethod)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [fit w R2] = feFitModel(M,dSig,fitMethod,lambda)</a>
 0002 <span class="comment">% Fit the LiFE model.</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% Finds the weights for each fiber to best predict the directional</span>
@@ -104,67 +104,140 @@ This function is called by:
 0039 <span class="comment">% fit the model, by selecting the proper toolbox.</span>
 0040 <span class="keyword">switch</span> fitMethod
 0041   <span class="keyword">case</span> {<span class="string">'lsqnonneg'</span>}
-0042     options      = optimset(<span class="string">'lsqnonneg'</span>);
-0043     <span class="comment">%options.TolX = '5*eps*norm(c,1)*length(c)';</span>
+0042     fprintf(<span class="string">'\nLiFE: Computing least-square minimization with LSQNONEG...\n'</span>)
+0043     options      = optimset(<span class="string">'lsqnonneg'</span>);
 0044     w = lsqnonneg(M,dSig,options);
-0045     
-0046   <span class="keyword">case</span> {<span class="string">'sgd'</span>,<span class="string">'sgdnn'</span>}<span class="comment">% stochastic gradient descend, or non-negative stochastic gradient descend</span>
-0047     tic
-0048     <span class="comment">% Stochastic gradient descent method.</span>
-0049     <span class="comment">% it solves an L2 minimization problem with non-negative constrain.</span>
-0050     <span class="comment">%</span>
-0051     <span class="comment">% Basically it takes 'chuncks' of rows of the M matrix and solves those</span>
-0052     <span class="comment">% separately but contraining to obtain a consistent global solution.</span>
-0053     signalSiz = size(M,1);
-0054     <span class="keyword">if</span> signalSiz &gt;= 1000000
-0055       siz     = floor(signalSiz * .1); <span class="comment">% size of the chuncks (number rows) taken at every iteration of the solver</span>
-0056     <span class="keyword">elseif</span> signalSiz &gt; 5000 || signalSiz &lt; 1000000
-0057       siz     = floor(signalSiz * .2); <span class="comment">% size of the chunks (number rows) taken at every iteration of the solver</span>
-0058     <span class="keyword">elseif</span> signalSiz &lt;= 5000
-0059       siz     = signalSiz; <span class="comment">% size of the chuncks (number rows) taken at every iteration of the solver</span>
-0060     <span class="keyword">else</span>
-0061       keyboard
-0062     <span class="keyword">end</span>
-0063     stepSiz      = 0.04; <span class="comment">% step in the direction of the gradient, the larger the more prone to local minima</span>
-0064     stopCriteria = [.15 3 5]; <span class="comment">% Stop signals:</span>
-0065     <span class="comment">% First, if total error has not decreased less than</span>
-0066     <span class="comment">%        an XXX proportion of XXXX.</span>
-0067     <span class="comment">% Second, number of small partial fits before</span>
-0068     <span class="comment">%         evaluating the quality of the large fit.</span>
-0069     <span class="comment">% Third, Amount of R2 improvement judged to be</span>
-0070     <span class="comment">%        useful.</span>
-0071     <span class="comment">%        It used to be:  percent improvement in R2</span>
-0072     <span class="comment">%        that is considered a change in quality</span>
-0073     <span class="comment">%        of fit, e.g., 1=1%.</span>
-0074     n      = 50;       <span class="comment">% Number of iteration after which to check for total error.</span>
-0075     nonneg = strcmpi(fitMethod(end-2:end),<span class="string">'dnn'</span>);
-0076     fprintf(<span class="string">'\nLiFE: Computing least-square minimization with Stochastic Gradient Descent...\n'</span>)
-0077     [w R2] = sgd(dSig,M,siz, stepSiz, stopCriteria, n,nonneg);
-0078     
-0079     <span class="comment">% Save out the Stochastic Gradient Descent parameters</span>
-0080     fit.params.stepSiz      = stepSiz;
-0081     fit.params.stopCriteria = stopCriteria;
-0082     fit.params.numInters    = n;
-0083     
-0084     <span class="comment">% Save the state of the random generator so that the stochasit cfit can be recomputed.</span>
-0085     defaultStream = RandStream.getDefaultStream;
-0086     fit.randState = defaultStream.State;   
-0087     
-0088     <span class="comment">% Save out some results</span>
-0089     fit.results.R2        = R2;
-0090     fit.results.nParams   = size(M,2);
-0091     fit.results.nMeasures = size(M,1);
-0092     fprintf(<span class="string">' ...fit process completed in %2.3fs\n'</span>,toc)
-0093 
-0094   <span class="keyword">otherwise</span>
-0095     error(<span class="string">'Cannot fit LiFE model using method: %s.\n'</span>,fitMethod);
-0096 <span class="keyword">end</span>
-0097 
-0098 <span class="comment">% Save output structure.</span>
-0099 fit.weights             = w;
-0100 fit.params.fitMethod    = fitMethod;
-0101 
-0102 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0045     fprintf(<span class="string">' ...fit process completed in %2.3fs\n'</span>,toc)
+0046     R2=[];
+0047   <span class="keyword">case</span> {<span class="string">'bbnnls'</span>}
+0048     tic
+0049     fprintf(<span class="string">'\nLiFE: Computing least-square minimization with BBNNLS...\n'</span>)
+0050     opt = solopt;
+0051     opt.maxit = 500;
+0052     opt.use_tolo = 1;
+0053     out_data = bbnnls(M,dSig,zeros(size(M,2),1),opt);
+0054     fprintf(<span class="string">'BBNNLS status: %s\nReason: %s\n'</span>,out_data.status,out_data.termReason);
+0055     w = out_data.x;
+0056     fprintf(<span class="string">' ...fit process completed in %2.3fminutes\n'</span>,toc/60)
+0057     <span class="comment">% Save the state of the random generator so that the stochasit cfit can be recomputed.</span>
+0058     defaultStream = RandStream.getGlobalStream; <span class="comment">%RandStream.getDefaultStream;</span>
+0059     fit.randState = defaultStream.State;   
+0060     
+0061     <span class="comment">% Save out some results</span>
+0062     fit.results.R2        = [];
+0063     fit.results.nParams   = size(M,2);
+0064     fit.results.nMeasures = size(M,1);
+0065     R2=[];
+0066   <span class="keyword">case</span> {<span class="string">'sgd'</span>,<span class="string">'sgdnn'</span>}<span class="comment">% stochastic gradient descend, or non-negative stochastic gradient descend</span>
+0067     tic
+0068     <span class="comment">% Stochastic gradient descent method.</span>
+0069     <span class="comment">% it solves an L2 minimization problem with non-negative constrain.</span>
+0070     <span class="comment">%</span>
+0071     <span class="comment">% Basically it takes 'chuncks' of rows of the M matrix and solves those</span>
+0072     <span class="comment">% separately but contraining to obtain a consistent global solution.</span>
+0073     signalSiz = size(M,1);
+0074     <span class="keyword">if</span> signalSiz &gt;= 1000000
+0075       siz     = floor(signalSiz * .1); <span class="comment">% size of the chuncks (number rows) taken at every iteration of the solver</span>
+0076     <span class="keyword">elseif</span> signalSiz &gt; 10000 || signalSiz &lt; 1000000
+0077       siz     = floor(signalSiz * .5); <span class="comment">% size of the chunks (number rows) taken at every iteration of the solver</span>
+0078     <span class="keyword">elseif</span> signalSiz &lt;= 10000
+0079       siz     = signalSiz; <span class="comment">% size of the chuncks (number rows) taken at every iteration of the solver</span>
+0080     <span class="keyword">else</span>
+0081       keyboard
+0082     <span class="keyword">end</span>
+0083     stepSiz      = 0.0124; <span class="comment">% step in the direction of the gradient, the larger the more prone to local minima</span>
+0084     stopCriteria = [.1 5 1]; <span class="comment">% Stop signals:</span>
+0085     <span class="comment">% First, if total error has not decreased less than</span>
+0086     <span class="comment">%        an XXX proportion of XXXX.</span>
+0087     <span class="comment">% Second, number of small partial fits before</span>
+0088     <span class="comment">%         evaluating the quality of the large fit.</span>
+0089     <span class="comment">% Third, Amount of R2 improvement judged to be</span>
+0090     <span class="comment">%        useful.</span>
+0091     <span class="comment">%        It used to be:  percent improvement in R2</span>
+0092     <span class="comment">%        that is considered a change in quality</span>
+0093     <span class="comment">%        of fit, e.g., 1=1%.</span>
+0094     n      = 100;       <span class="comment">% Number of iteration after which to check for total error.</span>
+0095     nonneg = strcmpi(fitMethod(end-2:end),<span class="string">'dnn'</span>);
+0096     fprintf(<span class="string">'\nLiFE: Computing least-square minimization with Stochastic Gradient Descent...\n'</span>)
+0097     [w, R2] = <a href="sgd.html" class="code" title="function [w, R2] = sgd(y,X,numtoselect,finalstepsize,convergencecriterion,checkerror,nonneg,alpha,lambda)">sgd</a>(dSig,M,siz,        stepSiz,      stopCriteria,        n,         nonneg);
+0098              <span class="comment">%sgd(y,   X,numtoselect,finalstepsize,convergencecriterion,checkerror,nonneg,alpha,lambda)</span>
+0099     <span class="comment">% Save out the Stochastic Gradient Descent parameters</span>
+0100     fit.params.stepSiz      = stepSiz;
+0101     fit.params.stopCriteria = stopCriteria;
+0102     fit.params.numInters    = n;
+0103     
+0104     <span class="comment">% Save the state of the random generator so that the stochasit cfit can be recomputed.</span>
+0105     defaultStream = RandStream.getGlobalStream; <span class="comment">%RandStream.getDefaultStream;</span>
+0106     fit.randState = defaultStream.State;   
+0107     
+0108     <span class="comment">% Save out some results</span>
+0109     fit.results.R2        = R2;
+0110     fit.results.nParams   = size(M,2);
+0111     fit.results.nMeasures = size(M,1);
+0112     fprintf(<span class="string">' ...fit process completed in %2.3fs\n'</span>,toc)
+0113 
+0114     <span class="keyword">case</span> {<span class="string">'sgdl1'</span>,<span class="string">'sgdl1nn'</span>}<span class="comment">% stochastic gradient descend, or non-negative stochastic gradient descend</span>
+0115     tic
+0116     <span class="comment">% Stochastic gradient descent method.</span>
+0117     <span class="comment">% it solves an L2 minimization problem with non-negative constrain.</span>
+0118     <span class="comment">%</span>
+0119     <span class="comment">% Basically it takes 'chuncks' of rows of the M matrix and solves those</span>
+0120     <span class="comment">% separately but contraining to obtain a consistent global solution.</span>
+0121     signalSiz = size(M,1);
+0122     <span class="keyword">if</span> signalSiz &gt;= 1000000
+0123       siz     = floor(signalSiz * .1); <span class="comment">% size of the chunks (number rows) taken at every iteration of the solver</span>
+0124     <span class="keyword">elseif</span> signalSiz &gt; 10000 || signalSiz &lt; 1000000
+0125       siz     = floor(signalSiz * .5); <span class="comment">% size of the chunks (number rows) taken at every iteration of the solver</span>
+0126     <span class="keyword">elseif</span> signalSiz &lt;= 10000
+0127       siz     = signalSiz; <span class="comment">% size of the chunks (number rows) taken at every iteration of the solver</span>
+0128     <span class="keyword">else</span>
+0129       keyboard
+0130     <span class="keyword">end</span>
+0131     stepSiz      = 0.0124; <span class="comment">% step in the direction of the gradient, the larger the more prone to local minima</span>
+0132     stopCriteria = [.1 5 1]; <span class="comment">% Stop signals:</span>
+0133     <span class="comment">% First, if total error has not decreased less than</span>
+0134     <span class="comment">%        an XXX proportion of XXXX.</span>
+0135     <span class="comment">% Second, number of small partial fits before</span>
+0136     <span class="comment">%         evaluating the quality of the large fit.</span>
+0137     <span class="comment">% Third, Amount of R2 improvement judged to be</span>
+0138     <span class="comment">%        useful.</span>
+0139     <span class="comment">%        It used to be:  percent improvement in R2</span>
+0140     <span class="comment">%        that is considered a change in quality</span>
+0141     <span class="comment">%        of fit, e.g., 1=1%.</span>
+0142     n      = 100;       <span class="comment">% Number of iteration after which to check for total error.</span>
+0143     nonneg = 1;
+0144     fprintf(<span class="string">'\nLiFE: Computing least-square minimization (L1) with Stochastic Gradient Descent...\n'</span>)
+0145     <span class="comment">%lambda = [length(dSig)*2.75];</span>
+0146     [w, R2] = sgdL1(dSig,M,siz, stepSiz, stopCriteria, n,nonneg,[],lambda);
+0147     fprintf(<span class="string">'Lambda: %2.2f | nFibers: %i | L1 penalty: %2.3f | L2 penalty: %2.3f\n'</span>,lambda, length(find(w&gt;0)),sum(w),sum(w.^2))
+0148 
+0149     <span class="comment">% Save out the Stochastic Gradient Descent parameters</span>
+0150     fit.params.stepSiz      = stepSiz;
+0151     fit.params.stopCriteria = stopCriteria;
+0152     fit.params.numInters    = n;
+0153     
+0154     <span class="comment">% Save the state of the random generator so that the stochasit cfit can be recomputed.</span>
+0155     defaultStream = RandStream.getGlobalStream; <span class="comment">%RandStream.getDefaultStream;</span>
+0156     fit.randState = defaultStream.State;   
+0157     
+0158     <span class="comment">% Save out some results</span>
+0159     fit.results.R2        = R2;
+0160     fit.results.nParams   = size(M,2);
+0161     fit.results.nMeasures = size(M,1); 
+0162     fit.results.l2        = sum(w.^2);
+0163     fit.results.l1        = sum(w);
+0164     
+0165     fprintf(<span class="string">' ...fit process completed in %2.3fs\n'</span>,toc)
+0166 
+0167   <span class="keyword">otherwise</span>
+0168     error(<span class="string">'Cannot fit LiFE model using method: %s.\n'</span>,fitMethod);
+0169 <span class="keyword">end</span>
+0170 
+0171 <span class="comment">% Save output structure.</span>
+0172 fit.weights             = w;
+0173 fit.params.fitMethod    = fitMethod;
+0174 
+0175 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 13:06:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

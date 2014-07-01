@@ -42,7 +42,8 @@
  Example:
     feWriteValues2nifti(fd,'fiberDensity_of_some_roi',xform)
 
- Franco (c) 2012 Stanford VISTA Team</pre></div>
+
+ Copyright Franco Pestilli (2013) Vistasoft Stanford University.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -73,19 +74,20 @@ This function is called by:
 0014 <span class="comment">% Example:</span>
 0015 <span class="comment">%    feWriteValues2nifti(fd,'fiberDensity_of_some_roi',xform)</span>
 0016 <span class="comment">%</span>
-0017 <span class="comment">% Franco (c) 2012 Stanford VISTA Team</span>
-0018 
-0019 <span class="comment">% Create the nifti structure</span>
-0020 ni  = niftiCreate(<span class="string">'data'</span>,stats, <span class="keyword">...</span>
-0021     <span class="string">'qto_xyz'</span>,xForm2Acpc, <span class="keyword">...</span>
-0022     <span class="string">'fname'</span>,fileName, <span class="keyword">...</span>
-0023     <span class="string">'nifti_type'</span>,class(stats));
-0024 
-0025 <span class="comment">% Write the file.  Saved as a nii.gz</span>
-0026 niftiWrite(ni)
-0027 
-0028 <span class="keyword">end</span>
-0029</pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% Copyright Franco Pestilli (2013) Vistasoft Stanford University.</span>
+0019 
+0020 <span class="comment">% Create the nifti structure</span>
+0021 ni  = niftiCreate(<span class="string">'data'</span>,stats, <span class="keyword">...</span>
+0022     <span class="string">'qto_xyz'</span>,xForm2Acpc, <span class="keyword">...</span>
+0023     <span class="string">'fname'</span>,fileName, <span class="keyword">...</span>
+0024     <span class="string">'data_type'</span>,class(stats));
+0025 
+0026 <span class="comment">% Write the file.  Saved as a nii.gz</span>
+0027 niftiWrite(ni)
+0028 
+0029 <span class="keyword">end</span>
+0030</pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 13:06:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

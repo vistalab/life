@@ -32,7 +32,8 @@
 
  fg_file = feConnectomeWrite(fe,[saveDir],[fileType])
 
- Franco (c) Stanford VISTA 2012</pre></div>
+
+ Copyright Franco Pestilli (2013) Vistasoft Stanford University.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -53,24 +54,25 @@ This function is called by:
 0004 <span class="comment">%</span>
 0005 <span class="comment">% fg_file = feConnectomeWrite(fe,[saveDir],[fileType])</span>
 0006 <span class="comment">%</span>
-0007 <span class="comment">% Franco (c) Stanford VISTA 2012</span>
-0008 
-0009 <span class="comment">% Default directory for saving the fiber group is the LIFE folder where the</span>
-0010 <span class="comment">% the fe structure is saved by default.</span>
-0011 <span class="keyword">if</span> notDefined(<span class="string">'saveDir'</span>),saveDir = feGet(fe,<span class="string">'save dir'</span>);<span class="keyword">end</span>
-0012 <span class="keyword">if</span> notDefined(<span class="string">'fileType'</span>),fileType = <span class="string">'mat'</span>;<span class="keyword">end</span>
-0013 
-0014 <span class="comment">% Build a file name.</span>
-0015 fg_file = fullfile(saveDir,sprintf(<span class="string">'%s_FG'</span>,feGet(fe,<span class="string">'name'</span>)));
-0016 
-0017 <span class="comment">% Write the fiber group always in acpc coordinates,</span>
-0018 <span class="comment">% Also, we always save as .mat</span>
-0019 fprintf(<span class="string">'[%s] Saving connectome: %s.%s\n'</span>,mfilename,fg_file,fileType)
-0020 fgWrite(feGet(fe,<span class="string">'fg acpc'</span>),fg_file,fileType); 
-0021 <span class="comment">% Note .pdb seem to not save correctly by fgWrite.</span>
-0022 <span class="comment">% Maybe a problem with pathwaysInfo?</span>
-0023 
-0024 <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Copyright Franco Pestilli (2013) Vistasoft Stanford University.</span>
+0009 
+0010 <span class="comment">% Default directory for saving the fiber group is the LIFE folder where the</span>
+0011 <span class="comment">% the fe structure is saved by default.</span>
+0012 <span class="keyword">if</span> notDefined(<span class="string">'saveDir'</span>),saveDir = feGet(fe,<span class="string">'save dir'</span>);<span class="keyword">end</span>
+0013 <span class="keyword">if</span> notDefined(<span class="string">'fileType'</span>),fileType = <span class="string">'mat'</span>;<span class="keyword">end</span>
+0014 
+0015 <span class="comment">% Build a file name.</span>
+0016 fg_file = fullfile(saveDir,sprintf(<span class="string">'%s_FG'</span>,feGet(fe,<span class="string">'name'</span>)));
+0017 
+0018 <span class="comment">% Write the fiber group always in acpc coordinates,</span>
+0019 <span class="comment">% Also, we always save as .mat</span>
+0020 fprintf(<span class="string">'[%s] Saving connectome: %s.%s\n'</span>,mfilename,fg_file,fileType)
+0021 fgWrite(feGet(fe,<span class="string">'fg acpc'</span>),fg_file,fileType); 
+0022 <span class="comment">% Note .pdb seem to not save correctly by fgWrite.</span>
+0023 <span class="comment">% Maybe a problem with pathwaysInfo?</span>
+0024 
+0025 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 13:06:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

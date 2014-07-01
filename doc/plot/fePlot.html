@@ -39,7 +39,8 @@
 
    fePlot(fe,'dsig measured');
 
- Franco (c) Stanford VISTA Team, 2012
+
+ Copyright Franco Pestilli (2013) Vistasoft Stanford University.
 
 -----------
  Plot the fiber group in a matlab 3D mesh.
@@ -65,13 +66,16 @@
  uData = fePlot(fe,'fiber length')
 -----------
 
------------</pre></div>
+-----------
+
+
+ Copyright Franco Pestilli (2013) Vistasoft Stanford University.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="feConnectomeDisplay.html" class="code" title="function [fig_handle, h, fibers] = feConnectomeDisplay(varargin)">feConnectomeDisplay</a>	</li><li><a href="fePlotQualityOfFit.html" class="code" title="function fePlotQualityOfFit(fe)">fePlotQualityOfFit</a>	</li></ul>
+</ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -80,21 +84,21 @@ This function is called by:
 
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 
-0002 <a name="_sub0" href="#_subfunctions" class="code">function [uData, g] = fePlot(fe,plotType,varargin)</a>
-0003 <span class="comment">% Gateway routine for plotting from the fascicle evaluation (fe) struct</span>
-0004 <span class="comment">%</span>
-0005 <span class="comment">%   [uData, g] = fePlot(fe,plotType,varargin)</span>
-0006 <span class="comment">%</span>
-0007 <span class="comment">% Example</span>
-0008 <span class="comment">%   fePlot(fe,'quality of fit');</span>
-0009 <span class="comment">%   fePlot(fe,'A matrix');</span>
-0010 <span class="comment">%</span>
-0011 <span class="comment">%   fePlot(fe,'bvecs');</span>
-0012 <span class="comment">%</span>
-0013 <span class="comment">%   fePlot(fe,'dsig measured');</span>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [uData, g] = fePlot(fe,plotType,varargin)</a>
+0002 <span class="comment">% Gateway routine for plotting from the fascicle evaluation (fe) struct</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   [uData, g] = fePlot(fe,plotType,varargin)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Example</span>
+0007 <span class="comment">%   fePlot(fe,'quality of fit');</span>
+0008 <span class="comment">%   fePlot(fe,'A matrix');</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   fePlot(fe,'bvecs');</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   fePlot(fe,'dsig measured');</span>
+0013 <span class="comment">%</span>
 0014 <span class="comment">%</span>
-0015 <span class="comment">% Franco (c) Stanford VISTA Team, 2012</span>
+0015 <span class="comment">% Copyright Franco Pestilli (2013) Vistasoft Stanford University.</span>
 0016 <span class="comment">%</span>
 0017 <span class="comment">%-----------</span>
 0018 <span class="comment">% Plot the fiber group in a matlab 3D mesh.</span>
@@ -121,313 +125,530 @@ This function is called by:
 0039 <span class="comment">%-----------</span>
 0040 <span class="comment">%</span>
 0041 <span class="comment">%-----------</span>
-0042 <span class="keyword">if</span> notDefined(<span class="string">'fe'</span>),       error(<span class="string">'''fe'' structure required.'</span>); <span class="keyword">end</span>
-0043 <span class="keyword">if</span> notDefined(<span class="string">'plotType'</span>), error(<span class="string">'plotType required'</span>); <span class="keyword">end</span>
-0044 
-0045 <span class="comment">% Open up your window for the current figure</span>
-0046 g = mrvNewGraphWin(sprintf(<span class="string">'LiFE - %s - %s'</span>,upper(plotType),feGet(fe,<span class="string">'name'</span>)));
-0047 uData = [];
-0048 
-0049 <span class="comment">% Format the input parameter</span>
-0050 plotType = mrvParamFormat(plotType);
+0042 <span class="comment">%</span>
+0043 <span class="comment">%</span>
+0044 <span class="comment">% Copyright Franco Pestilli (2013) Vistasoft Stanford University.</span>
+0045 <span class="keyword">if</span> notDefined(<span class="string">'fe'</span>),       error(<span class="string">'''fe'' structure required.'</span>); <span class="keyword">end</span>
+0046 <span class="keyword">if</span> notDefined(<span class="string">'plotType'</span>), error(<span class="string">'plotType required'</span>); <span class="keyword">end</span>
+0047 
+0048 <span class="comment">% Open up your window for the current figure</span>
+0049 g = mrvNewGraphWin(sprintf(<span class="string">'LiFE - %s - %s'</span>,upper(plotType),feGet(fe,<span class="string">'name'</span>)));
+0050 uData = [];
 0051 
-0052 <span class="comment">% Find the plot</span>
-0053 <span class="keyword">switch</span> plotType
-0054   <span class="keyword">case</span> {<span class="string">'map'</span>,<span class="string">'maprep'</span>}
-0055     <span class="comment">% Generate the requested map and save it to volume.</span>
-0056     <span class="keyword">if</span> (length(plotType) &gt; 3)
-0057       <span class="comment">% Use the xvalidation 'get' routine</span>
-0058       map = feValues2volume(feGetRep(fe, varargin{1}), <span class="keyword">...</span>
-0059         feGet(fe,<span class="string">'roi coords'</span>), <span class="keyword">...</span>
-0060         feGetRep(fe,<span class="string">'map size'</span>));
-0061     <span class="keyword">else</span>
-0062       <span class="comment">% use the default 'get' routine.</span>
-0063       map = feValues2volume(feGet(fe, varargin{1}), <span class="keyword">...</span>
-0064         feGet(fe,<span class="string">'roi coords'</span>), <span class="keyword">...</span>
-0065         feGet(fe,<span class="string">'map size'</span>));
-0066     <span class="keyword">end</span>
-0067     
-0068     <span class="comment">% Get the slices to display (acpc) -120 to 120</span>
-0069     <span class="keyword">if</span> (length(varargin)==1), slices = [-11:13];
-0070     <span class="keyword">else</span> slices = varargin{2};<span class="keyword">end</span>
-0071     
-0072     <span class="comment">% The xform is taken from the LiFE structure.</span>
-0073     mapXform = feGet(fe,<span class="string">'xform img2acpc'</span>);
-0074     
-0075     <span class="comment">% Get the T1 anatomy from the session.</span>
-0076     ni         = niftiRead(feGet(fe,<span class="string">'anatomy file'</span>));
-0077     anatomyImg = double(ni.data);
-0078     
-0079     <span class="comment">% Get the anatomy xform, from the file?</span>
-0080     anatomyXform = ni.qto_xyz;
-0081     clear ni;
-0082     
-0083     <span class="comment">% Get the range of the map to display from the data.</span>
-0084     clippingRange = [0 max(map(:))];<span class="comment">%[max([0,min(map(:))]) max([max(map(:)),1])];</span>
-0085     mrAnatOverlayMontage(map, mapXform, anatomyImg, anatomyXform, [], clippingRange,slices);
-0086     colormap(<span class="string">'autumn'</span>);colorbar(<span class="string">'location'</span>,<span class="string">'eastoutside'</span>)
-0087     title(upper(varargin{1}))
-0088     
-0089   <span class="keyword">case</span> <span class="string">'rmse'</span>
-0090     <span class="comment">% Plot a histogram of the RMSE of the LiFE fit.</span>
-0091     <span class="comment">% uData = fePlot(fe,'rmse')</span>
-0092     uData.totVarExp = feGet(fe,<span class="string">'totpve'</span>);
-0093     uData.totrmse   = feGet(fe,<span class="string">'totalrmse'</span>);
-0094     uData.rmsebyVox   = feGet(fe,<span class="string">'voxrmse'</span>);
-0095     uData.rmsemedian = nanmedian(uData.rmsebyVox);
-0096 
-0097     <span class="comment">% male a histogram of the length of the fibers</span>
-0098     [y,x] = hist(uData.rmsebyVox,ceil(length(uData.rmsebyVox)/10));
-0099     bar(x,y,.65,<span class="string">'r'</span>)
-0100     hold on
-0101     plot([uData.rmsemedian uData.rmsemedian],[0 400],<span class="string">'k'</span>)
-0102     title(sprintf(<span class="string">'Total percent variance explained: %2.2f\nTotal RMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
-0103     xlabel(<span class="string">'Root mean square error'</span>)
-0104     ylabel(<span class="string">'Number of occurrences'</span>)
-0105      
-0106   <span class="keyword">case</span> <span class="string">'pve'</span>
-0107     <span class="comment">% Plot a histogram of the percent variance explained in each voxel with</span>
-0108     <span class="comment">% the LiFE fit.</span>
-0109     <span class="comment">% uData = fePlot(fe,'pve')</span>
-0110     uData.totVarExp = feGet(fe,<span class="string">'totpve'</span>);
-0111     uData.totrmse   = feGet(fe,<span class="string">'totalrmse'</span>);
-0112     uData.pve   = 100*feGet(fe,<span class="string">'voxr2zero'</span>);
-0113     uData.pve( uData.pve &lt; -1000 ) = -200; <span class="comment">% if some of the values are -Inf set them to -200</span>
-0114     uData.medianpve = nanmedian(uData.pve);
-0115 
-0116     <span class="comment">% male a histogram of the length of the fibers</span>
-0117     [y,x] = hist(uData.pve,ceil(length(uData.pve)/10));
-0118     bar(x,y,1,<span class="string">'r'</span>)    
-0119     hold on
-0120     plot([uData.medianpve uData.medianpve],[0 400],<span class="string">'k'</span>)
-0121     title(sprintf(<span class="string">'Percent variance explained: %2.2f\nRMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
-0122     xlabel(<span class="string">'Percent variance explained'</span>)
-0123     ylabel(<span class="string">'Number of occurrences'</span>)
-0124 
-0125   <span class="keyword">case</span> <span class="string">'rmserep'</span>
-0126     <span class="comment">% Plot a histogram of the RMSE of the LiFE fit.</span>
-0127     <span class="comment">% uData = fePlot(fe,'rmse')</span>
-0128     uData.totVarExp  = feGetRep(fe,<span class="string">'totpve'</span>);
-0129     uData.totrmse    = feGetRep(fe,<span class="string">'totalrmse'</span>);
-0130     uData.rmsebyVox  = feGetRep(fe,<span class="string">'voxrmse'</span>);
-0131     uData.rmsemedian = nanmedian(uData.rmsebyVox);
+0052 <span class="comment">% Format the input parameter</span>
+0053 plotType = mrvParamFormat(plotType);
+0054 
+0055 <span class="comment">% Find the plot</span>
+0056 <span class="keyword">switch</span> plotType
+0057   <span class="keyword">case</span> {<span class="string">'2dhistogram'</span>}
+0058       <span class="comment">% Makes a 2D density map.</span>
+0059       uData.x  = feGetRep(fe,varargin{1});
+0060       uData.y  = feGetRep(fe,varargin{2});
+0061       uData.ax.min   = min([uData.x,uData.y]);
+0062       uData.ax.max   = max([uData.x,uData.y]);
+0063       uData.ax.res   = 100;
+0064       uData.ax.bins  = linspace(uData.ax.min,uData.ax.max,uData.ax.res);
+0065       ymap = hist3([uData.x;uData.y]',{uData.ax.bins, uData.ax.bins});
+0066       uData.sh = imagesc(flipud(ymap));
+0067       colormap(flipud(hot)); 
+0068       view(0,90);
+0069       axis(<span class="string">'square'</span>)
+0070       
+0071   <span class="keyword">case</span> {<span class="string">'wmvolume'</span>}
+0072     <span class="comment">% get the fiber density</span>
+0073     mmpVx = feGet(fe,<span class="string">'xform img 2 acpc'</span>);
+0074     mmpVx = mmpVx(1:3,1:3);
+0075     mmpVx = diag(mmpVx);
+0076     vxNum = size(feGet(fe,<span class="string">'roi coords'</span>),1);
+0077     connectomeVol = vxNum*prod(mmpVx);<span class="comment">% in mm^3</span>
+0078         
+0079     <span class="comment">% Total WM volume in the original ROI</span>
+0080     testVol = <span class="string">'/azure/scr1/frk/rois/life_right_occipital_example_large_no_cc_smaller.mat'</span>;
+0081     ROI = dtiReadRoi(testVol);
+0082     vxNum    = size(unique(floor(mrAnatXformCoords(feGet(fe,<span class="string">'xform acpc 2 img'</span>),ROI.coords)),<span class="string">'rows'</span>),1);
+0083     totWMvol = vxNum*prod(mmpVx);<span class="comment">% in mm^3</span>
+0084     uData = connectomeVol/totWMvol*100;
+0085     close(g)
+0086 
+0087     g(1) = mrvNewGraphWin(sprintf(<span class="string">'%s_percentWMVolume'</span>,feGet(fe,<span class="string">'name'</span>)));
+0088     set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+0089     
+0090     <span class="comment">% Volume of the ROI</span>
+0091     h = bar(uData,<span class="string">'r'</span>);
+0092     set(gca,<span class="string">'ylim'</span>,[60 120],<span class="string">'xlim'</span>,[.5 1.5])
+0093     ylabel(<span class="string">'Percent white-matter volume'</span>)
+0094     title(sprintf(<span class="string">'Percent volume: %2.2f'</span>,uData))
+0095     set(gca,  <span class="string">'ytick'</span>,[60 80 100 120], <span class="keyword">...</span>
+0096       <span class="string">'box'</span>,<span class="string">'off'</span>,<span class="string">'tickDir'</span>,<span class="string">'out'</span>)
+0097     
+0098     g(2) = mrvNewGraphWin(sprintf(<span class="string">'%s_WMVolume'</span>,feGet(fe,<span class="string">'name'</span>)));
+0099     set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+0100     
+0101     <span class="comment">% Volume of the ROI</span>
+0102     h = bar([totWMvol, connectomeVol],<span class="string">'r'</span>);
+0103     set(gca,<span class="string">'ylim'</span>,[0 46000],<span class="string">'xlim'</span>,[0 3])
+0104     ylabel(<span class="string">'White-matter volume (mm^3)'</span>)
+0105     title(sprintf(<span class="string">'Volume: total %6.0fmm^3, connectome %6.0fmm^3'</span>,totWMvol,connectomeVol))
+0106     set(gca,  <span class="string">'ytick'</span>,[0 46000/2 46000], <span class="keyword">...</span>
+0107         <span class="string">'xticklabel'</span>,{<span class="string">'Total WM'</span>,<span class="string">'Connectome'</span>}, <span class="keyword">...</span>
+0108         <span class="string">'box'</span>,<span class="string">'off'</span>,<span class="string">'tickDir'</span>,<span class="string">'out'</span>)
+0109     
+0110   <span class="keyword">case</span> {<span class="string">'fiberdensitymap'</span>}
+0111     <span class="comment">% Select a slice of brain in sagittal vie.</span>
+0112     <span class="comment">% only Sagittal view is implemented</span>
+0113     <span class="keyword">if</span> isempty(varargin),  slice = 30;
+0114     <span class="keyword">else</span> slice = varargin{1}; <span class="keyword">end</span>
+0115     <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; length(varargin)==2
+0116         fd = varargin{2};
+0117     <span class="keyword">else</span>
+0118         <span class="comment">% get the fiber density</span>
+0119         fd = (feGet(fe,<span class="string">'fiber density'</span>));
+0120     <span class="keyword">end</span>
+0121     
+0122     close(g)
+0123     g(1) = mrvNewGraphWin(sprintf(<span class="string">'%s_FiberDensityMapFull'</span>,feGet(fe,<span class="string">'name'</span>)));
+0124     set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)   
+0125     img = feReplaceImageValues(nan(feGet(fe,<span class="string">'map size'</span>)),fd(:,1)',feGet(fe,<span class="string">'roiCoords'</span>));
+0126     maxfd = nanmax(img(:)); <span class="comment">% This will be used tonormalize the fiber density plots</span>
+0127     surf(((fliplr(img(:,:,slice)./maxfd)'*255)),<span class="keyword">...</span>
+0128       <span class="string">'facecolor'</span>,<span class="string">'texture'</span>,<span class="string">'faceAlpha'</span>,1,<span class="string">'edgealpha'</span>,0,<span class="string">'CDataMapping'</span>,<span class="string">'Direct'</span>);
+0129     axis off; axis equal;
+0130     set(gca,<span class="string">'ylim'</span>,[75 95],<span class="string">'xlim'</span>,[40 65])
+0131     view(0,-90)
 0132     
-0133     <span class="comment">% male a histogram of the length of the fibers</span>
-0134     [y,x] = hist(uData.rmsebyVox,ceil(length(uData.rmsebyVox)/10));
-0135     bar(x,y,.65,<span class="string">'r'</span>)
-0136     hold on
-0137     plot([uData.rmsemedian uData.rmsemedian],[0 400],<span class="string">'k'</span>)
-0138     title(sprintf(<span class="string">'Total percent variance explained: %2.2f\nTotal RMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
-0139     xlabel(<span class="string">'Root mean square error'</span>)
-0140     ylabel(<span class="string">'Number of occurrences'</span>)
-0141      
-0142   <span class="keyword">case</span> <span class="string">'pverep'</span>
-0143     <span class="comment">% Plot a histogram of the percent variance explained in each voxel with</span>
-0144     <span class="comment">% the LiFE fit.</span>
-0145     <span class="comment">% uData = fePlot(fe,'pve')</span>
-0146     uData.totVarExp = feGetRep(fe,<span class="string">'totpve'</span>);
-0147     uData.totrmse   = feGetRep(fe,<span class="string">'totalrmse'</span>);
-0148     uData.pve       = 100*feGetRep(fe,<span class="string">'voxr2zero'</span>);
-0149     uData.pve( uData.pve &lt; -1000 ) = -200; <span class="comment">% if some of the values are -Inf set them to -200</span>
-0150     uData.medianpve = nanmedian(uData.pve);
-0151 
-0152     <span class="comment">% male a histogram of the length of the fibers</span>
-0153     [y,x] = hist(uData.pve,ceil(length(uData.pve)/10));
-0154     bar(x,y,1,<span class="string">'r'</span>)    
-0155     hold on
-0156     plot([uData.medianpve uData.medianpve],[0 400],<span class="string">'k'</span>)
-0157     title(sprintf(<span class="string">'Percent variance explained: %2.2f\nRMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
-0158     xlabel(<span class="string">'Percent variance explained'</span>)
-0159     ylabel(<span class="string">'Number of occurrences'</span>)
-0160      
-0161   <span class="keyword">case</span> <span class="string">'rmserepdata'</span>
-0162     <span class="comment">% Plot a histogram of the RMSE of the LiFE fit.</span>
-0163     <span class="comment">% uData = fePlot(fe,'rmse')</span>
-0164     uData.totVarExp  = feGetRep(fe,<span class="string">'totpvedata'</span>);
-0165     uData.totrmse    = feGetRep(fe,<span class="string">'totalrmsedata'</span>);
-0166     uData.rmsebyVox  = feGetRep(fe,<span class="string">'voxrmsedata'</span>);
-0167     uData.rmsemedian = nanmedian(uData.rmsebyVox);
-0168      
-0169     <span class="comment">% male a histogram of the length of the fibers</span>
-0170     [y,x] = hist(uData.rmsebyVox,ceil(length(uData.rmsebyVox)/10));
-0171     bar(x,y,.65,<span class="string">'g'</span>)
-0172     hold on
-0173     plot([uData.rmsemedian uData.rmsemedian],[0 400],<span class="string">'k'</span>)
-0174     title(sprintf(<span class="string">'Total percent variance explained by the data : %2.2f\nTotal RMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
-0175     xlabel(<span class="string">'Root mean square error'</span>)
-0176     ylabel(<span class="string">'Number of occurrences'</span>)
-0177   
-0178   <span class="keyword">case</span> <span class="string">'pverepdata'</span>
-0179     <span class="comment">% Plot a histogram of the percent variance explained in each voxel with</span>
-0180     <span class="comment">% the LiFE fit.</span>
-0181     <span class="comment">% uData = fePlot(fe,'pve')</span>
-0182     uData.totVarExp = feGetRep(fe,<span class="string">'totpvedata'</span>);
-0183     uData.totrmse   = feGetRep(fe,<span class="string">'totalrmsedata'</span>);
-0184     uData.pve       = 100*feGetRep(fe,<span class="string">'voxr2zerodata'</span>);
-0185     uData.pve( uData.pve &lt; -1000 ) = -200; <span class="comment">% if some of the values are -Inf set them to -200</span>
-0186     uData.medianpve = nanmedian(uData.pve);
-0187     
-0188     <span class="comment">% male a histogram of the length of the fibers</span>
-0189     [y,x] = hist(uData.pve,ceil(length(uData.pve)/10));
-0190     bar(x,y,1,<span class="string">'g'</span>)    
-0191     hold on
-0192     plot([uData.medianpve uData.medianpve],[0 400],<span class="string">'k'</span>)
-0193     title(sprintf(<span class="string">'Percent variance explained by the data: %2.2f\nRMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
-0194     xlabel(<span class="string">'Percent variance explained'</span>)
-0195     ylabel(<span class="string">'Number of occurrences'</span>)
-0196   
-0197   <span class="keyword">case</span> <span class="string">'rmseratio'</span>
-0198     <span class="comment">% Plot a histogram of the RMSE of the LiFE fit.</span>
-0199     <span class="comment">% uData = fePlot(fe,'rmseratio')</span>
-0200     uData.totVarExpD   = feGetRep(fe,<span class="string">'totpvedata'</span>);
-0201     uData.totVarExpM  = feGetRep(fe,<span class="string">'totpve'</span>);
-0202     uData.totVarExpMvw= 100*feGetRep(fe,<span class="string">'totalr2voxelwise'</span>);
-0203     uData.totrmse     = feGetRep(fe,<span class="string">'totalrmseratio'</span>);
-0204     uData.rmsebyVox   = feGetRep(fe,<span class="string">'voxrmseratio'</span>);
-0205     uData.medianRmse  = nanmedian(uData.rmsebyVox);
-0206     
-0207     <span class="comment">% male a histogram of the length of the fibers</span>
-0208     [y,x] = hist(uData.rmsebyVox,ceil(length(uData.rmsebyVox)/10));
-0209     bar(x,y,.65,<span class="string">'k'</span>)
-0210     hold on
-0211     plot([uData.medianRmse uData.medianRmse],[0 400],<span class="string">'k'</span>)
-0212     title(sprintf(<span class="string">'PVE Data1/Data2 (%2.2f) | Global (%2.2f) | Voxel-wise (%2.2f)\nRMSE Ratio, Total (%2.2f) | Median (%2.2f)'</span>, <span class="keyword">...</span>
-0213       uData.totVarExpD, <span class="keyword">...</span>
-0214       uData.totVarExpM, <span class="keyword">...</span>
-0215       uData.totVarExpMvw, <span class="keyword">...</span>
-0216       uData.totrmse,   <span class="keyword">...</span>
-0217       uData.medianRmse))
-0218     xlabel(<span class="string">'Root mean square error'</span>)
-0219     ylabel(<span class="string">'Number of occurrences'</span>)
-0220 
-0221   <span class="keyword">case</span> <span class="string">'rmseratiovoxelwise'</span>
-0222     <span class="comment">% Plot a histogram of the RMSE of the LiFE fit.</span>
-0223     <span class="comment">% uData = fePlot(fe,'rmseratio')</span>
-0224     uData.totVarExpD  = feGetRep(fe,<span class="string">'totpvedata'</span>);
-0225     uData.totVarExpM  = feGetRep(fe,<span class="string">'totpve'</span>);
-0226     uData.totVarExpMvw= 100*feGetRep(fe,<span class="string">'totalr2voxelwise'</span>);
-0227     uData.totrmse     = feGetRep(fe,<span class="string">'totalrmseratiovoxelwise'</span>);
-0228     uData.rmsebyVox   = feGetRep(fe,<span class="string">'voxrmseratiovoxelwise'</span>);
-0229     uData.medianRmse  = nanmedian(uData.rmsebyVox);
-0230     
-0231     <span class="comment">% male a histogram of the length of the fibers</span>
-0232     [y,x] = hist(uData.rmsebyVox,ceil(length(uData.rmsebyVox)/10));
-0233     bar(x,y,.65,<span class="string">'k'</span>)
-0234     hold on
-0235     plot([uData.medianRmse uData.medianRmse],[0 400],<span class="string">'k'</span>)
-0236     title(sprintf(<span class="string">'PVE Data1/Data2 (%2.2f) | Global (%2.2f) | Voxel-wise (%2.2f)\nRMSE Ratio, Total (%2.2f) | Median (%2.2f)'</span>, <span class="keyword">...</span>
-0237       uData.totVarExpD, <span class="keyword">...</span>
-0238       uData.totVarExpM, <span class="keyword">...</span>
-0239       uData.totVarExpMvw, <span class="keyword">...</span>
-0240       uData.totrmse,   <span class="keyword">...</span>
-0241       uData.medianRmse))
-0242     xlabel(<span class="string">'Root mean square error'</span>)
-0243     ylabel(<span class="string">'Number of occurrences'</span>)
-0244 
-0245   <span class="keyword">case</span> <span class="string">'fiberlength'</span>
-0246     <span class="comment">% Plot a histogram of the length of the fibers in the connectome.</span>
-0247     <span class="comment">% uData = fePlot(fe,'fiber length')</span>
-0248     uData.len       = fefgGet(feGet(fe,<span class="string">'fg acpc'</span>),<span class="string">'length'</span>);
-0249     uData.nanmedian = nanmedian(uData.len);
-0250     
-0251     <span class="comment">% male a histogram of the length of the fibers</span>
-0252     [y,x] = hist(uData.len,ceil(length(uData.len)/10));
-0253     bar(x,y,2,<span class="string">'r'</span>)
-0254     hold on
-0255     plot([uData.nanmedian uData.nanmedian],[0 1400],<span class="string">'k'</span>)
-0256     title(sprintf(<span class="string">'Total number of fibers: %i'</span>,feGet(fe,<span class="string">'n fibers'</span>)))
-0257     xlabel(<span class="string">'Fiber length in mm'</span>)
-0258     ylabel(<span class="string">'Number of occurrences'</span>)
-0259     
-0260   <span class="keyword">case</span> <span class="string">'qualityoffit'</span>
-0261     <span class="comment">% Plots the quality of fit of the LiFE model</span>
-0262     <span class="comment">% fData = fePlot(fe,'quality of fit');</span>
-0263     uData = <a href="fePlotQualityOfFit.html" class="code" title="function fePlotQualityOfFit(fe)">fePlotQualityOfFit</a>(fe);
-0264     
-0265   <span class="keyword">case</span> {<span class="string">'mmatrix'</span>,<span class="string">'model'</span>}
-0266     <span class="comment">% Show an image of the LiFE model/matrix</span>
-0267     <span class="comment">% uData = fePlot(fe,'model')</span>
-0268     uData.M = feGet(fe,<span class="string">'M fiber'</span>);
-0269     imagesc(uData.M);
+0133     cmap = colormap(jet(255));
+0134     colorbar(<span class="string">'ytick'</span>,[.25*size(cmap,1) .5*size(cmap,1) .75*size(cmap,1) size(cmap,1)],<span class="string">'yticklabel'</span>, <span class="keyword">...</span>
+0135         {num2str(ceil(maxfd/8)) num2str(ceil(maxfd/4)) <span class="keyword">...</span>
+0136         num2str(ceil(maxfd/2)) num2str(ceil(maxfd))},<span class="string">'tickdir'</span>,<span class="string">'out'</span>)
+0137     
+0138     <span class="comment">% Fiber density after life</span>
+0139     g(2) = mrvNewGraphWin(sprintf(<span class="string">'%s_FiberDensityMapLiFE'</span>,feGet(fe,<span class="string">'name'</span>)));
+0140     set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+0141     img = feReplaceImageValues(nan(feGet(fe,<span class="string">'map size'</span>)),(fd(:,2))',feGet(fe,<span class="string">'roiCoords'</span>));
+0142     surf(fliplr(img(:,:,slice)./maxfd)'*255,<span class="keyword">...</span>
+0143         <span class="string">'facecolor'</span>,<span class="string">'texture'</span>,<span class="string">'faceAlpha'</span>,1,<span class="string">'edgealpha'</span>,0,<span class="string">'CDataMapping'</span>,<span class="string">'Direct'</span>);
+0144     axis off; axis equal;
+0145     set(gca,<span class="string">'ylim'</span>,[75 95],<span class="string">'xlim'</span>,[40 65])
+0146     <span class="comment">% set(gca,'ylim',[100 130],'xlim',[50 85])</span>
+0147     
+0148     <span class="comment">%set(gca,'ylim',[70 100],'xlim',[40 65])</span>
+0149     view(0,-90)
+0150     
+0151     cmap = colormap(jet(255));
+0152     colorbar(<span class="string">'ytick'</span>,[.25*size(cmap,1) .5*size(cmap,1) .75*size(cmap,1) size(cmap,1)],<span class="string">'yticklabel'</span>, <span class="keyword">...</span>
+0153         {num2str(ceil(maxfd/8)) num2str(ceil(maxfd/4)) <span class="keyword">...</span>
+0154         num2str(ceil(maxfd/2)) num2str(ceil(maxfd))},<span class="string">'tickdir'</span>,<span class="string">'out'</span>)
+0155     
+0156     <span class="comment">% Weigth density (sum of weights)</span>
+0157     g(3) = mrvNewGraphWin(sprintf(<span class="string">'%s_SumOfWeightsMapLiFE'</span>,feGet(fe,<span class="string">'name'</span>)));
+0158     set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+0159     img = feReplaceImageValues(nan(feGet(fe,<span class="string">'map size'</span>)),(fd(:,3))',feGet(fe,<span class="string">'roiCoords'</span>));
+0160     maxw = nanmax(img(:)); <span class="comment">% This will be used tonormalize the fiber density plots</span>
+0161     minw = nanmin(img(:)); <span class="comment">% This will be used tonormalize the fiber density plots</span>
+0162     surf(fliplr(img(:,:,slice+10)./maxw)'*255,<span class="keyword">...</span>
+0163         <span class="string">'facecolor'</span>,<span class="string">'texture'</span>,<span class="string">'faceAlpha'</span>,1,<span class="string">'edgealpha'</span>,0,<span class="string">'CDataMapping'</span>,<span class="string">'Direct'</span>);
+0164     axis off; axis equal;
+0165     set(gca,<span class="string">'ylim'</span>,[75 95],<span class="string">'xlim'</span>,[40 65])
+0166     <span class="comment">%set(gca,'ylim',[70 100],'xlim',[40 65])</span>
+0167     <span class="comment">%set(gca,'ylim',[100 130],'xlim',[50 85])</span>
+0168     view(0,-90)
+0169     
+0170     cmap = colormap(jet(255));
+0171     colorbar(<span class="string">'ytick'</span>,[0 .5*size(cmap,1) size(cmap,1)],<span class="string">'yticklabel'</span>, <span class="keyword">...</span>
+0172       {num2str(minw)  num2str(maxw/2)  num2str(maxw)},<span class="string">'tickdir'</span>,<span class="string">'out'</span>)
+0173     
+0174   <span class="keyword">case</span> {<span class="string">'fiberdensityhist'</span>}
+0175     <span class="comment">% get the fiber density</span>
+0176     fd = feGet(fe,<span class="string">'fiber density'</span>);
+0177     close(g)
+0178 
+0179     g(1) = mrvNewGraphWin(sprintf(<span class="string">'%s_FiberDensityHistFull_&amp;_LiFE'</span>,feGet(fe,<span class="string">'name'</span>)));
+0180     set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+0181     
+0182     <span class="comment">% Fiber density before life</span>
+0183     edges = logspace(.5,3.2,100);
+0184     linspace()
+0185     centers = sqrt(edges(1:end-1).*edges(2:end));
+0186     uData.full = histc(fd(:,1),edges)/size(fd,1)*100;
+0187     h = bar(uData.full,<span class="string">'r'</span>);
+0188     set(h,<span class="string">'edgecolor'</span>,<span class="string">'r'</span>,<span class="string">'linewidth'</span>,.01)
+0189     set(get(h,<span class="string">'Children'</span>),<span class="string">'FaceAlpha'</span>,.5,<span class="string">'EdgeAlpha'</span>,.5)
+0190     
+0191     <span class="comment">% Fiber density after life</span>
+0192     hold on
+0193     uData.life = histc(fd(:,2),edges)/size(fd,1)*100;
+0194     h = bar(uData.life,<span class="string">'b'</span>);
+0195     set(h,<span class="string">'edgecolor'</span>,<span class="string">'b'</span>,<span class="string">'linewidth'</span>,.01)
+0196     set(get(h,<span class="string">'Children'</span>),<span class="string">'FaceAlpha'</span>,.35,<span class="string">'EdgeAlpha'</span>,.35)
+0197     set(gca,<span class="string">'ylim'</span>,[0 3],<span class="string">'xlim'</span>,[1 100])
+0198     ticks = get(gca,<span class="string">'xtick'</span>); 
+0199     ylabel(<span class="string">'Percent white-matter volume'</span>)
+0200     xlabel(<span class="string">'Number of fibers per voxel'</span>)
+0201     set(gca,  <span class="string">'ytick'</span>,[0 1 2 3], <span class="keyword">...</span>
+0202       <span class="string">'xticklabel'</span>, ceil(centers(ticks-1)) ,<span class="keyword">...</span>
+0203       <span class="string">'box'</span>,<span class="string">'off'</span>,<span class="string">'tickDir'</span>,<span class="string">'out'</span>,<span class="string">'xscale'</span>,<span class="string">'lin'</span>)
+0204     
+0205     <span class="comment">% Weigth density (sum of weights)</span>
+0206     g(2) = mrvNewGraphWin(sprintf(<span class="string">'%s_SumOfWeightsHistLiFE'</span>,feGet(fe,<span class="string">'name'</span>)));
+0207     set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+0208     edges = logspace(-7,0,100);
+0209     centers = sqrt(edges(1:end-1).*edges(2:end));
+0210     y = histc(fd(:,3),edges)/size(fd,1)*100;
+0211     h = bar(y,<span class="string">'k'</span>);
+0212     set(h,<span class="string">'edgecolor'</span>,<span class="string">'k'</span>,<span class="string">'linewidth'</span>,.01)
+0213     ylabel(<span class="string">'Percent white-matter volume'</span>)
+0214     xlabel(<span class="string">'Sum of fascicles'' contribution to the voxel signal'</span>)
+0215     set(gca,<span class="string">'ylim'</span>,[0 ceil(max(y))],<span class="string">'xlim'</span>,[.5 100])
+0216     ticks = get(gca,<span class="string">'xtick'</span>);
+0217     set(gca, <span class="string">'ytick'</span>,[0 ceil(max(y))./2 ceil(max(y))], <span class="keyword">...</span>
+0218       <span class="string">'xticklabel'</span>, ceil(1000000*centers(ticks-1))/1000000 ,<span class="keyword">...</span>
+0219       <span class="string">'box'</span>,<span class="string">'off'</span>,<span class="string">'tickDir'</span>,<span class="string">'out'</span>,<span class="string">'xscale'</span>,<span class="string">'lin'</span>)
+0220     
+0221     <span class="comment">% Weight density (mean of weights)</span>
+0222     g(3) = mrvNewGraphWin(sprintf(<span class="string">'%s_MedianWeightsHistLiFE'</span>,feGet(fe,<span class="string">'name'</span>)));
+0223     set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+0224     edges = logspace(-7,0,100);
+0225     centers = sqrt(edges(1:end-1).*edges(2:end));
+0226     y = histc(fd(:,4),edges)/size(fd,1)*100;
+0227     h = bar(y,<span class="string">'k'</span>);
+0228     set(h,<span class="string">'edgecolor'</span>,<span class="string">'k'</span>,<span class="string">'linewidth'</span>,.01)
+0229     ylabel(<span class="string">'Percent white-matter volume'</span>)
+0230     xlabel(<span class="string">'Mean fascicles'' contribution to the voxel signal'</span>)
+0231       set(gca,<span class="string">'ylim'</span>,[0 ceil(max(y))],<span class="string">'xlim'</span>,[.5 100])
+0232     ticks = get(gca,<span class="string">'xtick'</span>);
+0233     set(gca, <span class="string">'ytick'</span>,[0 ceil(max(y))./2 ceil(max(y))], <span class="keyword">...</span>
+0234       <span class="string">'xticklabel'</span>, ceil(1000000*centers(ticks-1))/1000000 ,<span class="keyword">...</span>
+0235       <span class="string">'box'</span>,<span class="string">'off'</span>,<span class="string">'tickDir'</span>,<span class="string">'out'</span>,<span class="string">'xscale'</span>,<span class="string">'lin'</span>)
+0236 
+0237     <span class="comment">% Weight density (var of weights)</span>
+0238     g(4) = mrvNewGraphWin(sprintf(<span class="string">'%s_VarianceWeightsHistLiFE'</span>,feGet(fe,<span class="string">'name'</span>)));
+0239     set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+0240     edges = logspace(-7,0,100);
+0241     centers = sqrt(edges(1:end-1).*edges(2:end));
+0242     y = histc(fd(:,5),edges)/size(fd,1)*100;
+0243     h = bar(y,<span class="string">'k'</span>);
+0244     set(h,<span class="string">'edgecolor'</span>,<span class="string">'k'</span>,<span class="string">'linewidth'</span>,.01)
+0245     ylabel(<span class="string">'Percent white-matter volume'</span>)
+0246     xlabel(<span class="string">'Variance of fascicles'' contribution to the voxel signal'</span>)
+0247     set(gca,<span class="string">'ylim'</span>,[0 ceil(max(y))],<span class="string">'xlim'</span>,[.5 100])
+0248     ticks = get(gca,<span class="string">'xtick'</span>);
+0249     set(gca, <span class="string">'ytick'</span>,[0 ceil(max(y))./2 ceil(max(y))], <span class="keyword">...</span>
+0250       <span class="string">'xticklabel'</span>, ceil(1000000*centers(ticks-1))/1000000 ,<span class="keyword">...</span>
+0251       <span class="string">'box'</span>,<span class="string">'off'</span>,<span class="string">'tickDir'</span>,<span class="string">'out'</span>,<span class="string">'xscale'</span>,<span class="string">'lin'</span>)
+0252     
+0253   <span class="keyword">case</span> {<span class="string">'rmseratiohistogram'</span>}
+0254     <span class="comment">% Weigth density after life</span>
+0255     set(gcf,<span class="string">'color'</span>,<span class="string">'w'</span>)
+0256     R = (feGet(fe,<span class="string">'rmseratio'</span>));
+0257  
+0258     edges = logspace(-.3,.6,100);
+0259     centers = sqrt(edges(1:end-1).*edges(2:end));
+0260     y = histc(R,edges)/length(R)*100;
+0261     h = bar(y,<span class="string">'k'</span>);
+0262     set(h,<span class="string">'edgecolor'</span>,<span class="string">'k'</span>,<span class="string">'linewidth'</span>,.01)
+0263     ylabel(<span class="string">'Percent white-matter volume'</span>)
+0264     xlabel(<span class="string">'R_{rmse}'</span>)
+0265     set(gca,<span class="string">'ylim'</span>,[0 6],<span class="string">'xlim'</span>,[.5 100])
+0266     ticks = get(gca,<span class="string">'xtick'</span>);
+0267     set(gca, <span class="string">'ytick'</span>,[0 3 6], <span class="keyword">...</span>
+0268       <span class="string">'xticklabel'</span>, ceil(100*centers(ticks-1))/100 ,<span class="keyword">...</span>
+0269       <span class="string">'box'</span>,<span class="string">'off'</span>,<span class="string">'tickDir'</span>,<span class="string">'out'</span>,<span class="string">'xscale'</span>,<span class="string">'lin'</span>)
 0270     
-0271   <span class="keyword">case</span> <span class="string">'dsigmeasured'</span>
-0272     <span class="comment">% Plot the series of the measured diffusion signal reordered in such a</span>
-0273     <span class="comment">% way that close angle in on the sphere are close together in the</span>
-0274     <span class="comment">% series. This call uses the functionality in feGet(fe,dsig measured',</span>
-0275     <span class="comment">% varargin)</span>
-0276     <span class="comment">% uData = fePlot(fe,'dsig measured')</span>
-0277     <span class="comment">% uData = fePlot(fe,'dsig measured',voxelIndex)</span>
-0278     <span class="comment">% uData = fePlot(fe,'dsig measured',coords)</span>
-0279     
-0280     <span class="comment">% Use routine in dwiPlot to reorder the x-axis of this so that</span>
-0281     <span class="comment">% every voxel is plotted</span>
-0282     dsig = feGet(fe,<span class="string">'dsig measured'</span>);
-0283     dsig = dsig(1:150);
+0271   <span class="keyword">case</span> {<span class="string">'map'</span>,<span class="string">'maprep'</span>}
+0272     <span class="comment">% Generate the requested map and save it to volume.</span>
+0273     <span class="keyword">if</span> (length(plotType) &gt; 3)
+0274       <span class="comment">% Use the xvalidation 'get' routine</span>
+0275       map = feValues2volume(feGetRep(fe, varargin{1}), <span class="keyword">...</span>
+0276         feGet(fe,<span class="string">'roi coords'</span>), <span class="keyword">...</span>
+0277         feGetRep(fe,<span class="string">'map size'</span>));
+0278     <span class="keyword">else</span>
+0279       <span class="comment">% use the default 'get' routine.</span>
+0280       map = feValues2volume(feGet(fe, varargin{1}), <span class="keyword">...</span>
+0281         feGet(fe,<span class="string">'roi coords'</span>), <span class="keyword">...</span>
+0282         feGet(fe,<span class="string">'map size'</span>));
+0283     <span class="keyword">end</span>
 0284     
-0285     <span class="comment">% From dwiPlot</span>
-0286     bvecs = feGet(fe,<span class="string">'bvecs'</span>);
-0287     
-0288     <span class="comment">% Prepare the signal in 2D (imag) format:</span>
-0289     bFlat = sphere2flat(bvecs,<span class="string">'xy'</span>);
-0290     
-0291     <span class="comment">% Interpolating function on the 2D representation</span>
-0292     F = TriScatteredInterp(bFlat,dsig(:));
-0293     
-0294     <span class="comment">% Set the (x,y) range and interpolate</span>
-0295     x = linspace(min(bFlat(:,1)),max(bFlat(:,1)),sqrt(feGet(fe,<span class="string">'nbvecs'</span>)));
-0296     y = linspace(min(bFlat(:,1)),max(bFlat(:,1)),sqrt(feGet(fe,<span class="string">'nbvecs'</span>)));
-0297     [X Y] = meshgrid(x,y);
-0298     est = F(X,Y);
-0299     est(isnan(est)) = 0;  <span class="comment">% Make extrapolated 0 rather than NaN</span>
-0300     <span class="comment">%est = round(est./2);</span>
-0301     
-0302     inData.x = X;
-0303     inData.y = Y;
-0304     inData.data = est;
+0285     <span class="comment">% Get the slices to display (acpc) -120 to 120</span>
+0286     <span class="keyword">if</span> (length(varargin)==1), slices = [-11:13];
+0287     <span class="keyword">else</span> slices = varargin{2};<span class="keyword">end</span>
+0288     
+0289     <span class="comment">% The xform is taken from the LiFE structure.</span>
+0290     mapXform = feGet(fe,<span class="string">'xform img2acpc'</span>);
+0291     
+0292     <span class="comment">% Get the T1 anatomy from the session.</span>
+0293     ni         = niftiRead(feGet(fe,<span class="string">'anatomy file'</span>));
+0294     anatomyImg = double(ni.data);
+0295     
+0296     <span class="comment">% Get the anatomy xform, from the file?</span>
+0297     anatomyXform = ni.qto_xyz;
+0298     clear ni;
+0299     
+0300     <span class="comment">% Get the range of the map to display from the data.</span>
+0301     clippingRange = [0 max(map(:))];<span class="comment">%[max([0,min(map(:))]) max([max(map(:)),1])];</span>
+0302     mrAnatOverlayMontage(map, mapXform, anatomyImg, anatomyXform, [], clippingRange,slices);
+0303     colormap(<span class="string">'autumn'</span>);colorbar(<span class="string">'location'</span>,<span class="string">'eastoutside'</span>)
+0304     title(upper(varargin{1}))
 0305     
-0306     uData = dwiSpiralPlot(inData);
-0307     dwiSpiralPlot(inData);
-0308 
-0309   <span class="keyword">case</span> <span class="string">'bvecs'</span>
-0310     <span class="comment">% Shows the bvecs on a sphere.</span>
-0311     <span class="comment">% uData = dwiPlot(fe,'bvecs')</span>
-0312     uData = dwiPlot(feGet(fe,<span class="string">'dwi'</span>),<span class="string">'bvecs'</span>);
-0313     
-0314   <span class="keyword">case</span> {<span class="string">'connectome'</span>,<span class="string">'fg'</span>,<span class="string">'fibers'</span>}    
-0315     <span class="comment">% Plot the fiber group in a matlab 3D mesh.</span>
-0316     <span class="comment">% uData = fePlot(fe,'fg')</span>
-0317     <span class="comment">% We also look for fibers that are 'broken.' And display those as</span>
-0318     <span class="comment">% separated fibers.</span>
-0319     uData = <a href="feConnectomeDisplay.html" class="code" title="function [fig_handle, h, fibers] = feConnectomeDisplay(varargin)">feConnectomeDisplay</a>(feSplitLoopFibers( feGet(fe,<span class="string">'fg img'</span>)),g);
-0320     <span class="comment">%uData = feConnectomeDisplay(feGet(fe,'fg img'),figure);</span>
-0321 
-0322   <span class="keyword">otherwise</span>
-0323     error(<span class="string">'Unknown plot type %s\n'</span>,plotType);
-0324 <span class="keyword">end</span>
-0325 
-0326 <span class="comment">% Set Figure properties</span>
-0327 <span class="keyword">if</span> ~notDefined(<span class="string">'uData'</span>)
-0328   set(g,<span class="string">'userdata'</span>,uData)
-0329 <span class="keyword">end</span>
-0330 
-0331 <span class="comment">% Set axes properties</span>
-0332 set(gca, <span class="string">'FontSize'</span>, 16, <span class="keyword">...</span>
-0333   <span class="string">'tickDir'</span>,<span class="string">'out'</span>, <span class="keyword">...</span>
-0334   <span class="string">'box'</span>,<span class="string">'off'</span>);
-0335 
-0336 <span class="keyword">end</span>
-0337 
-0338 
-0339 <span class="comment">%% Scratch</span>
-0340 <span class="comment">% g = mrvNewGraphWin;</span>
-0341 <span class="comment">% u = randn(128,128);</span>
-0342 <span class="comment">% clear uData</span>
-0343 <span class="comment">% uData.u = u;</span>
-0344 <span class="comment">% imagesc(u);</span>
-0345 <span class="comment">% set(g,'userdata',uData);</span>
-0346 <span class="comment">%</span>
-0347 <span class="comment">% foo = get(g,'userdata')</span>
-0348</pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0306   <span class="keyword">case</span> <span class="string">'rmse'</span>
+0307     <span class="comment">% Plot a histogram of the RMSE of the LiFE fit.</span>
+0308     <span class="comment">% uData = fePlot(fe,'rmse')</span>
+0309     uData.totVarExp = feGet(fe,<span class="string">'totpve'</span>);
+0310     uData.totrmse   = feGet(fe,<span class="string">'totalrmse'</span>);
+0311     uData.rmsebyVox   = feGet(fe,<span class="string">'voxrmse'</span>);
+0312     uData.rmsemedian = nanmedian(uData.rmsebyVox);
+0313 
+0314     <span class="comment">% male a histogram of the length of the fibers</span>
+0315     [y,x] = hist(uData.rmsebyVox,ceil(length(uData.rmsebyVox)/10));
+0316     bar(x,y,.65,<span class="string">'r'</span>)
+0317     hold on
+0318     plot([uData.rmsemedian uData.rmsemedian],[0 400],<span class="string">'k'</span>)
+0319     title(sprintf(<span class="string">'Total percent variance explained: %2.2f\nTotal RMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
+0320     xlabel(<span class="string">'Root mean square error'</span>)
+0321     ylabel(<span class="string">'Number of occurrences'</span>)
+0322      
+0323   <span class="keyword">case</span> <span class="string">'pve'</span>
+0324     <span class="comment">% Plot a histogram of the percent variance explained in each voxel with</span>
+0325     <span class="comment">% the LiFE fit.</span>
+0326     <span class="comment">% uData = fePlot(fe,'pve')</span>
+0327     uData.totVarExp = feGet(fe,<span class="string">'totpve'</span>);
+0328     uData.totrmse   = feGet(fe,<span class="string">'totalrmse'</span>);
+0329     uData.pve   = 100*feGet(fe,<span class="string">'voxr2zero'</span>);
+0330     uData.pve( uData.pve &lt; -1000 ) = -200; <span class="comment">% if some of the values are -Inf set them to -200</span>
+0331     uData.medianpve = nanmedian(uData.pve);
+0332 
+0333     <span class="comment">% male a histogram of the length of the fibers</span>
+0334     [y,x] = hist(uData.pve,ceil(length(uData.pve)/10));
+0335     bar(x,y,1,<span class="string">'r'</span>)    
+0336     hold on
+0337     plot([uData.medianpve uData.medianpve],[0 400],<span class="string">'k'</span>)
+0338     title(sprintf(<span class="string">'Percent variance explained: %2.2f\nRMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
+0339     xlabel(<span class="string">'Percent variance explained'</span>)
+0340     ylabel(<span class="string">'Number of occurrences'</span>)
+0341 
+0342   <span class="keyword">case</span> <span class="string">'rmserep'</span>
+0343     <span class="comment">% Plot a histogram of the RMSE of the LiFE fit.</span>
+0344     <span class="comment">% uData = fePlot(fe,'rmse')</span>
+0345     uData.totVarExp  = feGetRep(fe,<span class="string">'totpve'</span>);
+0346     uData.totrmse    = feGetRep(fe,<span class="string">'totalrmse'</span>);
+0347     uData.rmsebyVox  = feGetRep(fe,<span class="string">'voxrmse'</span>);
+0348     uData.rmsemedian = nanmedian(uData.rmsebyVox);
+0349     
+0350     <span class="comment">% male a histogram of the length of the fibers</span>
+0351     [y,x] = hist(uData.rmsebyVox,ceil(length(uData.rmsebyVox)/10));
+0352     bar(x,y,.65,<span class="string">'r'</span>)
+0353     hold on
+0354     plot([uData.rmsemedian uData.rmsemedian],[0 400],<span class="string">'k'</span>)
+0355     title(sprintf(<span class="string">'Total percent variance explained: %2.2f\nTotal RMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
+0356     xlabel(<span class="string">'Root mean square error'</span>)
+0357     ylabel(<span class="string">'Number of occurrences'</span>)
+0358      
+0359   <span class="keyword">case</span> <span class="string">'pverep'</span>
+0360     <span class="comment">% Plot a histogram of the percent variance explained in each voxel with</span>
+0361     <span class="comment">% the LiFE fit.</span>
+0362     <span class="comment">% uData = fePlot(fe,'pve')</span>
+0363     uData.totVarExp = feGetRep(fe,<span class="string">'totpve'</span>);
+0364     uData.totrmse   = feGetRep(fe,<span class="string">'totalrmse'</span>);
+0365     uData.pve       = 100*feGetRep(fe,<span class="string">'voxr2zero'</span>);
+0366     uData.pve( uData.pve &lt; -1000 ) = -200; <span class="comment">% if some of the values are -Inf set them to -200</span>
+0367     uData.medianpve = nanmedian(uData.pve);
+0368 
+0369     <span class="comment">% male a histogram of the length of the fibers</span>
+0370     [y,x] = hist(uData.pve,ceil(length(uData.pve)/10));
+0371     bar(x,y,1,<span class="string">'r'</span>)    
+0372     hold on
+0373     plot([uData.medianpve uData.medianpve],[0 400],<span class="string">'k'</span>)
+0374     title(sprintf(<span class="string">'Percent variance explained: %2.2f\nRMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
+0375     xlabel(<span class="string">'Percent variance explained'</span>)
+0376     ylabel(<span class="string">'Number of occurrences'</span>)
+0377      
+0378   <span class="keyword">case</span> <span class="string">'rmserepdata'</span>
+0379     <span class="comment">% Plot a histogram of the RMSE of the LiFE fit.</span>
+0380     <span class="comment">% uData = fePlot(fe,'rmse')</span>
+0381     uData.totVarExp  = feGetRep(fe,<span class="string">'totpvedata'</span>);
+0382     uData.totrmse    = feGetRep(fe,<span class="string">'totalrmsedata'</span>);
+0383     uData.rmsebyVox  = feGetRep(fe,<span class="string">'voxrmsedata'</span>);
+0384     uData.rmsemedian = nanmedian(uData.rmsebyVox);
+0385      
+0386     <span class="comment">% male a histogram of the length of the fibers</span>
+0387     [y,x] = hist(uData.rmsebyVox,ceil(length(uData.rmsebyVox)/10));
+0388     bar(x,y,.65,<span class="string">'g'</span>)
+0389     hold on
+0390     plot([uData.rmsemedian uData.rmsemedian],[0 400],<span class="string">'k'</span>)
+0391     title(sprintf(<span class="string">'Total percent variance explained by the data : %2.2f\nTotal RMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
+0392     xlabel(<span class="string">'Root mean square error'</span>)
+0393     ylabel(<span class="string">'Number of occurrences'</span>)
+0394   
+0395   <span class="keyword">case</span> <span class="string">'pverepdata'</span>
+0396     <span class="comment">% Plot a histogram of the percent variance explained in each voxel with</span>
+0397     <span class="comment">% the LiFE fit.</span>
+0398     <span class="comment">% uData = fePlot(fe,'pve')</span>
+0399     uData.totVarExp = feGetRep(fe,<span class="string">'totpvedata'</span>);
+0400     uData.totrmse   = feGetRep(fe,<span class="string">'totalrmsedata'</span>);
+0401     uData.pve       = 100*feGetRep(fe,<span class="string">'voxr2zerodata'</span>);
+0402     uData.pve( uData.pve &lt; -1000 ) = -200; <span class="comment">% if some of the values are -Inf set them to -200</span>
+0403     uData.medianpve = nanmedian(uData.pve);
+0404     
+0405     <span class="comment">% male a histogram of the length of the fibers</span>
+0406     [y,x] = hist(uData.pve,ceil(length(uData.pve)/10));
+0407     bar(x,y,1,<span class="string">'g'</span>)    
+0408     hold on
+0409     plot([uData.medianpve uData.medianpve],[0 400],<span class="string">'k'</span>)
+0410     title(sprintf(<span class="string">'Percent variance explained by the data: %2.2f\nRMSE: %2.2f'</span>,uData.totVarExp, uData.totrmse))
+0411     xlabel(<span class="string">'Percent variance explained'</span>)
+0412     ylabel(<span class="string">'Number of occurrences'</span>)
+0413   
+0414   <span class="keyword">case</span> <span class="string">'rmseratio'</span>
+0415     <span class="comment">% Plot a histogram of the RMSE of the LiFE fit.</span>
+0416     <span class="comment">% uData = fePlot(fe,'rmseratio')</span>
+0417     uData.totVarExpD   = feGetRep(fe,<span class="string">'totpvedata'</span>);
+0418     uData.totVarExpM  = feGetRep(fe,<span class="string">'totpve'</span>);
+0419     uData.totVarExpMvw= 100*feGetRep(fe,<span class="string">'totalr2voxelwise'</span>);
+0420     uData.totrmse     = feGetRep(fe,<span class="string">'totalrmseratio'</span>);
+0421     uData.rmsebyVox   = feGetRep(fe,<span class="string">'voxrmseratio'</span>);
+0422     uData.medianRmse  = nanmedian(uData.rmsebyVox);
+0423     
+0424     <span class="comment">% male a histogram of the length of the fibers</span>
+0425     [y,x] = hist(uData.rmsebyVox,ceil(length(uData.rmsebyVox)/10));
+0426     bar(x,y,.65,<span class="string">'k'</span>)
+0427     hold on
+0428     plot([uData.medianRmse uData.medianRmse],[0 400],<span class="string">'k'</span>)
+0429     title(sprintf(<span class="string">'PVE Data1/Data2 (%2.2f) | Global (%2.2f) | Voxel-wise (%2.2f)\nRMSE Ratio, Total (%2.2f) | Median (%2.2f)'</span>, <span class="keyword">...</span>
+0430       uData.totVarExpD, <span class="keyword">...</span>
+0431       uData.totVarExpM, <span class="keyword">...</span>
+0432       uData.totVarExpMvw, <span class="keyword">...</span>
+0433       uData.totrmse,   <span class="keyword">...</span>
+0434       uData.medianRmse))
+0435     xlabel(<span class="string">'Root mean square error'</span>)
+0436     ylabel(<span class="string">'Number of occurrences'</span>)
+0437 
+0438   <span class="keyword">case</span> <span class="string">'rmseratiovoxelwise'</span>
+0439     <span class="comment">% Plot a histogram of the RMSE of the LiFE fit.</span>
+0440     <span class="comment">% uData = fePlot(fe,'rmseratio')</span>
+0441     uData.totVarExpD  = feGetRep(fe,<span class="string">'totpvedata'</span>);
+0442     uData.totVarExpM  = feGetRep(fe,<span class="string">'totpve'</span>);
+0443     uData.totVarExpMvw= 100*feGetRep(fe,<span class="string">'totalr2voxelwise'</span>);
+0444     uData.totrmse     = feGetRep(fe,<span class="string">'totalrmseratiovoxelwise'</span>);
+0445     uData.rmsebyVox   = feGetRep(fe,<span class="string">'voxrmseratiovoxelwise'</span>);
+0446     uData.medianRmse  = nanmedian(uData.rmsebyVox);
+0447     
+0448     <span class="comment">% male a histogram of the length of the fibers</span>
+0449     [y,x] = hist(uData.rmsebyVox,ceil(length(uData.rmsebyVox)/10));
+0450     bar(x,y,.65,<span class="string">'k'</span>)
+0451     hold on
+0452     plot([uData.medianRmse uData.medianRmse],[0 400],<span class="string">'k'</span>)
+0453     title(sprintf(<span class="string">'PVE Data1/Data2 (%2.2f) | Global (%2.2f) | Voxel-wise (%2.2f)\nRMSE Ratio, Total (%2.2f) | Median (%2.2f)'</span>, <span class="keyword">...</span>
+0454       uData.totVarExpD, <span class="keyword">...</span>
+0455       uData.totVarExpM, <span class="keyword">...</span>
+0456       uData.totVarExpMvw, <span class="keyword">...</span>
+0457       uData.totrmse,   <span class="keyword">...</span>
+0458       uData.medianRmse))
+0459     xlabel(<span class="string">'Root mean square error'</span>)
+0460     ylabel(<span class="string">'Number of occurrences'</span>)
+0461 
+0462   <span class="keyword">case</span> <span class="string">'fiberlength'</span>
+0463     <span class="comment">% Plot a histogram of the length of the fibers in the connectome.</span>
+0464     <span class="comment">% uData = fePlot(fe,'fiber length')</span>
+0465     uData.len       = fefgGet(feGet(fe,<span class="string">'fg acpc'</span>),<span class="string">'length'</span>);
+0466     uData.nanmedian = nanmedian(uData.len);
+0467     
+0468     <span class="comment">% male a histogram of the length of the fibers</span>
+0469     [y,x] = hist(uData.len,ceil(length(uData.len)/10));
+0470     bar(x,y,2,<span class="string">'r'</span>)
+0471     hold on
+0472     plot([uData.nanmedian uData.nanmedian],[0 1400],<span class="string">'k'</span>)
+0473     title(sprintf(<span class="string">'Total number of fibers: %i'</span>,feGet(fe,<span class="string">'n fibers'</span>)))
+0474     xlabel(<span class="string">'Fiber length in mm'</span>)
+0475     ylabel(<span class="string">'Number of occurrences'</span>)
+0476     
+0477   <span class="keyword">case</span> <span class="string">'qualityoffit'</span>
+0478     <span class="comment">% Plots the quality of fit of the LiFE model</span>
+0479     <span class="comment">% fData = fePlot(fe,'quality of fit');</span>
+0480     uData = fePlotQualityOfFit(fe);
+0481     
+0482   <span class="keyword">case</span> {<span class="string">'mmatrix'</span>,<span class="string">'model'</span>}
+0483     <span class="comment">% Show an image of the LiFE model/matrix</span>
+0484     <span class="comment">% uData = fePlot(fe,'model')</span>
+0485     uData.M = feGet(fe,<span class="string">'M fiber'</span>);
+0486     imagesc(uData.M);
+0487     
+0488   <span class="keyword">case</span> <span class="string">'dsigmeasured'</span>
+0489     <span class="comment">% Plot the series of the measured diffusion signal reordered in such a</span>
+0490     <span class="comment">% way that close angle in on the sphere are close together in the</span>
+0491     <span class="comment">% series. This call uses the functionality in feGet(fe,dsig measured',</span>
+0492     <span class="comment">% varargin)</span>
+0493     <span class="comment">% uData = fePlot(fe,'dsig measured')</span>
+0494     <span class="comment">% uData = fePlot(fe,'dsig measured',voxelIndex)</span>
+0495     <span class="comment">% uData = fePlot(fe,'dsig measured',coords)</span>
+0496     
+0497     <span class="comment">% Use routine in dwiPlot to reorder the x-axis of this so that</span>
+0498     <span class="comment">% every voxel is plotted</span>
+0499     dsig = feGet(fe,<span class="string">'dsig measured'</span>);
+0500     dsig = dsig(1:150);
+0501     
+0502     <span class="comment">% From dwiPlot</span>
+0503     bvecs = feGet(fe,<span class="string">'bvecs'</span>);
+0504     
+0505     <span class="comment">% Prepare the signal in 2D (imag) format:</span>
+0506     bFlat = sphere2flat(bvecs,<span class="string">'xy'</span>);
+0507     
+0508     <span class="comment">% Interpolating function on the 2D representation</span>
+0509     F = TriScatteredInterp(bFlat,dsig(:));
+0510     
+0511     <span class="comment">% Set the (x,y) range and interpolate</span>
+0512     x = linspace(min(bFlat(:,1)),max(bFlat(:,1)),sqrt(feGet(fe,<span class="string">'nbvecs'</span>)));
+0513     y = linspace(min(bFlat(:,1)),max(bFlat(:,1)),sqrt(feGet(fe,<span class="string">'nbvecs'</span>)));
+0514     [X Y] = meshgrid(x,y);
+0515     est = F(X,Y);
+0516     est(isnan(est)) = 0;  <span class="comment">% Make extrapolated 0 rather than NaN</span>
+0517     <span class="comment">%est = round(est./2);</span>
+0518     
+0519     inData.x = X;
+0520     inData.y = Y;
+0521     inData.data = est;
+0522     
+0523     uData = dwiSpiralPlot(inData);
+0524     dwiSpiralPlot(inData);
+0525 
+0526   <span class="keyword">case</span> <span class="string">'bvecs'</span>
+0527     <span class="comment">% Shows the bvecs on a sphere.</span>
+0528     <span class="comment">% uData = dwiPlot(fe,'bvecs')</span>
+0529     uData = dwiPlot(feGet(fe,<span class="string">'dwi'</span>),<span class="string">'bvecs'</span>);
+0530     
+0531   <span class="keyword">case</span> {<span class="string">'connectome'</span>,<span class="string">'fg'</span>,<span class="string">'fibers'</span>}    
+0532     <span class="comment">% Plot the fiber group in a matlab 3D mesh.</span>
+0533     <span class="comment">% uData = fePlot(fe,'fg')</span>
+0534     <span class="comment">% We also look for fibers that are 'broken.' And display those as</span>
+0535     <span class="comment">% separated fibers.</span>
+0536     uData = feConnectomeDisplay(feSplitLoopFibers( feGet(fe,<span class="string">'fg img'</span>)),g);
+0537     <span class="comment">%uData = feConnectomeDisplay(feGet(fe,'fg img'),figure);</span>
+0538 
+0539   <span class="keyword">otherwise</span>
+0540     error(<span class="string">'Unknown plot type %s\n'</span>,plotType);
+0541 <span class="keyword">end</span>
+0542 
+0543 <span class="comment">% Set Figure properties</span>
+0544 <span class="keyword">if</span> ~notDefined(<span class="string">'uData'</span>)
+0545   set(g,<span class="string">'userdata'</span>,uData)
+0546 <span class="keyword">end</span>
+0547 
+0548 <span class="comment">% Set axes properties</span>
+0549 set(gca, <span class="string">'FontSize'</span>, 16, <span class="keyword">...</span>
+0550   <span class="string">'tickDir'</span>,<span class="string">'out'</span>, <span class="keyword">...</span>
+0551   <span class="string">'box'</span>,<span class="string">'off'</span>);
+0552 
+0553 <span class="keyword">end</span>
+0554 
+0555 
+0556 <span class="comment">%% Scratch</span>
+0557 <span class="comment">% g = mrvNewGraphWin;</span>
+0558 <span class="comment">% u = randn(128,128);</span>
+0559 <span class="comment">% clear uData</span>
+0560 <span class="comment">% uData.u = u;</span>
+0561 <span class="comment">% imagesc(u);</span>
+0562 <span class="comment">% set(g,'userdata',uData);</span>
+0563 <span class="comment">%</span>
+0564 <span class="comment">% foo = get(g,'userdata')</span>
+0565</pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 13:06:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

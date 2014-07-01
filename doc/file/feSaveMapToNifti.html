@@ -32,7 +32,8 @@
 
  feSaveMapToNifti(fe,mapType, niftiName)
 
- Franco (c) 2012 Stanford Vista Team</pre></div>
+
+ Copyright Franco Pestilli (2013) Vistasoft Stanford University.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -53,19 +54,20 @@ This function is called by:
 0004 <span class="comment">%</span>
 0005 <span class="comment">% feSaveMapToNifti(fe,mapType, niftiName)</span>
 0006 <span class="comment">%</span>
-0007 <span class="comment">% Franco (c) 2012 Stanford Vista Team</span>
-0008 
-0009 <span class="comment">% Generate the requested map and save it to volume.</span>
-0010 map = <a href="feValues2volume.html" class="code" title="function vol3d = feValues2volume(vals,coords,vSize)">feValues2volume</a>((feGetRep(fe, mapType)),feGet(fe,<span class="string">'roi coords'</span>),feGetRep(fe,<span class="string">'map size'</span>));
-0011 
-0012 <span class="comment">% Generate a nifti structure for it.</span>
-0013 nii         = niftiCreate(<span class="string">'data'</span>,map,<span class="keyword">...</span>
-0014                   <span class="string">'qto_xyz'</span>,feGet(fe,<span class="string">'xform img 2 acpc'</span>),<span class="keyword">...</span>
-0015                   <span class="string">'fname'</span>,niftiName);
-0016                 
-0017 <span class="comment">% Write the nifti</span>
-0018 niftiWrite(nii);
-0019 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Copyright Franco Pestilli (2013) Vistasoft Stanford University.</span>
+0009 
+0010 <span class="comment">% Generate the requested map and save it to volume.</span>
+0011 map = <a href="feValues2volume.html" class="code" title="function vol3d = feValues2volume(vals,coords,vSize)">feValues2volume</a>((feGetRep(fe, mapType)),feGet(fe,<span class="string">'roi coords'</span>),feGetRep(fe,<span class="string">'map size'</span>));
+0012 
+0013 <span class="comment">% Generate a nifti structure for it.</span>
+0014 nii         = niftiCreate(<span class="string">'data'</span>,map,<span class="keyword">...</span>
+0015                   <span class="string">'qto_xyz'</span>,feGet(fe,<span class="string">'xform img 2 acpc'</span>),<span class="keyword">...</span>
+0016                   <span class="string">'fname'</span>,niftiName);
+0017                 
+0018 <span class="comment">% Write the nifti</span>
+0019 niftiWrite(nii);
+0020 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 13:06:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

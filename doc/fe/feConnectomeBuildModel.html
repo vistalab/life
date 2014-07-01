@@ -37,7 +37,7 @@
 
  Example:  See v_lifeExample.m
 
- (c) Franco 2012 Stanford VISTA Team.
+ Copyright Franco Pestilli (2013) Vistasoft Stanford University.
 
  -- The LiFE Model --
 
@@ -90,7 +90,7 @@ This function calls:
 <li><a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>	Get function for fascicle evaluation structure</li><li><a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>	Set fascicle evaluation parameters</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="feConnectomeInit.html" class="code" title="function fe = feConnectomeInit(dwiFile,dtFile,fgFileName,feFileName,savedir,dwiFileRepeated,anatomyFile,varargin)">feConnectomeInit</a>	</li></ul>
+<li><a href="feConnectomeInit.html" class="code" title="function fe = feConnectomeInit(dwiFile,fgFileName,feFileName,savedir,dwiFileRepeated,anatomyFile,varargin)">feConnectomeInit</a>	</li></ul>
 <!-- crossreference -->
 
 
@@ -107,7 +107,7 @@ This function is called by:
 0009 <span class="comment">%</span>
 0010 <span class="comment">% Example:  See v_lifeExample.m</span>
 0011 <span class="comment">%</span>
-0012 <span class="comment">% (c) Franco 2012 Stanford VISTA Team.</span>
+0012 <span class="comment">% Copyright Franco Pestilli (2013) Vistasoft Stanford University.</span>
 0013 <span class="comment">%</span>
 0014 <span class="comment">% -- The LiFE Model --</span>
 0015 <span class="comment">%</span>
@@ -163,132 +163,131 @@ This function is called by:
 0065 <span class="comment">% Indexes of actually used voxels, this can be less than the number of</span>
 0066 <span class="comment">% voxels int he ROI in case some voxels have no fibers in them</span>
 0067 usedVoxels   = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'usedVoxels'</span>);
-0068 <span class="comment">% nVoxels = 10;   % FIX ME</span>
-0069 nVoxels      = length(usedVoxels);
-0070 nBvecs       = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-0071 vox_sparse_pSig = cell(nVoxels,1);
-0072 
-0073 <span class="comment">% Generate the signal predicted in each voxel by the connectome.</span>
-0074 <span class="comment">%</span>
-0075 <span class="comment">% This for-loop is written in such a way that matlab (ver later than 7.9)</span>
-0076 <span class="comment">% will run it in parallel if parallel processing is allowed.</span>
-0077 fprintf(<span class="string">'LiFE - Predicting diffusion signal in %i voxel...\n'</span>,nVoxels);
-0078 
-0079 <span class="comment">% Handling parallel processing</span>
-0080 poolwasopen=1; <span class="comment">% if a matlabpool was open already we do not open nor close one</span>
-0081 <span class="keyword">if</span> (matlabpool(<span class="string">'size'</span>) == 0), matlabpool open; poolwasopen=0; <span class="keyword">end</span>
-0082 
-0083 parfor vv = 1:nVoxels
-0084   num_unique_fibers = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'unique f num'</span>,usedVoxels(vv));
-0085   
-0086   <span class="comment">% This returns a matrix that is size nBvecs x num_unique_fibers</span>
-0087   voxelPSignal      = feComputeVoxelSignal(fe,usedVoxels(vv));
-0088   
-0089   <span class="comment">% Fibers in the connectome determine the directional signal in the voxel</span>
-0090   <span class="comment">% signal, not the mean signal in the voxel. Here we first demean the</span>
-0091   <span class="comment">% voxel signal we will predict.</span>
-0092   <span class="comment">%</span>
-0093   <span class="comment">%  demeaned_pSig       = voxelPSignal - repmat(mean(voxelPSignal, 1),nBvecs,1);</span>
-0094   <span class="comment">%</span>
-0095   <span class="comment">% The mean will be predicted by the Miso part of the matrix, not the</span>
-0096   <span class="comment">% Mfiber part.</span>
-0097   <span class="comment">%</span>
-0098   <span class="comment">% Then we reorganize the demeaned signal into a column vector</span>
-0099   <span class="comment">%</span>
-0100   <span class="comment">%  vox_sparse_pSig{vv} = reshape(demeaned_pSig', num_unique_fibers * nBvecs, 1) ;</span>
-0101   <span class="comment">%</span>
-0102   <span class="comment">% Somehow this column vector ends up occupying the right parts of the</span>
-0103   <span class="comment">% Mfiber matrix when we are done.  That miracle happens below.</span>
-0104   vox_sparse_pSig{vv}   = reshape((voxelPSignal - repmat(mean(voxelPSignal, 1),nBvecs,1))', <span class="keyword">...</span>
-0105                           num_unique_fibers * nBvecs, 1) ;
-0106 <span class="keyword">end</span>
-0107 fprintf(<span class="string">'LiFE - Prediction computed in: %2.3fs.\n'</span>,toc);
-0108 
-0109 tic
-0110 fprintf(<span class="string">'LiFE - Allocating the model prediction...'</span>)
-0111 
-0112 <span class="comment">% These variables will be used to generate the sparse matrix indices and</span>
-0113 <span class="comment">% values (from the dw signal in each voxel-direction). We pre-allocate here</span>
-0114 <span class="comment">% for speed. We assign the values in the loop below.  More explanation</span>
-0115 <span class="comment">% follows.</span>
-0116 
-0117 <span class="comment">% Each row and column of the Mfiber matrix represents a unique contribution</span>
-0118 <span class="comment">% to the signal in some voxel (group of rows) from a fiber (column).  The</span>
-0119 <span class="comment">% total number of elements of Mfiber is the number of unique fibers</span>
-0120 <span class="comment">% (columns), times the number of voxels, times the number of directions</span>
-0121 <span class="comment">% (rows).</span>
-0122 nUniqueFibersInEachVoxel = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'unique f num'</span>);
-0123 
-0124 <span class="comment">% number of non-zero elements in the MFiber matrix</span>
-0125 M_siz  = sum(nUniqueFibersInEachVoxel(1:nVoxels))*nBvecs;
-0126 
-0127 <span class="comment">% This is a vector that will contain the diffusion signals</span>
-0128 M_signal = zeros(M_siz, 1);
-0129 
-0130 <span class="comment">% These define the row/col entry in the Mfiber matrix where the diffusion</span>
-0131 <span class="comment">% signal needs to be stored.</span>
-0132 M_rows   = zeros(M_siz, 1);
-0133 M_cols   = zeros(M_siz, 1);
-0134 
-0135 <span class="comment">% Now, pre-allocate space for the measured diffusion signal.  This will be</span>
-0136 <span class="comment">% filled up in the following loop, too.</span>
-0137 fe       = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'dSig measured'</span>,zeros(1,nVoxels*nBvecs));
-0138 
-0139 <span class="comment">% The following lines create the *sparse-matrix* indexing into the M matrix.</span>
-0140 <span class="comment">% Plus generate a vector of measured signal, full signal and demeaned.</span>
-0141 <span class="comment">%</span>
-0142 <span class="comment">% The following operations cannot be run in parallel because we address</span>
-0143 <span class="comment">% vectors and matrices on the fly.</span>
-0144 end_idx = 0;
-0145 <span class="keyword">for</span> vv = 1:nVoxels
-0146   num_unique_fibers   = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'unique f num'</span>,usedVoxels(vv));
-0147   index_unique_fibers = cell2mat(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'unique f'</span>,usedVoxels(vv)));
-0148 
-0149   <span class="comment">% The first return is a binary vector of the locations of the rows of</span>
-0150   <span class="comment">% Mfiber corresponding to the current voxel.  We do the find to get the</span>
-0151   <span class="comment">% indices of these rows.</span>
-0152   dense_rows  = find(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,vv));
-0153   
-0154   <span class="comment">% We determine the column/row combinations for the non-zero elements in</span>
-0155   <span class="comment">% the part of M corresponding to the current voxel:</span>
-0156   sparse_rows = kron(dense_rows,ones(num_unique_fibers,1));
-0157   sparse_cols = repmat(index_unique_fibers, nBvecs, 1);
-0158 
-0159   <span class="comment">% We need to assign the sparse_* variables into the pre-allocated M_*</span>
-0160   <span class="comment">% variables in the right place.</span>
-0161   start_idx = end_idx + 1;
-0162   end_idx   = end_idx + length(sparse_rows);
-0163   
-0164   M_rows(start_idx:end_idx)   = sparse_rows;
-0165   M_cols(start_idx:end_idx)   = sparse_cols;
-0166   M_signal(start_idx:end_idx) = vox_sparse_pSig{vv};
-0167   
-0168   <span class="comment">% Reorganize the diffusion data for each voxel into a long vector:</span>
-0169   <span class="comment">% nDirs X nVoxels.</span>
-0170   fe.life.dSig(dense_rows) = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal in voxel'</span>,usedVoxels(vv));
-0171 <span class="keyword">end</span>
-0172 
-0173 <span class="comment">% Install the matrix in the fe structure.</span>
-0174 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'Mfiber'</span>,sparse(M_rows, M_cols, M_signal));
-0175 
-0176 <span class="comment">% Let's visualize the Mfiber matrix to make sure it has the right general</span>
-0177 <span class="comment">% structure of columns with nBvecs numbers, but sparse.  We can visualize for</span>
-0178 <span class="comment">% smallish numbers of fibers and voxels.</span>
-0179 <span class="comment">%</span>
-0180 <span class="comment">% Here is a picture of the Mfiber matrix.</span>
-0181 <span class="comment">%</span>
-0182 <span class="comment">% The contrast of the graph tells us about how many nodes are in the fiber</span>
-0183 <span class="comment">% (we think).  This would totally be true if all the nodes are pointing</span>
-0184 <span class="comment">% basically the same way.</span>
-0185 <span class="comment">%</span>
-0186 <span class="comment">% NOTE TO SELF:  Let's make a nice way to plot the M fiber matrix with</span>
-0187 <span class="comment">% lines demarking the voxels.</span>
-0188 <span class="comment">% mrvNewGraphWin;imagesc(feGet(fe,'M fiber'));</span>
-0189 fprintf(<span class="string">'process completed in %2.3fs.\n'</span>,toc)
-0190 disp(<span class="string">'LiFE - DONE Building the connectome model.'</span>);
-0191 <span class="keyword">if</span> ~poolwasopen, matlabpool close; <span class="keyword">end</span>
-0192 
-0193 <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 11:25:56 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0068 nVoxels      = length(usedVoxels);
+0069 nBvecs       = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+0070 vox_sparse_pSig = cell(nVoxels,1);
+0071 
+0072 <span class="comment">% Generate the signal predicted in each voxel by the connectome.</span>
+0073 <span class="comment">%</span>
+0074 <span class="comment">% This for-loop is written in such a way that matlab (ver later than 7.9)</span>
+0075 <span class="comment">% will run it in parallel if parallel processing is allowed.</span>
+0076 fprintf(<span class="string">'LiFE - Predicting diffusion signal in %i voxel...\n'</span>,nVoxels);
+0077 
+0078 <span class="comment">% Handling parallel processing</span>
+0079 poolwasopen=1; <span class="comment">% if a matlabpool was open already we do not open nor close one</span>
+0080 <span class="keyword">if</span> (matlabpool(<span class="string">'size'</span>) == 0), matlabpool open; poolwasopen=0; <span class="keyword">end</span>
+0081 
+0082 parfor vv = 1:nVoxels
+0083   num_unique_fibers = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'unique f num'</span>,usedVoxels(vv));
+0084   
+0085   <span class="comment">% This returns a matrix that is size nBvecs x num_unique_fibers</span>
+0086   voxelPSignal      = feComputeVoxelSignal(fe,usedVoxels(vv));
+0087   
+0088   <span class="comment">% Fibers in the connectome determine the directional signal in the voxel</span>
+0089   <span class="comment">% signal, not the mean signal in the voxel. Here we first demean the</span>
+0090   <span class="comment">% voxel signal we will predict.</span>
+0091   <span class="comment">%</span>
+0092   <span class="comment">%  demeaned_pSig       = voxelPSignal - repmat(mean(voxelPSignal, 1),nBvecs,1);</span>
+0093   <span class="comment">%</span>
+0094   <span class="comment">% The mean will be predicted by the Miso part of the matrix, not the</span>
+0095   <span class="comment">% Mfiber part.</span>
+0096   <span class="comment">%</span>
+0097   <span class="comment">% Then we reorganize the demeaned signal into a column vector</span>
+0098   <span class="comment">%</span>
+0099   <span class="comment">%  vox_sparse_pSig{vv} = reshape(demeaned_pSig', num_unique_fibers * nBvecs, 1) ;</span>
+0100   <span class="comment">%</span>
+0101   <span class="comment">% Somehow this column vector ends up occupying the right parts of the</span>
+0102   <span class="comment">% Mfiber matrix when we are done.  That miracle happens below.</span>
+0103   vox_sparse_pSig{vv}   = reshape((voxelPSignal - repmat(mean(voxelPSignal, 1),nBvecs,1))', <span class="keyword">...</span>
+0104                           num_unique_fibers * nBvecs, 1) ;
+0105 <span class="keyword">end</span>
+0106 fprintf(<span class="string">'LiFE - Prediction computed in: %2.3fs.\n'</span>,toc);
+0107 
+0108 tic
+0109 fprintf(<span class="string">'LiFE - Allocating the model prediction...'</span>)
+0110 
+0111 <span class="comment">% These variables will be used to generate the sparse matrix indices and</span>
+0112 <span class="comment">% values (from the dw signal in each voxel-direction). We pre-allocate here</span>
+0113 <span class="comment">% for speed. We assign the values in the loop below.  More explanation</span>
+0114 <span class="comment">% follows.</span>
+0115 
+0116 <span class="comment">% Each row and column of the Mfiber matrix represents a unique contribution</span>
+0117 <span class="comment">% to the signal in some voxel (group of rows) from a fiber (column).  The</span>
+0118 <span class="comment">% total number of elements of Mfiber is the number of unique fibers</span>
+0119 <span class="comment">% (columns), times the number of voxels, times the number of directions</span>
+0120 <span class="comment">% (rows).</span>
+0121 nUniqueFibersInEachVoxel = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'unique f num'</span>);
+0122 
+0123 <span class="comment">% number of non-zero elements in the MFiber matrix</span>
+0124 M_siz  = sum(nUniqueFibersInEachVoxel(1:nVoxels))*nBvecs;
+0125 
+0126 <span class="comment">% This is a vector that will contain the diffusion signals</span>
+0127 M_signal = zeros(M_siz, 1);
+0128 
+0129 <span class="comment">% These define the row/col entry in the Mfiber matrix where the diffusion</span>
+0130 <span class="comment">% signal needs to be stored.</span>
+0131 M_rows   = zeros(M_siz, 1);
+0132 M_cols   = zeros(M_siz, 1);
+0133 
+0134 <span class="comment">% Now, pre-allocate space for the measured diffusion signal.  This will be</span>
+0135 <span class="comment">% filled up in the following loop, too.</span>
+0136 fe       = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'dSig measured'</span>,zeros(1,nVoxels*nBvecs));
+0137 
+0138 <span class="comment">% The following lines create the *sparse-matrix* indexing into the M matrix.</span>
+0139 <span class="comment">% Plus generate a vector of measured signal, full signal and demeaned.</span>
+0140 <span class="comment">%</span>
+0141 <span class="comment">% The following operations cannot be run in parallel because we address</span>
+0142 <span class="comment">% vectors and matrices on the fly.</span>
+0143 end_idx = 0;
+0144 <span class="keyword">for</span> vv = 1:nVoxels
+0145   num_unique_fibers   = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'unique f num'</span>,usedVoxels(vv));
+0146   index_unique_fibers = cell2mat(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'unique f'</span>,usedVoxels(vv)));
+0147 
+0148   <span class="comment">% The first return is a binary vector of the locations of the rows of</span>
+0149   <span class="comment">% Mfiber corresponding to the current voxel.  We do the find to get the</span>
+0150   <span class="comment">% indices of these rows.</span>
+0151   dense_rows  = find(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,vv));
+0152   
+0153   <span class="comment">% We determine the column/row combinations for the non-zero elements in</span>
+0154   <span class="comment">% the part of M corresponding to the current voxel:</span>
+0155   sparse_rows = kron(dense_rows,ones(num_unique_fibers,1));
+0156   sparse_cols = repmat(index_unique_fibers, nBvecs, 1);
+0157 
+0158   <span class="comment">% We need to assign the sparse_* variables into the pre-allocated M_*</span>
+0159   <span class="comment">% variables in the right place.</span>
+0160   start_idx = end_idx + 1;
+0161   end_idx   = end_idx + length(sparse_rows);
+0162   
+0163   M_rows(start_idx:end_idx)   = sparse_rows;
+0164   M_cols(start_idx:end_idx)   = sparse_cols;
+0165   M_signal(start_idx:end_idx) = vox_sparse_pSig{vv};
+0166   
+0167   <span class="comment">% Reorganize the diffusion data for each voxel into a long vector:</span>
+0168   <span class="comment">% nDirs X nVoxels.</span>
+0169   fe.life.dSig(dense_rows) = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal in voxel'</span>,usedVoxels(vv));
+0170 <span class="keyword">end</span>
+0171 
+0172 <span class="comment">% Install the matrix in the fe structure.</span>
+0173 fe = <a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>(fe,<span class="string">'Mfiber'</span>,sparse(M_rows, M_cols, M_signal));
+0174 
+0175 <span class="comment">% Let's visualize the Mfiber matrix to make sure it has the right general</span>
+0176 <span class="comment">% structure of columns with nBvecs numbers, but sparse.  We can visualize for</span>
+0177 <span class="comment">% smallish numbers of fibers and voxels.</span>
+0178 <span class="comment">%</span>
+0179 <span class="comment">% Here is a picture of the Mfiber matrix.</span>
+0180 <span class="comment">%</span>
+0181 <span class="comment">% The contrast of the graph tells us about how many nodes are in the fiber</span>
+0182 <span class="comment">% (we think).  This would totally be true if all the nodes are pointing</span>
+0183 <span class="comment">% basically the same way.</span>
+0184 <span class="comment">%</span>
+0185 <span class="comment">% NOTE TO SELF:  Let's make a nice way to plot the M fiber matrix with</span>
+0186 <span class="comment">% lines demarking the voxels.</span>
+0187 <span class="comment">% mrvNewGraphWin;imagesc(feGet(fe,'M fiber'));</span>
+0188 fprintf(<span class="string">'process completed in %2.3fs.\n'</span>,toc)
+0189 disp(<span class="string">'LiFE - DONE Building the connectome model.'</span>);
+0190 <span class="keyword">if</span> ~poolwasopen, matlabpool close; <span class="keyword">end</span>
+0191 
+0192 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 13:06:36 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
