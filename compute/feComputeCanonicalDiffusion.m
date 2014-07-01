@@ -6,7 +6,7 @@ function Q = feComputeCanonicalDiffusion(fibers,dParms)
 % INPUTS:
 %   fibers  - is a cell array of x,y,z coordinates for each node in a fiber.
 %   dParams - is a a vector of axial and radial diffusivity to use as
-%              parameters of the canonical tensors used to compute the 
+%              parameters of the canonical tensors used to compute the
 %              diffusion at the node.
 % OUTPUT:
 %   Q       - is a cell array of the same length as the number of fibers.
@@ -31,34 +31,34 @@ D       = diag(dParms);    % The diagonal form of the Tensors' model parameters.
 
 feOpenLocalCluster
 parfor ii = 1:nFibers
- % Compute the diffusion gradient at each node of the fiber.
- fiberGradient = gradient(fibers{ii});
- 
- % Number of nodes fro this fiber
- numNodes = size(fibers{ii},2);
- 
- % preallocated memory for the vector representation of tensors.
- T = zeros(numNodes,9);
- 
- for jj = 1:numNodes
-  % Rotate the tensor toward the gradient of the fiber.
-  %
-  % Calculate a rotation matrix for the tensor so that points in the fiberGradient
-  % direction and has two perpendicular directions (U)
-  % Leaving the 3 outputs for this function is the fastest use of it.
-  [Rot,~, ~] = svd(fiberGradient(:,jj)); % Compute the eigen vectors of the gradient.
-  
-  % Create the quadratic form of the tensor.
-  %
-  % The principal eigenvector is in the same direction of the
-  % fiberGradient. The direction of the other two are scaled by dParms.
-  % Human friendly version fo the code:
-  % tensor = Rot*D*Rot'; % tensor for the current node, 3x3 matrix.
-  % T(jj,:) = reshape(tensor,1,9); % reshaped as a vector 1,9 vector
-  T(jj,:) = reshape(Rot*D*Rot',1,9);
- end
- % T is a matrix; each row is a 1,9 version of the tensor.
- Q{ii} = T;
+    % Compute the diffusion gradient at each node of the fiber.
+    fiberGradient = gradient(fibers{ii});
+
+    % Number of nodes fro this fiber
+    numNodes = size(fibers{ii},2);
+
+    % preallocated memory for the vector representation of tensors.
+    T = zeros(numNodes,9);
+
+    for jj = 1:numNodes
+        % Rotate the tensor toward the gradient of the fiber.
+        %
+        % Calculate a rotation matrix for the tensor so that points in the fiberGradient
+        % direction and has two perpendicular directions (U)
+        % Leaving the 3 outputs for this function is the fastest use of it.
+        [Rot,~, ~] = svd(fiberGradient(:,jj)); % Compute the eigen vectors of the gradient.
+
+        % Create the quadratic form of the tensor.
+        %
+        % The principal eigenvector is in the same direction of the
+        % fiberGradient. The direction of the other two are scaled by dParms.
+        % Human friendly version fo the code:
+        % tensor = Rot*D*Rot'; % tensor for the current node, 3x3 matrix.
+        % T(jj,:) = reshape(tensor,1,9); % reshaped as a vector 1,9 vector
+        T(jj,:) = reshape(Rot*D*Rot',1,9);
+    end
+    % T is a matrix; each row is a 1,9 version of the tensor.
+    Q{ii} = T;
 end
 
 return
