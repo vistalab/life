@@ -450,6 +450,8 @@ switch strrep(lower(param),' ','')
     feOpenLocalCluster
     % For each fiber, this is a list of the nodes that pass through
     % a voxel in the roiCoords
+
+
     parfor ii = 1:nFibers
       % For each fiber, this is a list of the nodes that pass through
       % a voxel in the roiCoords
