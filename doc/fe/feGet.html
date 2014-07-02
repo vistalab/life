@@ -445,7 +445,7 @@ This function calls:
 <li><a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>	Get function for fascicle evaluation structure</li><li><a href="feGetRep.html" class="code" title="function val = feGetRep(fe,param,varargin)">feGetRep</a>	Get function for fascicle evaluation structure, to use for a repeated</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="feConnectomeBuildModel.html" class="code" title="function fe = feConnectomeBuildModel(fe)">feConnectomeBuildModel</a>	Compute matrix to predict directional diffusion in each voxel from fibers</li><li><a href="feConnectomeInit.html" class="code" title="function fe = feConnectomeInit(dwiFile,fgFileName,feFileName,savedir,dwiFileRepeated,anatomyFile,varargin)">feConnectomeInit</a>	Initialize a new connectome (fe) structure.</li><li><a href="feConnectomeReduceFibers.html" class="code" title="function [fe, removedFibers] = feConnectomeReduceFibers(fe, fibersToKeep)">feConnectomeReduceFibers</a>	Deletes a set of fibers from the signal and the M matrix.</li><li><a href="feConnectomeReduceVoxels.html" class="code" title="function [fe, indicesFibersKept] = feConnectomeReduceVoxels(fe,voxelsToKeep)">feConnectomeReduceVoxels</a>	Select the voxels to keep (extract) in a connectome matrix</li><li><a href="feConnectomeSelectFibers.html" class="code" title="function fe = feConnectomeSelectFibers(fe, fibersToKeep,recomputeFibersInfo)">feConnectomeSelectFibers</a>	Deletes a set of fibers from the signal and the M matrix.</li><li><a href="feConnectomeSetDwi.html" class="code" title="function fe = feConnectomeSetDwi(fe,dwiFileName,isrepeat)">feConnectomeSetDwi</a>	Set all the fields necessary to store the DWI measurements.</li><li><a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>	Get function for fascicle evaluation structure</li><li><a href="feGetRep.html" class="code" title="function val = feGetRep(fe,param,varargin)">feGetRep</a>	Get function for fascicle evaluation structure, to use for a repeated</li><li><a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>	Set fascicle evaluation parameters.</li></ul>
+<li><a href="feConnectomeBuildModel.html" class="code" title="function fe = feConnectomeBuildModel(fe)">feConnectomeBuildModel</a>	Compute matrix to predict directional diffusion in each voxel from fibers</li><li><a href="feConnectomeInit.html" class="code" title="function fe = feConnectomeInit(dwiFile,fgFileName,feFileName,savedir,dwiFileRepeated,anatomyFile,varargin)">feConnectomeInit</a>	Initialize a new connectome (fe) structure.</li><li><a href="feConnectomeReduceFibers.html" class="code" title="function [fe, removedFibers] = feConnectomeReduceFibers(fe, fibersToKeep)">feConnectomeReduceFibers</a>	Deletes a set of fibers from the signal and the M matrix.</li><li><a href="feConnectomeReduceVoxels.html" class="code" title="function [fe, indicesFibersKept] = feConnectomeReduceVoxels(fe,voxelsToKeep)">feConnectomeReduceVoxels</a>	Select the voxels to keep (extract) in a connectome matrix</li><li><a href="feConnectomeSelectFibers.html" class="code" title="function fe = feConnectomeSelectFibers(fe, fibersToKeep,recomputeFibersInfo)">feConnectomeSelectFibers</a>	Deletes a set of fibers from the signal and the M matrix.</li><li><a href="feConnectomeSetDwi.html" class="code" title="function fe = feConnectomeSetDwi(fe,dwiFileName,isrepeat)">feConnectomeSetDwi</a>	Set all the fields necessary to store the DWI measurements.</li><li><a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>	Get function for fascicle evaluation structure</li><li><a href="feGetRep.html" class="code" title="function val = feGetRep(fe,param,varargin)">feGetRep</a>	Get function for fascicle evaluation structure, to use for a repeated</li><li><a href="feSet.html" class="code" title="function fe = feSet(fe,param,val,varargin)">feSet</a>	Set fascicle evaluation parameters.</li><li><a href="feVirtualLesion.html" class="code" title="function [se, fig,  feLesion,  feNoLesion, newFascicleIndices, indicesFibersKept, commonCoords] =feVirtualLesion(feNoLesion, fascicleIndices, display, refitConnectome)">feVirtualLesion</a>	Perform a virtual lesion.</li></ul>
 <!-- crossreference -->
 
 
@@ -1539,521 +1539,515 @@ This function is called by:
 1086     <span class="keyword">if</span> ~isempty(varargin)
 1087       nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nvoxels'</span>);
 1088       w = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiber weights test voxel wise'</span>,varargin{1}); <span class="comment">% Weights with a subset set to 0</span>
-1089       <span class="comment">% Handling parallel processing</span>
-1090       poolwasopen=1; <span class="comment">% if a matlabpool was open already we do not open nor close one</span>
-1091       <span class="keyword">if</span> (matlabpool(<span class="string">'size'</span>) == 0), matlabpool open; poolwasopen=0; <span class="keyword">end</span>
-1092       val = cell(nVoxels,1);
-1093       <span class="keyword">for</span> ivox = 1:nVoxels        
-1094         <span class="comment">% Predict the signal.</span>
-1095         val{ivox} = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'Mfiber'</span>,ivox)*w(ivox,:)';
-1096       <span class="keyword">end</span>
-1097       
-1098       <span class="comment">% Handling parallel processing.</span>
-1099       <span class="keyword">if</span> ~poolwasopen, matlabpool close; <span class="keyword">end</span>
-1100       fprintf(<span class="string">'done in %2.3fminutes.\n'</span>,toc/60)
-1101       
-1102       <span class="comment">% Reorganize the signal into a vector</span>
-1103       val = vertcat(val{:})';
-1104       
-1105       <span class="comment">% Now select a subset of voxels if requested</span>
-1106       <span class="keyword">if</span> (length(varargin) == 2)
-1107         <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
-1108         <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
-1109         <span class="comment">% val               = val(voxelRowsToKeep,:);</span>
-1110         val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin{2})));
-1111       <span class="keyword">end</span>
-1112     <span class="keyword">else</span>
-1113       error(<span class="string">'[%s] A set f fiber indiced must be passed in. pSig = feGet(fe,''pSig fiber test'',fiberIndices))'</span>,mfilename);
-1114     <span class="keyword">end</span>
-1115     
-1116   <span class="keyword">case</span> {<span class="string">'predictedsignalfull'</span>,<span class="string">'psigfull'</span>}
-1117     <span class="comment">% Predicted measured signal from both fiber and iso</span>
-1118     <span class="comment">%</span>
-1119     <span class="comment">% pSig = feGet(fe,'pSig full')</span>
-1120     <span class="comment">% pSig = feGet(fe,'pSig full',coords)</span>
-1121     <span class="comment">% pSig = feGet(fe,'pSig full',voxelIndices)</span>
-1122     val = [<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'M fiber'</span>), <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'M iso'</span>)] * <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'full weights'</span>);
-1123     <span class="keyword">if</span> ~isempty(varargin)
-1124       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
-1125       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
-1126       <span class="comment">% val           = val(voxelRowsToKeep,:);</span>
-1127       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
-1128     <span class="keyword">end</span>
-1129     
-1130   <span class="keyword">case</span> {<span class="string">'fullweights'</span>}
-1131     <span class="comment">% The fiber and isotropic weights as a long vector</span>
+1089       val = cell(nVoxels,1);
+1090       <span class="keyword">for</span> ivox = 1:nVoxels        
+1091         <span class="comment">% Predict the signal.</span>
+1092         val{ivox} = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'Mfiber'</span>,ivox)*w(ivox,:)';
+1093       <span class="keyword">end</span>
+1094       
+1095      feOpenLocalCluster
+1096      <span class="comment">% Reorganize the signal into a vector</span>
+1097       val = vertcat(val{:})';
+1098       
+1099       <span class="comment">% Now select a subset of voxels if requested</span>
+1100       <span class="keyword">if</span> (length(varargin) == 2)
+1101         <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
+1102         <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
+1103         <span class="comment">% val               = val(voxelRowsToKeep,:);</span>
+1104         val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin{2})));
+1105       <span class="keyword">end</span>
+1106     <span class="keyword">else</span>
+1107       error(<span class="string">'[%s] A set f fiber indiced must be passed in. pSig = feGet(fe,''pSig fiber test'',fiberIndices))'</span>,mfilename);
+1108     <span class="keyword">end</span>
+1109     
+1110   <span class="keyword">case</span> {<span class="string">'predictedsignalfull'</span>,<span class="string">'psigfull'</span>}
+1111     <span class="comment">% Predicted measured signal from both fiber and iso</span>
+1112     <span class="comment">%</span>
+1113     <span class="comment">% pSig = feGet(fe,'pSig full')</span>
+1114     <span class="comment">% pSig = feGet(fe,'pSig full',coords)</span>
+1115     <span class="comment">% pSig = feGet(fe,'pSig full',voxelIndices)</span>
+1116     val = [<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'M fiber'</span>), <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'M iso'</span>)] * <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'full weights'</span>);
+1117     <span class="keyword">if</span> ~isempty(varargin)
+1118       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
+1119       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
+1120       <span class="comment">% val           = val(voxelRowsToKeep,:);</span>
+1121       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
+1122     <span class="keyword">end</span>
+1123     
+1124   <span class="keyword">case</span> {<span class="string">'fullweights'</span>}
+1125     <span class="comment">% The fiber and isotropic weights as a long vector</span>
+1126     <span class="comment">%</span>
+1127     <span class="comment">% w = feGet(fe,'fullweights')</span>
+1128     val = [<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiber weights'</span>); <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'iso weights'</span>)];
+1129   
+1130   <span class="keyword">case</span> {<span class="string">'fiberweightsvoxelwise'</span>}
+1131     <span class="comment">% The woxels returned by a fit of LiFE by voxel/fiber</span>
 1132     <span class="comment">%</span>
-1133     <span class="comment">% w = feGet(fe,'fullweights')</span>
-1134     val = [<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiber weights'</span>); <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'iso weights'</span>)];
-1135   
-1136   <span class="keyword">case</span> {<span class="string">'fiberweightsvoxelwise'</span>}
-1137     <span class="comment">% The woxels returned by a fit of LiFE by voxel/fiber</span>
-1138     <span class="comment">%</span>
-1139     <span class="comment">% w = feGet(fe,'fiberweightsvoxelwise')</span>
-1140     val = fe.life.voxfit.weights;
-1141     
-1142   <span class="keyword">case</span> {<span class="string">'psigfvoxelwise'</span>}
-1143     <span class="comment">% Predict the diffusion signal for the fiber component</span>
-1144     <span class="comment">% with the voxel-wise fit of LiFE</span>
-1145     <span class="comment">%</span>
-1146     <span class="comment">% pSig = feGet(fe,'psigfvoxelwise')</span>
-1147     <span class="comment">% pSig = feGet(fe,'psigfvoxelwise',coords)</span>
-1148     <span class="comment">% pSig = feGet(fe,'psigfvoxelwise',voxelIndices)</span>
-1149     
-1150     <span class="keyword">if</span> ~isfield(fe.life,<span class="string">'voxfit'</span>), 
-1151       error(<span class="string">'[%s] Cannot find voxel-wise fit.\nTo fit the model voxel-wise run:\nfe = feFitModelByVoxel(fe)\n'</span>,mfilename);
-1152     <span class="keyword">end</span>
-1153     val = fe.life.voxfit.psig;
-1154  
-1155     <span class="comment">% Get a subset of voxels.</span>
-1156     <span class="keyword">if</span> ~isempty(varargin)
-1157       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
-1158       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
-1159       <span class="comment">% val           = val(voxelRowsToKeep,:);</span>
-1160       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
-1161     <span class="keyword">end</span>
-1162     
-1163   <span class="keyword">case</span> {<span class="string">'psigfvoxelwisebyvoxel'</span>}
-1164     <span class="comment">% Predict the diffusion signal for the fiber component</span>
-1165     <span class="comment">% with the voxel-wise fit of LiFE, return the an array of pSigXnVoxel</span>
-1166     <span class="comment">%</span>
-1167     <span class="comment">% pSig = feGet(fe,'psigfvoxelwisebyvoxel')</span>
-1168     <span class="comment">% pSig = feGet(fe,'psigfvoxelwisebyvoxel',coords)</span>
-1169     <span class="comment">% pSig = feGet(fe,'psigfvoxelwisebyvoxel',voxelIndices)</span>
-1170     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1171     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
-1172     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psigfvoxelwise'</span>), nBvecs, nVoxels);
+1133     <span class="comment">% w = feGet(fe,'fiberweightsvoxelwise')</span>
+1134     val = fe.life.voxfit.weights;
+1135     
+1136   <span class="keyword">case</span> {<span class="string">'psigfvoxelwise'</span>}
+1137     <span class="comment">% Predict the diffusion signal for the fiber component</span>
+1138     <span class="comment">% with the voxel-wise fit of LiFE</span>
+1139     <span class="comment">%</span>
+1140     <span class="comment">% pSig = feGet(fe,'psigfvoxelwise')</span>
+1141     <span class="comment">% pSig = feGet(fe,'psigfvoxelwise',coords)</span>
+1142     <span class="comment">% pSig = feGet(fe,'psigfvoxelwise',voxelIndices)</span>
+1143     
+1144     <span class="keyword">if</span> ~isfield(fe.life,<span class="string">'voxfit'</span>), 
+1145       error(<span class="string">'[%s] Cannot find voxel-wise fit.\nTo fit the model voxel-wise run:\nfe = feFitModelByVoxel(fe)\n'</span>,mfilename);
+1146     <span class="keyword">end</span>
+1147     val = fe.life.voxfit.psig;
+1148  
+1149     <span class="comment">% Get a subset of voxels.</span>
+1150     <span class="keyword">if</span> ~isempty(varargin)
+1151       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
+1152       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
+1153       <span class="comment">% val           = val(voxelRowsToKeep,:);</span>
+1154       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
+1155     <span class="keyword">end</span>
+1156     
+1157   <span class="keyword">case</span> {<span class="string">'psigfvoxelwisebyvoxel'</span>}
+1158     <span class="comment">% Predict the diffusion signal for the fiber component</span>
+1159     <span class="comment">% with the voxel-wise fit of LiFE, return the an array of pSigXnVoxel</span>
+1160     <span class="comment">%</span>
+1161     <span class="comment">% pSig = feGet(fe,'psigfvoxelwisebyvoxel')</span>
+1162     <span class="comment">% pSig = feGet(fe,'psigfvoxelwisebyvoxel',coords)</span>
+1163     <span class="comment">% pSig = feGet(fe,'psigfvoxelwisebyvoxel',voxelIndices)</span>
+1164     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1165     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
+1166     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psigfvoxelwise'</span>), nBvecs, nVoxels);
+1167 
+1168   <span class="keyword">case</span> {<span class="string">'totalr2'</span>}
+1169     <span class="comment">% Return the global R2 (fraction of variance explained) of the full life</span>
+1170     <span class="comment">% model.</span>
+1171     <span class="comment">%</span>
+1172     <span class="comment">% R2 = feGet(fe,'total r2');</span>
 1173 
-1174   <span class="keyword">case</span> {<span class="string">'totalr2'</span>}
-1175     <span class="comment">% Return the global R2 (fraction of variance explained) of the full life</span>
-1176     <span class="comment">% model.</span>
-1177     <span class="comment">%</span>
-1178     <span class="comment">% R2 = feGet(fe,'total r2');</span>
-1179 
-1180     <span class="comment">%     measured  = feGet(fe,'dsigdemeaned');</span>
-1181     <span class="comment">%     predicted = feGet(fe,'fiber p sig');</span>
-1182     <span class="comment">%     val = (1 - (sum((measured - predicted).^2 ) ./ ...</span>
-1183     <span class="comment">%                 sum((measured - mean(measured)).^2) ));</span>
-1184     val = (1 - (sum((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
-1185       <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiber predicted'</span>)).^2 ) ./ <span class="keyword">...</span>
-1186       sum((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
-1187       mean(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>))).^2) ));
-1188   
-1189   <span class="keyword">case</span> {<span class="string">'totalr2voxelwise'</span>}
-1190     <span class="comment">% Return the global R2 (fraction of variance explained) of the full life</span>
-1191     <span class="comment">% model from a voxel-wise fit.</span>
-1192     <span class="comment">%</span>
-1193     <span class="comment">% R2 = feGet(fe,'total r2 vocel wise');</span>
-1194 
-1195     <span class="comment">%     measured  = feGet(fe,'dsigdemeaned');</span>
-1196     <span class="comment">%     predicted = feGet(fe,'p sig f voxel wise');</span>
-1197     <span class="comment">%     val = (1 - (sum((measured - predicted).^2 ) ./ ...</span>
-1198     <span class="comment">%                 sum((measured - mean(measured)).^2) ));</span>
-1199     val = (1 - (sum((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
-1200       <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psigfvoxelwise'</span>)').^2 ) ./ <span class="keyword">...</span>
-1201       sum((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
-1202       mean(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>))).^2) ));
-1203    
-1204   <span class="keyword">case</span> {<span class="string">'totpercentvarianceexplained'</span>,<span class="string">'totpve'</span>}
-1205     <span class="comment">% Percent variance explained</span>
+1174     <span class="comment">%     measured  = feGet(fe,'dsigdemeaned');</span>
+1175     <span class="comment">%     predicted = feGet(fe,'fiber p sig');</span>
+1176     <span class="comment">%     val = (1 - (sum((measured - predicted).^2 ) ./ ...</span>
+1177     <span class="comment">%                 sum((measured - mean(measured)).^2) ));</span>
+1178     val = (1 - (sum((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
+1179       <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiber predicted'</span>)).^2 ) ./ <span class="keyword">...</span>
+1180       sum((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
+1181       mean(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>))).^2) ));
+1182   
+1183   <span class="keyword">case</span> {<span class="string">'totalr2voxelwise'</span>}
+1184     <span class="comment">% Return the global R2 (fraction of variance explained) of the full life</span>
+1185     <span class="comment">% model from a voxel-wise fit.</span>
+1186     <span class="comment">%</span>
+1187     <span class="comment">% R2 = feGet(fe,'total r2 vocel wise');</span>
+1188 
+1189     <span class="comment">%     measured  = feGet(fe,'dsigdemeaned');</span>
+1190     <span class="comment">%     predicted = feGet(fe,'p sig f voxel wise');</span>
+1191     <span class="comment">%     val = (1 - (sum((measured - predicted).^2 ) ./ ...</span>
+1192     <span class="comment">%                 sum((measured - mean(measured)).^2) ));</span>
+1193     val = (1 - (sum((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
+1194       <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psigfvoxelwise'</span>)').^2 ) ./ <span class="keyword">...</span>
+1195       sum((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
+1196       mean(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>))).^2) ));
+1197    
+1198   <span class="keyword">case</span> {<span class="string">'totpercentvarianceexplained'</span>,<span class="string">'totpve'</span>}
+1199     <span class="comment">% Percent variance explained</span>
+1200     <span class="comment">%</span>
+1201     <span class="comment">% R2 = feGet(fe,'explained variance')</span>
+1202     val = 100 * <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'total r2'</span>);
+1203     
+1204   <span class="keyword">case</span> {<span class="string">'rmsetotal'</span>,<span class="string">'totalrmse'</span>}
+1205     <span class="comment">% Root mean squared error of the LiFE fit to the whole data</span>
 1206     <span class="comment">%</span>
-1207     <span class="comment">% R2 = feGet(fe,'explained variance')</span>
-1208     val = 100 * <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'total r2'</span>);
-1209     
-1210   <span class="keyword">case</span> {<span class="string">'rmsetotal'</span>,<span class="string">'totalrmse'</span>}
-1211     <span class="comment">% Root mean squared error of the LiFE fit to the whole data</span>
-1212     <span class="comment">%</span>
-1213     <span class="comment">% rmse = feGet(fe,'rmse')</span>
-1214     val = sqrt(mean((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
-1215       <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig fiber'</span>)).^2));
-1216   
-1217   <span class="keyword">case</span> {<span class="string">'totalrmsevoxelwise'</span>}
-1218     <span class="comment">% Root mean squared error of the LiFE fit to the whole data from a</span>
-1219     <span class="comment">% vocel-wise fit</span>
-1220     <span class="comment">%</span>
-1221     <span class="comment">% rmse = feGet(fe,'rmse')</span>
-1222     val = sqrt(mean((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
-1223       <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig f voxelwise'</span>)').^2));
-1224   
-1225   <span class="keyword">case</span> {<span class="string">'ressigfiber'</span>}
-1226     <span class="comment">% Residual signal fiber prediction - measured_demeaned.</span>
-1227     <span class="comment">%</span>
-1228     <span class="comment">% res = feGet(fe,'res sig fiber')</span>
-1229     val = (<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsigdemeaned'</span>)    - <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psig fiber'</span>));
-1230     <span class="keyword">if</span> ~isempty(varargin)
-1231       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
-1232       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
-1233       <span class="comment">% val              = val(voxelRowsToKeep,:);</span>
-1234       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
-1235     <span class="keyword">end</span>
-1236     
-1237   <span class="keyword">case</span> {<span class="string">'ressigfull'</span>}
-1238     <span class="comment">% Residual signal full model prediction - measured signal.</span>
-1239     <span class="comment">%</span>
-1240     <span class="comment">% res = feGet(fe,'res sig full');</span>
-1241     <span class="comment">% res = feGet(fe, 'res sig full',coords);</span>
-1242     <span class="comment">% res = feGet(fe, 'res sig full',voxelIndex);</span>
-1243     val = (<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsig full'</span>)    - <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psig full'</span>)');
-1244     <span class="keyword">if</span> ~isempty(varargin)
-1245       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
-1246       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
-1247       <span class="comment">% val           = val(voxelRowsToKeep,:);</span>
-1248       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
-1249     <span class="keyword">end</span>
-1250     
-1251   <span class="keyword">case</span> {<span class="string">'ressigfullvoxelwise'</span>}
-1252     <span class="comment">% Residual signal full model prediction from a multi-voxel fit.</span>
-1253     <span class="comment">%</span>
-1254     <span class="comment">% res = feGet(fe,'res sig full voxfit');</span>
-1255     <span class="comment">% res = feGet(fe, 'res sig full voxfit',coords);</span>
-1256     <span class="comment">% res = feGet(fe, 'res sig full voxfit',voxelIndex);</span>
-1257     <span class="comment">%tic,val      = feGet(fe,'dsig demeaned') - feGet(fe,'psigfvoxelwise') + feGet(fe,'dsigiso');toc</span>
-1258     val      = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsig full'</span>) - <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psigfvoxelwise'</span>)';
-1259     <span class="keyword">if</span> ~isempty(varargin)
-1260       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
-1261       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
-1262       <span class="comment">% val           = val(voxelRowsToKeep,:);</span>
-1263       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
-1264     <span class="keyword">end</span>
-1265     
-1266   <span class="keyword">case</span> {<span class="string">'fiberressigwithmean'</span>}
-1267     <span class="comment">% Residual signal fiber model prediction - demeaned measured signal</span>
-1268     <span class="comment">% with added mean signal. VECTOR FORM.</span>
-1269     <span class="comment">%</span>
-1270     <span class="comment">% This is used to reconstruct an image (volume) to be used for the</span>
-1271     <span class="comment">% refinement process.</span>
-1272     <span class="comment">%</span>
-1273     <span class="comment">% res = feGet(fe,'fiber res sig with mean');</span>
-1274     
-1275     <span class="comment">% predicted = feGet(fe,'psig fiber');</span>
-1276     <span class="comment">% measured  = feGet(fe,'dsigdemeaned');</span>
-1277     <span class="comment">% val = (measured_full - predicted demeaned);</span>
-1278     val = (<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsig full'</span>)' - <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psig fiber'</span>)); 
-1279     
-1280     <span class="keyword">if</span> ~isempty(varargin)
-1281       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
-1282       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
-1283       <span class="comment">% val           = val(voxelRowsToKeep,:);</span>
-1284       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
-1285     <span class="keyword">end</span>
-1286     
-1287   <span class="keyword">case</span> {<span class="string">'predictedfibersignalvoxel'</span>,<span class="string">'psigfvox'</span>}
-1288     <span class="comment">% Predicted signal by the fiber model in a set of voxels.</span>
-1289     <span class="comment">%</span>
-1290     <span class="comment">% Vox subfield stores per voxel within the VOI</span>
-1291     <span class="comment">% The pSig has size of the dwi.</span>
-1292     <span class="comment">% It is stored as val = pSig(X,Y,Z,Theta)</span>
-1293     <span class="comment">%</span>
-1294     <span class="comment">% pSig = feGet(fe, 'pSig fiber by voxel');</span>
-1295     <span class="comment">% pSig = feGet(fe, 'pSig fiber by voxel',coords);</span>
-1296     <span class="comment">% pSig = feGet(fe, 'pSig fiber by voxel',voxelIndex);</span>
-1297     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1298     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
-1299     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig fiber'</span>), nBvecs, nVoxels);
-1300     val     = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
-1301     
-1302   <span class="keyword">case</span> {<span class="string">'predictedfullsignalvoxel'</span>,<span class="string">'psigfullvox'</span>}
-1303     <span class="comment">% Predicted signal by the full model in a set of voxeles.</span>
-1304     <span class="comment">%</span>
-1305     <span class="comment">% Vox subfield stores per voxel within the VOI</span>
-1306     <span class="comment">% The pSig has size of the dwi.</span>
-1307     <span class="comment">% It is stored as val = pSig(X,Y,Z,Theta)</span>
-1308     <span class="comment">%</span>
-1309     <span class="comment">% pSig = feGet(fe, 'pSig full by voxel');</span>
-1310     <span class="comment">% pSig = feGet(fe, 'pSig full by voxel',coords);</span>
-1311     <span class="comment">% pSig = feGet(fe, 'pSig full by voxel',voxelIndex);</span>
-1312     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1313     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
-1314     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig full'</span>), nBvecs, nVoxels);
-1315       
-1316   <span class="keyword">case</span> {<span class="string">'voxelr2'</span>,<span class="string">'r2vox'</span>,<span class="string">'voxr2'</span>,<span class="string">'r2byvoxel'</span>}
-1317     <span class="comment">% Return a column vector of the proportion of variance explained in</span>
-1318     <span class="comment">% each voxel.</span>
-1319     <span class="comment">%</span>
-1320     <span class="comment">% R2byVox = feGet(fe,'voxr2');</span>
-1321     <span class="comment">% R2byVox = feGet(fe,'voxr2',coords);</span>
-1322     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dSig demeaned by voxel'</span>);
-1323     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig f vox'</span>);
-1324     nBvecs    = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1325     val       = (1 - (sum((measured - predicted).^2 ) ./ <span class="keyword">...</span>
-1326       sum((measured - repmat(mean(measured), nBvecs,1)).^2 ) ));
-1327     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
-1328   
-1329   <span class="keyword">case</span> {<span class="string">'voxelr2zero'</span>,<span class="string">'r2voxzero'</span>,<span class="string">'voxr2zero'</span>,<span class="string">'r2byvoxelzero'</span>}
-1330     <span class="comment">% Return a column vector of the proportion of variance explained in</span>
-1331     <span class="comment">% each voxel. (Normalized to the squared diffusion signal in each voxel)</span>
-1332     <span class="comment">%</span>
-1333     <span class="comment">% R2byVox = feGet(fe,'voxr2zero');</span>
-1334     <span class="comment">% R2byVox = feGet(fe,'voxr2zero',coords);</span>
-1335     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dSig demeaned by voxel'</span>);
-1336     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig f vox'</span>);
-1337     val       = (1 - (sum((measured - predicted).^2 ) ./ sum(measured.^2)));
-1338     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
-1339    
-1340   <span class="keyword">case</span> {<span class="string">'voxelvarianceexplained'</span>,<span class="string">'varexpvox'</span>,<span class="string">'voxvarexp'</span>,<span class="string">'varexpbyvoxel'</span>}
-1341     <span class="comment">% Return the percent of varince explained in each voxel.</span>
-1342     <span class="comment">%</span>
-1343     <span class="comment">% R2byVox = feGet(fe,'var exp by voxel');</span>
-1344     <span class="comment">% R2byVox = feGet(fe,'var exp by voxel',coords);</span>
-1345     val = 100.*<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxr2'</span>);
-1346     val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
-1347     
-1348   <span class="keyword">case</span> {<span class="string">'voxelr2voxelwise'</span>,<span class="string">'r2voxvoxelwise'</span>,<span class="string">'voxr2voxelwise'</span>}
-1349     <span class="comment">% Return a column vector of the proportion of variance explained in</span>
-1350     <span class="comment">% each voxel.</span>
-1351     <span class="comment">%</span>
-1352     <span class="comment">% R2byVox = feGet(fe,'voxr2voxelwise');</span>
-1353     <span class="comment">% R2byVox = feGet(fe,'voxr2voxewise',coords);</span>
-1354     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dSig demeaned by voxel'</span>);
-1355     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psig f voxel wise by voxel'</span>);
-1356     nBvecs    = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1357     val       = (1 - (sum((measured - predicted).^2 ) ./ <span class="keyword">...</span>
-1358       sum((measured - repmat(mean(measured), nBvecs,1)).^2 ) ));
-1359     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
-1360   
-1361   <span class="keyword">case</span> {<span class="string">'voxelr2zerovoxelwise'</span>,<span class="string">'voxr2zerovoxelwise'</span>}
-1362     <span class="comment">% Return a column vector of the proportion of variance explained in</span>
-1363     <span class="comment">% each voxel. (Normalized to the squared diffusion signal in each voxel)</span>
-1364     <span class="comment">%</span>
-1365     <span class="comment">% R2byVox = feGet(fe,'voxr2zerovoxelwise');</span>
-1366     <span class="comment">% R2byVox = feGet(fe,'voxr2zerovoxelwise',coords);</span>
-1367     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dSig demeaned by voxel'</span>);
-1368     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psig f voxel wise by voxel'</span>);
-1369     val       = (1 - (sum((measured - predicted).^2 ) ./ sum(measured.^2)));
-1370     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
-1371    
-1372   <span class="keyword">case</span> {<span class="string">'voxelvarianceexplainedvoxelwise'</span>,<span class="string">'varexpvoxvoxelwise'</span>}
-1373     <span class="comment">% Return the percent of varince explained in each voxel.</span>
-1374     <span class="comment">%</span>
-1375     <span class="comment">% R2byVox = feGet(fe,'var exp by voxel');</span>
-1376     <span class="comment">% R2byVox = feGet(fe,'var exp by voxel',coords);</span>
-1377     val = 100.*<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxr2voxelwise'</span>);
-1378     val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
-1379     
-1380   <span class="keyword">case</span> {<span class="string">'dsigdemeanedbyvoxel'</span>,<span class="string">'dsigdemeanedvox'</span>}
-1381     <span class="comment">% Demeaned diffusion signal in each voxel</span>
-1382     <span class="comment">%</span>
-1383     <span class="comment">% dSigByVoxel = feGet(fe,'dsigdemeaned by Voxel');</span>
-1384     <span class="comment">% dSigByVoxel = feGet(fe,'dsigdemeaned by Voxel',coords);</span>
-1385     <span class="comment">% dSigByVoxel = feGet(fe,'dsigdemeaned by Voxel',vxIndex);</span>
-1386     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1387     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
-1388     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsigdemeaned'</span>), nBvecs, nVoxels);
-1389     val     = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
-1390     
-1391   <span class="keyword">case</span> {<span class="string">'dsigfullbyvoxel'</span>,<span class="string">'dsigfullvox'</span>,<span class="string">'voxdsigfull'</span>}
-1392     <span class="comment">% Full (measured) signal in each voxel</span>
-1393     <span class="comment">%</span>
-1394     <span class="comment">% dSigByVoxel = feGet(fe,'dSig full by Voxel');</span>
-1395     <span class="comment">% dSigByVoxel = feGet(fe,'dSig full by Voxel',coords);</span>
-1396     <span class="comment">% dSigByVoxel = feGet(fe,'dSig full by Voxel',vxIndex);</span>
-1397     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1398     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
-1399     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dSig full'</span>), nBvecs, nVoxels);
-1400     val    = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin))';
-1401     
-1402   <span class="keyword">case</span> {<span class="string">'voxelrmse'</span>,<span class="string">'voxrmse'</span>}
-1403     <span class="comment">% A volume of RMSE values</span>
-1404     <span class="comment">%</span>
-1405     <span class="comment">% RMSE = feGet(fe,'vox rmse')</span>
-1406     <span class="comment">% RMSE = feGet(fe,'vox rmse',coords)</span>
-1407     <span class="comment">% RMSE = feGet(fe,'vox rmse',vxIndex)</span>
-1408     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsigdemeaned by voxel'</span>);
-1409     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig f vox'</span>);
-1410     val       = sqrt(mean((measured - predicted).^2,1));
-1411     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin));
-1412    
-1413   <span class="keyword">case</span> {<span class="string">'voxelrmsevoxelwise'</span>,<span class="string">'voxrmsevoxelwise'</span>}
-1414     <span class="comment">% A volume of RMSE values optained with the voxel-wise (voxelwise) fit.</span>
-1415     <span class="comment">%</span>
-1416     <span class="comment">% RMSE = feGet(fe,'vox rmse voxelwise')</span>
-1417     <span class="comment">% RMSE = feGet(fe,'vox rmse voxelwise',coords)</span>
-1418     <span class="comment">% RMSE = feGet(fe,'vox rmse voxelwise',vxIndex)</span>
-1419     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsigdemeaned by voxel'</span>);
-1420     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig f voxel wise by voxel'</span>);
-1421    
-1422     val       = sqrt(mean((measured - predicted).^2,1));
-1423     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin));
-1424 
-1425   <span class="keyword">case</span> {<span class="string">'voxelrmsetest'</span>,<span class="string">'voxrmsetest'</span>}
-1426     <span class="comment">% A volume of RMSE values with a subset of fibers' weights set to 0.</span>
-1427     <span class="comment">%</span>
-1428     <span class="comment">% RMSE = feGet(fe,'vox rmse',fiberIndices)</span>
-1429     <span class="comment">% RMSE = feGet(fe,'vox rmse',fiberIndices,coords)</span>
-1430     <span class="comment">% RMSE = feGet(fe,'vox rmse',fiberIndices,voxelIndex)</span>
-1431     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsigdemeaned by voxel'</span>);
-1432     <span class="comment">% Reshape the predicted signal by voxles</span>
-1433     predicted = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig fiber test'</span>,varargin{1}), <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>), <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nVoxels'</span>));   
-1434     val       = sqrt(mean((measured - predicted).^2,1));
-1435     
-1436     <span class="keyword">if</span> length(varargin) == 2
-1437       val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin));
-1438     <span class="keyword">end</span>
-1439     
-1440   <span class="keyword">case</span> {<span class="string">'residualsignalfibervoxel'</span>,<span class="string">'resfibervox'</span>}
-1441     <span class="comment">% Fibers' residual signal by voxel</span>
-1442     <span class="comment">%</span>
-1443     <span class="comment">% res = feGet(fe,'res sig fiber vox')</span>
-1444     <span class="comment">% res = feGet(fe,'res sig fiber vox',coords)</span>
-1445     <span class="comment">% res = feGet(fe,'res sig fiber vox',vxIndex)</span>
-1446     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1447     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
-1448     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'res sig fiber'</span>), nBvecs, nVoxels);
-1449     val     = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin))';
-1450     
-1451   <span class="keyword">case</span> {<span class="string">'residualsignalfullvoxel'</span>,<span class="string">'resfullvox'</span>}
-1452     <span class="comment">% Full (measured) residual signal by voxel</span>
-1453     <span class="comment">%</span>
-1454     <span class="comment">% res = feGet(fe,'res sig full vox')</span>
-1455     <span class="comment">% res = feGet(fe,'res sig full vox',coords)</span>
-1456     <span class="comment">% res = feGet(fe,'res sig full vox',vxIndex)</span>
-1457     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1458     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
-1459     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'res sig full'</span>), nBvecs, nVoxels);
-1460     val     = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin))';
-1461       
-1462   <span class="keyword">case</span> {<span class="string">'fiberressigwithmeanvoxel'</span>}
-1463     <span class="comment">% Residual signal fiber model prediction - demeaned measured signal</span>
-1464     <span class="comment">% with added mean signal. VOXEL FORM (nBvecs x nVoxel).</span>
-1465     <span class="comment">%</span>
-1466     <span class="comment">% This is used to reconstruct an image (volume) to be used for the</span>
-1467     <span class="comment">% refinement process.</span>
-1468     <span class="comment">%</span>
-1469     <span class="comment">% res = feGet(fe,'fiber res sig with mean');</span>
-1470     
-1471     <span class="comment">% predicted = feGet(fe,'psig fiber');</span>
-1472     <span class="comment">% measured  = feGet(fe,'dsigdemeaned');</span>
-1473     <span class="comment">% val = (measured     - predicted) + (measured_full - measured);</span>
-1474     val     = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiberressigwithmean'</span>);
-1475     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1476     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
-1477     val     = reshape(val, nBvecs, nVoxels);
-1478     
-1479     <span class="keyword">if</span> ~isempty(varargin)
-1480       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
-1481       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
-1482       <span class="comment">% val              = val(voxelRowsToKeep,:);</span>
-1483       val = val(:, <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
-1484     <span class="keyword">end</span>
-1485     
-1486   <span class="keyword">case</span> {<span class="string">'fiberressigwithmeanvox'</span>,<span class="string">'resfibermeanvox'</span>}
-1487     <span class="comment">% Fibers' residual signal by voxel with mean signal added (with added</span>
-1488     <span class="comment">% isotropic component).</span>
-1489     <span class="comment">%</span>
-1490     <span class="comment">% This is used to compute the residual signal for the refinement.</span>
-1491     <span class="comment">%</span>
-1492     <span class="comment">% res = feGet(fe,'fiber res sig with mean vox')</span>
-1493     <span class="comment">% res = feGet(fe,'fiber res sig with mean vox',coords)</span>
-1494     <span class="comment">% res = feGet(fe,'fiber res sig with mean vox',vxIndex)</span>
-1495     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
-1496     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
-1497     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiber res sig with mean'</span>), nBvecs, nVoxels);
-1498     val     = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin))';
-1499     
-1500   <span class="keyword">case</span> {<span class="string">'voxelsindices'</span>,<span class="string">'returnvoxelindices'</span>,<span class="string">'voxelindexes''returnvoxelindexes'</span>}
-1501     <span class="comment">% Given an VOI or a set of indices to voxels returns the indices of the matching voxels inside the big</span>
-1502     <span class="comment">% volume, which ordinarily represents the full connectome.</span>
-1503     <span class="comment">%</span>
-1504     <span class="comment">% voxelIndices = feGet(fe,'voxelsindices',coords)</span>
-1505     <span class="comment">% voxelIndices = feGet(fe,'voxelsindices',voxelIndices)</span>
-1506     <span class="comment">%                IMPORTANT: Indices MUST be a column vector for this</span>
-1507     <span class="comment">%                code to work.</span>
-1508     <span class="comment">%</span>
-1509     <span class="comment">% coords is a Nx3 set of coordinates in image space</span>
-1510     <span class="comment">% voxelIndices is a vector of 1's and 0's, there is a one for each</span>
-1511     <span class="comment">% location the the connectome coordinates for which there is a match in</span>
-1512     <span class="comment">% the coords</span>
-1513     <span class="comment">%</span>
-1514     varargin = varargin{1};
-1515     <span class="keyword">if</span> ( ~isempty(varargin) )
-1516       <span class="keyword">if</span> ( size(varargin{1},2) == 3 )
-1517         <span class="comment">% If a set of coordinates were passed in we return the indices.</span>
-1518         val = logical(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'find voxels'</span>,varargin{1}));
-1519       <span class="keyword">else</span>
-1520         <span class="comment">% If indices were passed in, we sort and return them.</span>
-1521         val = sort(varargin{1});
-1522       <span class="keyword">end</span>
-1523     <span class="keyword">else</span>
-1524       <span class="comment">% If no coordinates were passed at all, we return all the indices.</span>
-1525       val = true(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>),1);
-1526     <span class="keyword">end</span>
-1527     
-1528   <span class="keyword">case</span> {<span class="string">'findvoxels'</span>,<span class="string">'findvoxelindexes'</span>,<span class="string">'findvoxelsinconnectome'</span>,<span class="string">'findvoxelsinconnectomeroi'</span>, <span class="keyword">...</span>
-1529       <span class="string">'voxel2index'</span>,<span class="string">'coords2index'</span>}
-1530     <span class="comment">% Given an VOI finds the indices of the matching voxels inside the big</span>
-1531     <span class="comment">% volume, which ordinarily represents the full connectome.</span>
-1532     <span class="comment">%</span>
-1533     <span class="comment">% foundVoxels = feGet(fe,'find voxels',coords)</span>
-1534     <span class="comment">%</span>
-1535     <span class="comment">% coords is a Nx3 set of coordinates in image space</span>
-1536     <span class="comment">% foundVoxels is a vector of 1's and 0's, there is a one for each</span>
-1537     <span class="comment">% location the the connectome coordinates for which there is a match in</span>
-1538     <span class="comment">% the coords</span>
-1539     
-1540     <span class="comment">% Compute the values for a subset of voxels</span>
-1541     <span class="keyword">if</span> isempty(varargin)
-1542       <span class="comment">% If no coordinates were passed at all, we return all the indices.</span>
-1543       val = ones(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>),1);
-1544     <span class="keyword">else</span>
-1545       <span class="comment">% The stored coordinates are at a resolution of the image, typically</span>
-1546       <span class="comment">% 2mm isotropic.  The VOI should also be in image resolution.</span>
-1547       <span class="comment">% ---- Franco:</span>
-1548       <span class="comment">% This is how I had it. I think it is worng:</span>
-1549       <span class="comment">% val = ismember(feGet(fe,'roi coords'), varargin{1}, 'rows'); % This is slow</span>
-1550       <span class="comment">% This is hwo I think it should be:</span>
-1551       [~,val] = ismember(varargin{1}, <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'roi coords'</span>),<span class="string">'rows'</span>); <span class="comment">% This is slow</span>
-1552     <span class="keyword">end</span>
-1553     
-1554   <span class="keyword">case</span> {<span class="string">'voxelcoords2voxelrows'</span>,<span class="string">'coords2rows'</span>}
-1555     <span class="comment">% Given a set of VOI coords finds the row numbers of the Model matrix</span>
-1556     <span class="comment">% (or equivalently the dSig vector) that represent the data for this</span>
-1557     <span class="comment">% set of VOI coords.</span>
-1558     <span class="comment">%</span>
-1559     <span class="comment">% foundVoxels = feGet(fe,'coords 2 rows',coords)</span>
-1560     <span class="comment">%</span>
-1561     <span class="comment">% coords      - a Nx3 set of coordinates in image space</span>
-1562     <span class="comment">% foundVoxels - a binary vector that is 1 for each Model matrix row</span>
-1563     <span class="comment">%               that corresponds to at least one of the coords.</span>
-1564     val = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,find(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'find voxels'</span>,varargin{1})));
-1565     
-1566     <span class="comment">% ------ Spatial coordinate transforms for voxels and fg to coordinate frames</span>
-1567   <span class="keyword">case</span> {<span class="string">'xformimg2acpc'</span>,<span class="string">'xform2acpc'</span>,<span class="string">'img2acpc'</span>,<span class="string">'img2acpcxform'</span>}
-1568     <span class="comment">% Quaternian transformation from IMAGE space to ACPC space.</span>
-1569     <span class="comment">%</span>
-1570     <span class="comment">% xform = feGet(fe,'xform')</span>
-1571     val = fe.life.xform.img2acpc;
-1572   <span class="keyword">case</span> {<span class="string">'xformacpc2img'</span>,<span class="string">'xform2img'</span>,<span class="string">'acpc2img'</span>,<span class="string">'acpc2imgxform'</span>}
-1573     <span class="comment">% Quaternian transformation from ACPC space to IMAGE space.</span>
-1574     <span class="comment">%</span>
-1575     <span class="comment">% xform = feGet(fe,'xform')</span>
-1576     val = fe.life.xform.acpc2img;
-1577   <span class="keyword">case</span> {<span class="string">'volumesize'</span>,<span class="string">'dims'</span>,<span class="string">'dim'</span>,<span class="string">'imagedim'</span>}
-1578     <span class="comment">% Dimensions of the DW volume.</span>
-1579     <span class="comment">%</span>
-1580     <span class="comment">% dim = feGet(fe,'dims')</span>
-1581     val = fe.life.imagedim;
-1582   <span class="keyword">case</span> {<span class="string">'mapsize'</span>}
-1583     <span class="comment">% Dimensions of the maps of parameters and results.</span>
-1584     <span class="comment">%</span>
-1585     <span class="comment">% dims = feGet(fe, 'mapsize')</span>
-1586     val = fe.life.imagedim(1:3);
-1587     
-1588   <span class="keyword">case</span> {<span class="string">'anatomyfile'</span>}
-1589     <span class="comment">% Path to the 3D Anatomy Volume.</span>
-1590     <span class="comment">% anatomyfile = feGet(fe, 'anatomy file')</span>
-1591     val = fe.path.anatomy;
-1592   <span class="keyword">case</span> <span class="string">'dtfile'</span>
-1593     <span class="comment">% Diffusion weighted file used for testing results</span>
-1594     <span class="comment">% dtfile = feGet(fe,'dtfile')</span>
-1595      val = fe.path.dtfile;  
+1207     <span class="comment">% rmse = feGet(fe,'rmse')</span>
+1208     val = sqrt(mean((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
+1209       <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig fiber'</span>)).^2));
+1210   
+1211   <span class="keyword">case</span> {<span class="string">'totalrmsevoxelwise'</span>}
+1212     <span class="comment">% Root mean squared error of the LiFE fit to the whole data from a</span>
+1213     <span class="comment">% vocel-wise fit</span>
+1214     <span class="comment">%</span>
+1215     <span class="comment">% rmse = feGet(fe,'rmse')</span>
+1216     val = sqrt(mean((<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'diffusion signal demeaned'</span>) - <span class="keyword">...</span>
+1217       <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig f voxelwise'</span>)').^2));
+1218   
+1219   <span class="keyword">case</span> {<span class="string">'ressigfiber'</span>}
+1220     <span class="comment">% Residual signal fiber prediction - measured_demeaned.</span>
+1221     <span class="comment">%</span>
+1222     <span class="comment">% res = feGet(fe,'res sig fiber')</span>
+1223     val = (<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsigdemeaned'</span>)    - <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psig fiber'</span>));
+1224     <span class="keyword">if</span> ~isempty(varargin)
+1225       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
+1226       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
+1227       <span class="comment">% val              = val(voxelRowsToKeep,:);</span>
+1228       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
+1229     <span class="keyword">end</span>
+1230     
+1231   <span class="keyword">case</span> {<span class="string">'ressigfull'</span>}
+1232     <span class="comment">% Residual signal full model prediction - measured signal.</span>
+1233     <span class="comment">%</span>
+1234     <span class="comment">% res = feGet(fe,'res sig full');</span>
+1235     <span class="comment">% res = feGet(fe, 'res sig full',coords);</span>
+1236     <span class="comment">% res = feGet(fe, 'res sig full',voxelIndex);</span>
+1237     val = (<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsig full'</span>)    - <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psig full'</span>)');
+1238     <span class="keyword">if</span> ~isempty(varargin)
+1239       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
+1240       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
+1241       <span class="comment">% val           = val(voxelRowsToKeep,:);</span>
+1242       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
+1243     <span class="keyword">end</span>
+1244     
+1245   <span class="keyword">case</span> {<span class="string">'ressigfullvoxelwise'</span>}
+1246     <span class="comment">% Residual signal full model prediction from a multi-voxel fit.</span>
+1247     <span class="comment">%</span>
+1248     <span class="comment">% res = feGet(fe,'res sig full voxfit');</span>
+1249     <span class="comment">% res = feGet(fe, 'res sig full voxfit',coords);</span>
+1250     <span class="comment">% res = feGet(fe, 'res sig full voxfit',voxelIndex);</span>
+1251     <span class="comment">%tic,val      = feGet(fe,'dsig demeaned') - feGet(fe,'psigfvoxelwise') + feGet(fe,'dsigiso');toc</span>
+1252     val      = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsig full'</span>) - <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psigfvoxelwise'</span>)';
+1253     <span class="keyword">if</span> ~isempty(varargin)
+1254       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
+1255       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
+1256       <span class="comment">% val           = val(voxelRowsToKeep,:);</span>
+1257       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
+1258     <span class="keyword">end</span>
+1259     
+1260   <span class="keyword">case</span> {<span class="string">'fiberressigwithmean'</span>}
+1261     <span class="comment">% Residual signal fiber model prediction - demeaned measured signal</span>
+1262     <span class="comment">% with added mean signal. VECTOR FORM.</span>
+1263     <span class="comment">%</span>
+1264     <span class="comment">% This is used to reconstruct an image (volume) to be used for the</span>
+1265     <span class="comment">% refinement process.</span>
+1266     <span class="comment">%</span>
+1267     <span class="comment">% res = feGet(fe,'fiber res sig with mean');</span>
+1268     
+1269     <span class="comment">% predicted = feGet(fe,'psig fiber');</span>
+1270     <span class="comment">% measured  = feGet(fe,'dsigdemeaned');</span>
+1271     <span class="comment">% val = (measured_full - predicted demeaned);</span>
+1272     val = (<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsig full'</span>)' - <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psig fiber'</span>)); 
+1273     
+1274     <span class="keyword">if</span> ~isempty(varargin)
+1275       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
+1276       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
+1277       <span class="comment">% val           = val(voxelRowsToKeep,:);</span>
+1278       val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin)));
+1279     <span class="keyword">end</span>
+1280     
+1281   <span class="keyword">case</span> {<span class="string">'predictedfibersignalvoxel'</span>,<span class="string">'psigfvox'</span>}
+1282     <span class="comment">% Predicted signal by the fiber model in a set of voxels.</span>
+1283     <span class="comment">%</span>
+1284     <span class="comment">% Vox subfield stores per voxel within the VOI</span>
+1285     <span class="comment">% The pSig has size of the dwi.</span>
+1286     <span class="comment">% It is stored as val = pSig(X,Y,Z,Theta)</span>
+1287     <span class="comment">%</span>
+1288     <span class="comment">% pSig = feGet(fe, 'pSig fiber by voxel');</span>
+1289     <span class="comment">% pSig = feGet(fe, 'pSig fiber by voxel',coords);</span>
+1290     <span class="comment">% pSig = feGet(fe, 'pSig fiber by voxel',voxelIndex);</span>
+1291     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1292     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
+1293     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig fiber'</span>), nBvecs, nVoxels);
+1294     val     = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
+1295     
+1296   <span class="keyword">case</span> {<span class="string">'predictedfullsignalvoxel'</span>,<span class="string">'psigfullvox'</span>}
+1297     <span class="comment">% Predicted signal by the full model in a set of voxeles.</span>
+1298     <span class="comment">%</span>
+1299     <span class="comment">% Vox subfield stores per voxel within the VOI</span>
+1300     <span class="comment">% The pSig has size of the dwi.</span>
+1301     <span class="comment">% It is stored as val = pSig(X,Y,Z,Theta)</span>
+1302     <span class="comment">%</span>
+1303     <span class="comment">% pSig = feGet(fe, 'pSig full by voxel');</span>
+1304     <span class="comment">% pSig = feGet(fe, 'pSig full by voxel',coords);</span>
+1305     <span class="comment">% pSig = feGet(fe, 'pSig full by voxel',voxelIndex);</span>
+1306     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1307     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
+1308     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig full'</span>), nBvecs, nVoxels);
+1309       
+1310   <span class="keyword">case</span> {<span class="string">'voxelr2'</span>,<span class="string">'r2vox'</span>,<span class="string">'voxr2'</span>,<span class="string">'r2byvoxel'</span>}
+1311     <span class="comment">% Return a column vector of the proportion of variance explained in</span>
+1312     <span class="comment">% each voxel.</span>
+1313     <span class="comment">%</span>
+1314     <span class="comment">% R2byVox = feGet(fe,'voxr2');</span>
+1315     <span class="comment">% R2byVox = feGet(fe,'voxr2',coords);</span>
+1316     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dSig demeaned by voxel'</span>);
+1317     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig f vox'</span>);
+1318     nBvecs    = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1319     val       = (1 - (sum((measured - predicted).^2 ) ./ <span class="keyword">...</span>
+1320       sum((measured - repmat(mean(measured), nBvecs,1)).^2 ) ));
+1321     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
+1322   
+1323   <span class="keyword">case</span> {<span class="string">'voxelr2zero'</span>,<span class="string">'r2voxzero'</span>,<span class="string">'voxr2zero'</span>,<span class="string">'r2byvoxelzero'</span>}
+1324     <span class="comment">% Return a column vector of the proportion of variance explained in</span>
+1325     <span class="comment">% each voxel. (Normalized to the squared diffusion signal in each voxel)</span>
+1326     <span class="comment">%</span>
+1327     <span class="comment">% R2byVox = feGet(fe,'voxr2zero');</span>
+1328     <span class="comment">% R2byVox = feGet(fe,'voxr2zero',coords);</span>
+1329     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dSig demeaned by voxel'</span>);
+1330     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig f vox'</span>);
+1331     val       = (1 - (sum((measured - predicted).^2 ) ./ sum(measured.^2)));
+1332     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
+1333    
+1334   <span class="keyword">case</span> {<span class="string">'voxelvarianceexplained'</span>,<span class="string">'varexpvox'</span>,<span class="string">'voxvarexp'</span>,<span class="string">'varexpbyvoxel'</span>}
+1335     <span class="comment">% Return the percent of varince explained in each voxel.</span>
+1336     <span class="comment">%</span>
+1337     <span class="comment">% R2byVox = feGet(fe,'var exp by voxel');</span>
+1338     <span class="comment">% R2byVox = feGet(fe,'var exp by voxel',coords);</span>
+1339     val = 100.*<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxr2'</span>);
+1340     val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
+1341     
+1342   <span class="keyword">case</span> {<span class="string">'voxelr2voxelwise'</span>,<span class="string">'r2voxvoxelwise'</span>,<span class="string">'voxr2voxelwise'</span>}
+1343     <span class="comment">% Return a column vector of the proportion of variance explained in</span>
+1344     <span class="comment">% each voxel.</span>
+1345     <span class="comment">%</span>
+1346     <span class="comment">% R2byVox = feGet(fe,'voxr2voxelwise');</span>
+1347     <span class="comment">% R2byVox = feGet(fe,'voxr2voxewise',coords);</span>
+1348     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dSig demeaned by voxel'</span>);
+1349     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psig f voxel wise by voxel'</span>);
+1350     nBvecs    = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1351     val       = (1 - (sum((measured - predicted).^2 ) ./ <span class="keyword">...</span>
+1352       sum((measured - repmat(mean(measured), nBvecs,1)).^2 ) ));
+1353     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
+1354   
+1355   <span class="keyword">case</span> {<span class="string">'voxelr2zerovoxelwise'</span>,<span class="string">'voxr2zerovoxelwise'</span>}
+1356     <span class="comment">% Return a column vector of the proportion of variance explained in</span>
+1357     <span class="comment">% each voxel. (Normalized to the squared diffusion signal in each voxel)</span>
+1358     <span class="comment">%</span>
+1359     <span class="comment">% R2byVox = feGet(fe,'voxr2zerovoxelwise');</span>
+1360     <span class="comment">% R2byVox = feGet(fe,'voxr2zerovoxelwise',coords);</span>
+1361     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dSig demeaned by voxel'</span>);
+1362     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'psig f voxel wise by voxel'</span>);
+1363     val       = (1 - (sum((measured - predicted).^2 ) ./ sum(measured.^2)));
+1364     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
+1365    
+1366   <span class="keyword">case</span> {<span class="string">'voxelvarianceexplainedvoxelwise'</span>,<span class="string">'varexpvoxvoxelwise'</span>}
+1367     <span class="comment">% Return the percent of varince explained in each voxel.</span>
+1368     <span class="comment">%</span>
+1369     <span class="comment">% R2byVox = feGet(fe,'var exp by voxel');</span>
+1370     <span class="comment">% R2byVox = feGet(fe,'var exp by voxel',coords);</span>
+1371     val = 100.*<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxr2voxelwise'</span>);
+1372     val = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
+1373     
+1374   <span class="keyword">case</span> {<span class="string">'dsigdemeanedbyvoxel'</span>,<span class="string">'dsigdemeanedvox'</span>}
+1375     <span class="comment">% Demeaned diffusion signal in each voxel</span>
+1376     <span class="comment">%</span>
+1377     <span class="comment">% dSigByVoxel = feGet(fe,'dsigdemeaned by Voxel');</span>
+1378     <span class="comment">% dSigByVoxel = feGet(fe,'dsigdemeaned by Voxel',coords);</span>
+1379     <span class="comment">% dSigByVoxel = feGet(fe,'dsigdemeaned by Voxel',vxIndex);</span>
+1380     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1381     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
+1382     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsigdemeaned'</span>), nBvecs, nVoxels);
+1383     val     = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
+1384     
+1385   <span class="keyword">case</span> {<span class="string">'dsigfullbyvoxel'</span>,<span class="string">'dsigfullvox'</span>,<span class="string">'voxdsigfull'</span>}
+1386     <span class="comment">% Full (measured) signal in each voxel</span>
+1387     <span class="comment">%</span>
+1388     <span class="comment">% dSigByVoxel = feGet(fe,'dSig full by Voxel');</span>
+1389     <span class="comment">% dSigByVoxel = feGet(fe,'dSig full by Voxel',coords);</span>
+1390     <span class="comment">% dSigByVoxel = feGet(fe,'dSig full by Voxel',vxIndex);</span>
+1391     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1392     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
+1393     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dSig full'</span>), nBvecs, nVoxels);
+1394     val    = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin))';
+1395     
+1396   <span class="keyword">case</span> {<span class="string">'voxelrmse'</span>,<span class="string">'voxrmse'</span>}
+1397     <span class="comment">% A volume of RMSE values</span>
+1398     <span class="comment">%</span>
+1399     <span class="comment">% RMSE = feGet(fe,'vox rmse')</span>
+1400     <span class="comment">% RMSE = feGet(fe,'vox rmse',coords)</span>
+1401     <span class="comment">% RMSE = feGet(fe,'vox rmse',vxIndex)</span>
+1402     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsigdemeaned by voxel'</span>);
+1403     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig f vox'</span>);
+1404     val       = sqrt(mean((measured - predicted).^2,1));
+1405     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin));
+1406    
+1407   <span class="keyword">case</span> {<span class="string">'voxelrmsevoxelwise'</span>,<span class="string">'voxrmsevoxelwise'</span>}
+1408     <span class="comment">% A volume of RMSE values optained with the voxel-wise (voxelwise) fit.</span>
+1409     <span class="comment">%</span>
+1410     <span class="comment">% RMSE = feGet(fe,'vox rmse voxelwise')</span>
+1411     <span class="comment">% RMSE = feGet(fe,'vox rmse voxelwise',coords)</span>
+1412     <span class="comment">% RMSE = feGet(fe,'vox rmse voxelwise',vxIndex)</span>
+1413     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsigdemeaned by voxel'</span>);
+1414     predicted = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig f voxel wise by voxel'</span>);
+1415    
+1416     val       = sqrt(mean((measured - predicted).^2,1));
+1417     val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin));
+1418 
+1419   <span class="keyword">case</span> {<span class="string">'voxelrmsetest'</span>,<span class="string">'voxrmsetest'</span>}
+1420     <span class="comment">% A volume of RMSE values with a subset of fibers' weights set to 0.</span>
+1421     <span class="comment">%</span>
+1422     <span class="comment">% RMSE = feGet(fe,'vox rmse',fiberIndices)</span>
+1423     <span class="comment">% RMSE = feGet(fe,'vox rmse',fiberIndices,coords)</span>
+1424     <span class="comment">% RMSE = feGet(fe,'vox rmse',fiberIndices,voxelIndex)</span>
+1425     measured  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'dsigdemeaned by voxel'</span>);
+1426     <span class="comment">% Reshape the predicted signal by voxles</span>
+1427     predicted = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'pSig fiber test'</span>,varargin{1}), <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>), <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nVoxels'</span>));   
+1428     val       = sqrt(mean((measured - predicted).^2,1));
+1429     
+1430     <span class="keyword">if</span> length(varargin) == 2
+1431       val       = val(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxelsindices'</span>,varargin));
+1432     <span class="keyword">end</span>
+1433     
+1434   <span class="keyword">case</span> {<span class="string">'residualsignalfibervoxel'</span>,<span class="string">'resfibervox'</span>}
+1435     <span class="comment">% Fibers' residual signal by voxel</span>
+1436     <span class="comment">%</span>
+1437     <span class="comment">% res = feGet(fe,'res sig fiber vox')</span>
+1438     <span class="comment">% res = feGet(fe,'res sig fiber vox',coords)</span>
+1439     <span class="comment">% res = feGet(fe,'res sig fiber vox',vxIndex)</span>
+1440     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1441     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
+1442     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'res sig fiber'</span>), nBvecs, nVoxels);
+1443     val     = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin))';
+1444     
+1445   <span class="keyword">case</span> {<span class="string">'residualsignalfullvoxel'</span>,<span class="string">'resfullvox'</span>}
+1446     <span class="comment">% Full (measured) residual signal by voxel</span>
+1447     <span class="comment">%</span>
+1448     <span class="comment">% res = feGet(fe,'res sig full vox')</span>
+1449     <span class="comment">% res = feGet(fe,'res sig full vox',coords)</span>
+1450     <span class="comment">% res = feGet(fe,'res sig full vox',vxIndex)</span>
+1451     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1452     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
+1453     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'res sig full'</span>), nBvecs, nVoxels);
+1454     val     = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin))';
+1455       
+1456   <span class="keyword">case</span> {<span class="string">'fiberressigwithmeanvoxel'</span>}
+1457     <span class="comment">% Residual signal fiber model prediction - demeaned measured signal</span>
+1458     <span class="comment">% with added mean signal. VOXEL FORM (nBvecs x nVoxel).</span>
+1459     <span class="comment">%</span>
+1460     <span class="comment">% This is used to reconstruct an image (volume) to be used for the</span>
+1461     <span class="comment">% refinement process.</span>
+1462     <span class="comment">%</span>
+1463     <span class="comment">% res = feGet(fe,'fiber res sig with mean');</span>
+1464     
+1465     <span class="comment">% predicted = feGet(fe,'psig fiber');</span>
+1466     <span class="comment">% measured  = feGet(fe,'dsigdemeaned');</span>
+1467     <span class="comment">% val = (measured     - predicted) + (measured_full - measured);</span>
+1468     val     = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiberressigwithmean'</span>);
+1469     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1470     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
+1471     val     = reshape(val, nBvecs, nVoxels);
+1472     
+1473     <span class="keyword">if</span> ~isempty(varargin)
+1474       <span class="comment">% voxelIndices     = feGet(fe,'voxelsindices',varargin);</span>
+1475       <span class="comment">% voxelRowsToKeep  = feGet(fe,'voxel rows',voxelIndices);</span>
+1476       <span class="comment">% val              = val(voxelRowsToKeep,:);</span>
+1477       val = val(:, <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin));
+1478     <span class="keyword">end</span>
+1479     
+1480   <span class="keyword">case</span> {<span class="string">'fiberressigwithmeanvox'</span>,<span class="string">'resfibermeanvox'</span>}
+1481     <span class="comment">% Fibers' residual signal by voxel with mean signal added (with added</span>
+1482     <span class="comment">% isotropic component).</span>
+1483     <span class="comment">%</span>
+1484     <span class="comment">% This is used to compute the residual signal for the refinement.</span>
+1485     <span class="comment">%</span>
+1486     <span class="comment">% res = feGet(fe,'fiber res sig with mean vox')</span>
+1487     <span class="comment">% res = feGet(fe,'fiber res sig with mean vox',coords)</span>
+1488     <span class="comment">% res = feGet(fe,'fiber res sig with mean vox',vxIndex)</span>
+1489     nBvecs  = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'nBvecs'</span>);
+1490     nVoxels = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>);
+1491     val     = reshape(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiber res sig with mean'</span>), nBvecs, nVoxels);
+1492     val     = val(:,<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'return voxel indices'</span>,varargin))';
+1493     
+1494   <span class="keyword">case</span> {<span class="string">'voxelsindices'</span>,<span class="string">'returnvoxelindices'</span>,<span class="string">'voxelindexes''returnvoxelindexes'</span>}
+1495     <span class="comment">% Given an VOI or a set of indices to voxels returns the indices of the matching voxels inside the big</span>
+1496     <span class="comment">% volume, which ordinarily represents the full connectome.</span>
+1497     <span class="comment">%</span>
+1498     <span class="comment">% voxelIndices = feGet(fe,'voxelsindices',coords)</span>
+1499     <span class="comment">% voxelIndices = feGet(fe,'voxelsindices',voxelIndices)</span>
+1500     <span class="comment">%                IMPORTANT: Indices MUST be a column vector for this</span>
+1501     <span class="comment">%                code to work.</span>
+1502     <span class="comment">%</span>
+1503     <span class="comment">% coords is a Nx3 set of coordinates in image space</span>
+1504     <span class="comment">% voxelIndices is a vector of 1's and 0's, there is a one for each</span>
+1505     <span class="comment">% location the the connectome coordinates for which there is a match in</span>
+1506     <span class="comment">% the coords</span>
+1507     <span class="comment">%</span>
+1508     varargin = varargin{1};
+1509     <span class="keyword">if</span> ( ~isempty(varargin) )
+1510       <span class="keyword">if</span> ( size(varargin{1},2) == 3 )
+1511         <span class="comment">% If a set of coordinates were passed in we return the indices.</span>
+1512         val = logical(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'find voxels'</span>,varargin{1}));
+1513       <span class="keyword">else</span>
+1514         <span class="comment">% If indices were passed in, we sort and return them.</span>
+1515         val = sort(varargin{1});
+1516       <span class="keyword">end</span>
+1517     <span class="keyword">else</span>
+1518       <span class="comment">% If no coordinates were passed at all, we return all the indices.</span>
+1519       val = true(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>),1);
+1520     <span class="keyword">end</span>
+1521     
+1522   <span class="keyword">case</span> {<span class="string">'findvoxels'</span>,<span class="string">'findvoxelindexes'</span>,<span class="string">'findvoxelsinconnectome'</span>,<span class="string">'findvoxelsinconnectomeroi'</span>, <span class="keyword">...</span>
+1523       <span class="string">'voxel2index'</span>,<span class="string">'coords2index'</span>}
+1524     <span class="comment">% Given an VOI finds the indices of the matching voxels inside the big</span>
+1525     <span class="comment">% volume, which ordinarily represents the full connectome.</span>
+1526     <span class="comment">%</span>
+1527     <span class="comment">% foundVoxels = feGet(fe,'find voxels',coords)</span>
+1528     <span class="comment">%</span>
+1529     <span class="comment">% coords is a Nx3 set of coordinates in image space</span>
+1530     <span class="comment">% foundVoxels is a vector of 1's and 0's, there is a one for each</span>
+1531     <span class="comment">% location the the connectome coordinates for which there is a match in</span>
+1532     <span class="comment">% the coords</span>
+1533     
+1534     <span class="comment">% Compute the values for a subset of voxels</span>
+1535     <span class="keyword">if</span> isempty(varargin)
+1536       <span class="comment">% If no coordinates were passed at all, we return all the indices.</span>
+1537       val = ones(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'n voxels'</span>),1);
+1538     <span class="keyword">else</span>
+1539       <span class="comment">% The stored coordinates are at a resolution of the image, typically</span>
+1540       <span class="comment">% 2mm isotropic.  The VOI should also be in image resolution.</span>
+1541       <span class="comment">% ---- Franco:</span>
+1542       <span class="comment">% This is how I had it. I think it is worng:</span>
+1543       <span class="comment">% val = ismember(feGet(fe,'roi coords'), varargin{1}, 'rows'); % This is slow</span>
+1544       <span class="comment">% This is hwo I think it should be:</span>
+1545       [~,val] = ismember(varargin{1}, <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'roi coords'</span>),<span class="string">'rows'</span>); <span class="comment">% This is slow</span>
+1546     <span class="keyword">end</span>
+1547     
+1548   <span class="keyword">case</span> {<span class="string">'voxelcoords2voxelrows'</span>,<span class="string">'coords2rows'</span>}
+1549     <span class="comment">% Given a set of VOI coords finds the row numbers of the Model matrix</span>
+1550     <span class="comment">% (or equivalently the dSig vector) that represent the data for this</span>
+1551     <span class="comment">% set of VOI coords.</span>
+1552     <span class="comment">%</span>
+1553     <span class="comment">% foundVoxels = feGet(fe,'coords 2 rows',coords)</span>
+1554     <span class="comment">%</span>
+1555     <span class="comment">% coords      - a Nx3 set of coordinates in image space</span>
+1556     <span class="comment">% foundVoxels - a binary vector that is 1 for each Model matrix row</span>
+1557     <span class="comment">%               that corresponds to at least one of the coords.</span>
+1558     val = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'voxel rows'</span>,find(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'find voxels'</span>,varargin{1})));
+1559     
+1560     <span class="comment">% ------ Spatial coordinate transforms for voxels and fg to coordinate frames</span>
+1561   <span class="keyword">case</span> {<span class="string">'xformimg2acpc'</span>,<span class="string">'xform2acpc'</span>,<span class="string">'img2acpc'</span>,<span class="string">'img2acpcxform'</span>}
+1562     <span class="comment">% Quaternian transformation from IMAGE space to ACPC space.</span>
+1563     <span class="comment">%</span>
+1564     <span class="comment">% xform = feGet(fe,'xform')</span>
+1565     val = fe.life.xform.img2acpc;
+1566   <span class="keyword">case</span> {<span class="string">'xformacpc2img'</span>,<span class="string">'xform2img'</span>,<span class="string">'acpc2img'</span>,<span class="string">'acpc2imgxform'</span>}
+1567     <span class="comment">% Quaternian transformation from ACPC space to IMAGE space.</span>
+1568     <span class="comment">%</span>
+1569     <span class="comment">% xform = feGet(fe,'xform')</span>
+1570     val = fe.life.xform.acpc2img;
+1571   <span class="keyword">case</span> {<span class="string">'volumesize'</span>,<span class="string">'dims'</span>,<span class="string">'dim'</span>,<span class="string">'imagedim'</span>}
+1572     <span class="comment">% Dimensions of the DW volume.</span>
+1573     <span class="comment">%</span>
+1574     <span class="comment">% dim = feGet(fe,'dims')</span>
+1575     val = fe.life.imagedim;
+1576   <span class="keyword">case</span> {<span class="string">'mapsize'</span>}
+1577     <span class="comment">% Dimensions of the maps of parameters and results.</span>
+1578     <span class="comment">%</span>
+1579     <span class="comment">% dims = feGet(fe, 'mapsize')</span>
+1580     val = fe.life.imagedim(1:3);
+1581     
+1582   <span class="keyword">case</span> {<span class="string">'anatomyfile'</span>}
+1583     <span class="comment">% Path to the 3D Anatomy Volume.</span>
+1584     <span class="comment">% anatomyfile = feGet(fe, 'anatomy file')</span>
+1585     val = fe.path.anatomy;
+1586   <span class="keyword">case</span> <span class="string">'dtfile'</span>
+1587     <span class="comment">% Diffusion weighted file used for testing results</span>
+1588     <span class="comment">% dtfile = feGet(fe,'dtfile')</span>
+1589      val = fe.path.dtfile;  
+1590 
+1591   <span class="keyword">otherwise</span>
+1592     help(<span class="string">'feGet'</span>)
+1593     fprintf(<span class="string">'[feGet] Unknown parameter &lt;&lt; %s &gt;&gt;...\n'</span>,param);
+1594     keyboard
+1595 <span class="keyword">end</span>
 1596 
-1597   <span class="keyword">otherwise</span>
-1598     help(<span class="string">'feGet'</span>)
-1599     fprintf(<span class="string">'[feGet] Unknown parameter &lt;&lt; %s &gt;&gt;...\n'</span>,param);
-1600     keyboard
-1601 <span class="keyword">end</span>
-1602 
-1603 <span class="keyword">end</span> <span class="comment">% END MAIN FUNCTION</span></pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 18:56:15 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+1597 <span class="keyword">end</span> <span class="comment">% END MAIN FUNCTION</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 19:44:25 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -48,7 +48,7 @@ This function calls:
 <li><a href="feConnectomeReduceFibers.html" class="code" title="function [fe, removedFibers] = feConnectomeReduceFibers(fe, fibersToKeep)">feConnectomeReduceFibers</a>	Deletes a set of fibers from the signal and the M matrix.</li><li><a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>	Get function for fascicle evaluation structure</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-</ul>
+<li><a href="feVirtualLesion.html" class="code" title="function [se, fig,  feLesion,  feNoLesion, newFascicleIndices, indicesFibersKept, commonCoords] =feVirtualLesion(feNoLesion, fascicleIndices, display, refitConnectome)">feVirtualLesion</a>	Perform a virtual lesion.</li></ul>
 <!-- crossreference -->
 
 
@@ -108,24 +108,18 @@ This function is called by:
 0052 <span class="comment">% Now that we have removed some voxels fom the model, we need to remove also</span>
 0053 <span class="comment">% the fibers that do not go through the coordinates left in the roi of the model.</span>
 0054 <span class="comment">% These fibers make no contribution to the signal in the voxels.</span>
-0055 <span class="comment">%</span>
-0056 <span class="comment">% Handling parallel processing</span>
-0057 poolwasopen=1; <span class="comment">% if a matlabpool was open already we do not open nor close one</span>
-0058 <span class="keyword">if</span> (matlabpool(<span class="string">'size'</span>) == 0), matlabpool open; poolwasopen=0; <span class="keyword">end</span>
-0059 <span class="comment">% Find the unique fibers in the new ROI.</span>
-0060 fibersToKeep = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'uniquefibersindicesinroi'</span>);
+0055 <span class="comment">% Find the unique fibers in the new ROI.</span>
+0056 fibersToKeep = <a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'uniquefibersindicesinroi'</span>);
+0057 
+0058 <span class="comment">% Find the indices of the fibers that were deleted</span>
+0059 indicesFibersKept = zeros(size(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiber weights'</span>)));
+0060 indicesFibersKept(fibersToKeep) = 1;
 0061 
-0062 <span class="comment">% Find the indices of the fibers that were deleted</span>
-0063 indicesFibersKept = zeros(size(<a href="feGet.html" class="code" title="function val = feGet(fe,param,varargin)">feGet</a>(fe,<span class="string">'fiber weights'</span>)));
-0064 indicesFibersKept(fibersToKeep) = 1;
+0062 <span class="comment">% Remove the fibers of the fascicle from the fe.</span>
+0063 fe = <a href="feConnectomeReduceFibers.html" class="code" title="function [fe, removedFibers] = feConnectomeReduceFibers(fe, fibersToKeep)">feConnectomeReduceFibers</a>(fe, fibersToKeep );
+0064 
 0065 
-0066 <span class="keyword">if</span> ~poolwasopen, matlabpool close; <span class="keyword">end</span>
-0067 
-0068 <span class="comment">% Remove the fibers of the fascicle from the fe.</span>
-0069 fe = <a href="feConnectomeReduceFibers.html" class="code" title="function [fe, removedFibers] = feConnectomeReduceFibers(fe, fibersToKeep)">feConnectomeReduceFibers</a>(fe, fibersToKeep );
-0070 
-0071 
-0072 <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 18:56:15 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0066 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Tue 01-Jul-2014 19:44:25 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
