@@ -1,41 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
-
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
     <title>LiFE by vistalab</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
   </head>
-
   <body>
-    <header>
-      <div class="inner">
-        <h1>LiFE</h1>
-        <h2>MatLab routines for evaluating white-matter connectomes generated using diffusion-weighted imaging.</h2>
-        <a href="https://github.com/vistalab/life" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/vistalab/life">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/vistalab/life/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/vistalab/life/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>LiFE</h1>
+          <p>Evaluation and statistical inference for living white-matter connectomes.</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/vistalab">vistalab</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
 <a name="linear-fascicle-evaluation-life" class="anchor" href="#linear-fascicle-evaluation-life"><span class="octicon octicon-link"></span></a>Linear Fascicle Evaluation (LiFE)</h1>
 
+<p>Standard tractography can use diffusion measurements from a living brain to generate a large collection of candidate white-matter fascicles; <a href="http://en.wikipedia.org/wiki/Connectome">the connectome</a>. Linear Fascicle Evaluation (LiFE) takes any connectome and uses a forward modeling approach to predict diffusion measurements in the same brain. LiFE predicts the measured diffusion signal using the orientation of the fascicles present in a connectome. LiFE uses the difference between the measured and predicted diffusion signals to measure prediction error. The connectome model prediction error is used to compute two metrics to evaluate the evidence supporting properties of the connectome. One metric -<a href="http://en.wikipedia.org/wiki/Effect_size">the strength of evidence </a>- compares the mean prediction error between alternative hypotheses. The second metric - <a href="http://en.wikipedia.org/wiki/Earth_mover's_distance">the earth movers distance</a> - compares full distributions of prediction error. 
+These metrics can be used for:
+1. Comparing tractography algorithms
+2. Evaluating the quality of tractography solutions for individual brains or group of brains and
+3. Testing hypotheses about white-matter tracts and connections.</p>
+
 <h3>
-<a name="large-scale-evaluation-and-statistical-inference-method-for-white-matter-connectomes" class="anchor" href="#large-scale-evaluation-and-statistical-inference-method-for-white-matter-connectomes"><span class="octicon octicon-link"></span></a>Large-scale evaluation and statistical inference method for white-matter connectomes.</h3>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h3>
 
 <h4>
-<a name="copyright-2013-2014------franco-pestilli------pestillifrancogmailcom" class="anchor" href="#copyright-2013-2014------franco-pestilli------pestillifrancogmailcom"><span class="octicon octicon-link"></span></a>Copyright 2013-2014   |   <a href="http://www.francopestilli.com">Franco Pestilli</a>   |   <a href="mailto:pestillifranco@gmail.com">pestillifranco@gmail.com</a>
+<a name="copyright-2013-2014---franco-pestilli---pestillifrancogmailcom" class="anchor" href="#copyright-2013-2014---franco-pestilli---pestillifrancogmailcom"><span class="octicon octicon-link"></span></a>Copyright (2013-2014),   <a href="http://www.francopestilli.com">Franco Pestilli</a>,   <a href="mailto:pestillifranco@gmail.com">pestillifranco@gmail.com</a>
 </h4>
 
 <h3>
@@ -65,15 +81,14 @@
 <a href="http://www.mathworks.com/help/matlab/startup-and-shutdown.html">Start MatLab</a>.</li>
 <li>Add LiFE and vistasoft to the <a href="http://www.mathworks.com/help/matlab/ref/addpath.html">matlab search path</a>.</li>
 </ol><h3>
-<a name="documentation-demos-and-examples" class="anchor" href="#documentation-demos-and-examples"><span class="octicon octicon-link"></span></a>Documentation, demos and Examples.</h3>
+<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation.</h3>
 
-<p>
-Full documentation of the functions is available <a href="./doc/index.html">here</a>
+<p><a href="http://vistalab.github.io/life/doc/">http://vistalab.github.io/life/doc/</a></p>
 
-<p>
-Example scripts to get started can be found in the <a
-href="https://github.com/vistalab/life/tree/master/Pestilli_etal_manuscript">
-Pestilli_etal_manuscript</a> directory.
+<h3>
+<a name="demo" class="anchor" href="#demo"><span class="octicon octicon-link"></span></a>Demo.</h3>
+
+<p>life/Pestilli_etal_manuscript/</p>
 
 <h3>
 <a name="stable-code-release" class="anchor" href="#stable-code-release"><span class="octicon octicon-link"></span></a><a href="https://github.com/vistalab/life/releases/tag/v0.1.1">Stable code release</a>
@@ -83,25 +98,10 @@ Pestilli_etal_manuscript</a> directory.
 <a name="how-to-cite-life" class="anchor" href="#how-to-cite-life"><span class="octicon octicon-link"></span></a>How to cite LiFE</h3>
 
 <p>If you use this software please cite: Pestilli F., Yeatman J.D., Rokem A., Kay K.N., Wandell B.A. Linear fascicle evaluation (LIFE) of white matter connectomes. Poster presentation at the Organization for Human Brain Mapping Annual Meeting, Seattle, WA, June 2013.</p>
-        </section>
+      </section>
 
-        <aside id="sidebar">
-          <a href="https://github.com/vistalab/life/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/vistalab/life/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/vistalab/life"></a> is maintained by <a href="https://github.com/vistalab">vistalab</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
     </div>
-
-  
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
   </body>
 </html>
