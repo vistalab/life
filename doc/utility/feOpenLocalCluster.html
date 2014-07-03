@@ -58,26 +58,32 @@ This function is called by:
 0009 <span class="comment">% Initialize a local matlab cluster to speed up some of the processes.</span>
 0010 <span class="keyword">if</span> exist(<span class="string">'matlabpool'</span>,<span class="string">'file'</span>)
 0011    <span class="keyword">try</span> 
-0012      <span class="keyword">if</span> (matlabpool(<span class="string">'size'</span>) == 0), 
-0013         <span class="keyword">if</span> exist(<span class="string">'parcluster'</span>,<span class="string">'file'</span>)
+0012      <span class="keyword">if</span> (matlabpool(<span class="string">'size'</span>) == 0)
+0013         <span class="keyword">if</span> (exist(<span class="string">'parcluster'</span>,<span class="string">'file'</span>) == 2)
 0014            c = parcluster;
 0015            c.NumWorkers = 12;
-0016         <span class="keyword">else</span>
-0017            matlabpool open;     
-0018         <span class="keyword">end</span>
-0019      <span class="keyword">else</span>
-0020         disp(<span class="string">'[feOpenLocalCluster] Found Matlab parallel cluster open, not intializing.'</span>)
-0021      <span class="keyword">end</span>
-0022    <span class="keyword">catch</span>
-0023      disp(<span class="string">'[feOpenLocalCluster] Cannot find the Matlab parallel toolbox, not intializing a cluster.'</span>)
-0024      disp(<span class="string">'[feOpenLocalCluster] Many computations will be substantially slower, without the parallel toolbox.'</span>)
-0025    <span class="keyword">end</span>
-0026 <span class="keyword">else</span>
-0027       disp(<span class="string">'[feOpenLocalCluster] Cannot find the Matlab parallel toolbox, not intializing a cluster.'</span>)
-0028       disp(<span class="string">'[feOpenLocalCluster] Many computations will be substantially slower, without the parallel toolbox.'</span>)
-0029 <span class="keyword">end</span>
-0030 
-0031 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Tue 01-Jul-2014 19:52:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0016            t = tempname;
+0017            OK = mkdir(t);
+0018            <span class="keyword">if</span> OK
+0019               c.JobStorageLocation = t;
+0020            <span class="keyword">end</span>
+0021            matlabpool(c);
+0022         <span class="keyword">else</span>
+0023            matlabpool open;     
+0024         <span class="keyword">end</span>
+0025      <span class="keyword">else</span>
+0026         <span class="comment">% disp('[feOpenLocalCluster] Found Matlab parallel cluster open, not intializing.')</span>
+0027      <span class="keyword">end</span>
+0028    <span class="keyword">catch</span> ME
+0029      fprintf(<span class="string">'\n[feOpenLocalCluster] Problem intializing the cluster: \n\n %s.\n'</span>, ME.message)
+0030      disp(<span class="string">'[feOpenLocalCluster] Many computations will be substantially slower, without the parallel toolbox.'</span>)
+0031    <span class="keyword">end</span>
+0032 <span class="keyword">else</span>
+0033       disp(<span class="string">'[feOpenLocalCluster] Cannot find the Matlab parallel toolbox, not intializing a cluster.'</span>)
+0034       disp(<span class="string">'[feOpenLocalCluster] Many computations will be substantially slower, without the parallel toolbox.'</span>)
+0035 <span class="keyword">end</span>
+0036 
+0037 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Wed 02-Jul-2014 17:17:39 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
